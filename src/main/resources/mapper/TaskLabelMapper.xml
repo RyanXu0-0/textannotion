@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.annotation.dao.TaskLabelMapper">
+
+    <!--BaseResultMap-->
+    <resultMap id="BaseResultMap" type="com.annotation.model.TaskLabel">
+        <result column="task_id" jdbcType="INTEGER" property="taskId" />
+        <result column="label_id" jdbcType="INTEGER" property="labelId" />
+        <result column="color" jdbcType="VARCHAR" property="color" />
+    </resultMap>
+
+    <!--插入task-label关系表-->
+    <insert id="insert" parameterType="com.annotation.model.TaskLabel" >
+    insert into task_label (task_id, label_id, color)
+    values (#{taskId,jdbcType=INTEGER}, #{labelId,jdbcType=INTEGER}, #{color,jdbcType=VARCHAR})
+    </insert>
+
+
+
+    <!--<select id="selectLabelsByTaskid" parameterType="Integer" resultMap="BaseResultMap" >-->
+        <!--select taskid, labelid,color from task_label WHERE taskid=#{tid}-->
+    <!--</select>-->
+
+
+    <delete id="deleteByTid" parameterType="java.lang.Integer" >
+        delete from task_label
+        where task_id = #{tid,jdbcType=INTEGER}
+    </delete>
+
+</mapper>

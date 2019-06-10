@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>layui</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/plugins/layui/css/layui.css" media="all">
+    <!-- 注意：如果你直接复制所有代码到本地，上述css路径需要改成你本地的 -->
+</head>
+<body>
+
+<!--<blockquote class="layui-elem-quote layui-text">-->
+
+
+
+<!--</blockquote>-->
+
+<div class="layui-collapse" lay-filter="test">
+    <div class="layui-colla-item">
+        <h2 class="layui-colla-title">根据条件搜索</h2>
+        <div class="layui-colla-content">
+            <div class="layui-row">
+                <div>
+                    <div class="layui-col-md1">
+                        <label class="layui-form-label">任务名:</label>
+                    </div>
+                    <div class="layui-col-md1">
+                        <input type="text" class="layui-input" id="taskname">
+                    </div>
+                    <div class="layui-col-md1">
+                        <label class="layui-form-label">状态:</label>
+                    </div>
+                    <div class="layui-col-md1">
+                        <input type="text" class="layui-input" id="taskstatus">
+                    </div>
+                    <div class="layui-col-md1">
+                        <label class="layui-form-label">类型:</label>
+                    </div>
+                    <div class="layui-col-md1">
+                        <input type="text" class="layui-input" id="tasktype">
+                    </div>
+                    <div class="layui-col-md1">
+
+                    </div>
+                    <!--<div class="layui-col-md1">-->
+                    <!--<input type="text" class="layui-input" id="">-->
+                    <!--</div>-->
+                    <div class="layui-col-md1">
+                        .<input  type="button" class="layui-btn layui-btn-normal" id="sub-searchinfo" value="搜索">
+                    </div>
+                    <div class="layui-col-md3">
+                        .
+                    </div>
+                </div>
+                <div class="layui-col-md1">
+                    <img src="/images/addSmall.png" id="ttt"/>
+
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<table class="layui-hide" id="test" lay-filter="test"></table>
+
+<script src="/plugins/layui/layui.js" charset="utf-8"></script>
+<!--<script src="js/jquery-2.1.4.min.js"></script>-->
+
+
+<script>
+
+
+    var loc = location.href;console.log("loc===="+loc);
+
+    var index = loc.indexOf('?');
+    var str = loc.substring(index + 1);console.log(str);
+
+    var arr = str.split('&');console.log(arr);
+    var taskidArr=arr[0].split("=");
+    var taskId = taskidArr[1];console.log(taskId);
+    var taskTypr=arr[1].split("=");
+    var taskTyp = taskTypr[1];console.log(taskTyp);
+
+    //console.log(taskId);
+
+    layui.use('table', function(){
+        var table = layui.table;
+        table.render({
+            elem: '#test',
+            url: '/dtask/detail?taskId='+taskId,
+            toolbar: true,
+            title: '用户文件表',
+            totalRow: true,
+            cols: [[
+                {field: 'dataindex',  title: '序号',fixed: 'left',type:'numbers'},
+                {field: 'doUserName', title: '参与用户', edit: 'text'},
+                {field: 'typeName', title: '任务类型', edit: 'text',sort: true},
+                {field: 'dstatus', title: '任务状态', edit: 'text',sort: true},
+                {field: 'dpercent', title: '完成进度', edit: 'text'},
+                {field: 'dotime', title: '参与时间', edit: 'text'},
+                {field: 'option', title: '操作',width:200 ,align:'center',toolbar:'#optionDemo'}
+            ]]
+            , page: true
+            , response: {
+                statusName: 'code' //数据状态的字段名称，默认：code
+                , statusCode: 0 //成功的状态码，默认：0 todo:重中之重
+                , msgName: 'msg' //状态信息的字段名称，默认：msg
+                , countName: 'count' //数据总数的字段名称，默认：count
+                , dataName: 'data' //数据列表的字段名称，默认：data
+            }
+        });
+        table.on('tool(test)', function(obj){
+            var data = obj.data;
+            //console.log(data);
+            if(obj.event === 'detailcontent'){
+                //layer.msg('ID：'+ data.id + ' 的查看操作');
+                //console.log(data.tid);
+                layui.use(['jquery', 'layer'], function(){
+                    var $ = layui.$ //重点处
+                        ,layer = layui.layer;
+
+                    var taskid=data.taskId;
+                    var userId=data.userId;
+
+                    var taskType=data.typeName;
+
+                    var url="";
+
+//                    if(taskType=="文本分类"){
+//
+//                    }else if(taskType=="信息抽取"){
+//                        url ="./my_myPub_Extraction.html?taskid="+taskid+"&userId="+userId;
+//
+//                        parent.layui.element.tabAdd('home-tabs', {//从父页面添加tab选项卡，如果不指定id，选项卡id会自增
+//
+//                            title: '<img src="../../../../images/xinxichouquTab.png"> '+taskType //用于演示
+//                            ,content: '<iframe data-frameid="'+taskid+'" scrolling="auto" frameborder="0" src="'+url+'" style="width:100%;height:745px;"></iframe>'
+//                            ,id: taskid+"具体内容"
+//                        });
+//
+//                        parent.layui.element.tabChange('home-tabs', taskid+"具体内容");
+//                    }else if(taskType=="文本关系类别标注"){
+//                        url="./my_myPub_Relation.html?taskid="+taskid+"&userId="+userId;
+//
+//                        parent.layui.element.tabAdd('home-tabs', {//从父页面添加tab选项卡，如果不指定id，选项卡id会自增
+//
+//                            title: '<img src="../../../../images/wenbenguanxiTab.png"> 文本关系' //用于演示
+//                            ,content: '<iframe data-frameid="'+taskid+'" scrolling="auto" frameborder="0" src="'+url+'" style="width:100%;height:745px;"></iframe>'
+//                            ,id: taskid+"具体内容"
+//                        });
+//
+//                        parent.layui.element.tabChange('home-tabs', taskid+"具体内容");
+//                    }else if(taskType.indexOf("文本配对标注")!=-1){
+//
+//                        url="./my_myPub_Pairing.html?taskid="+taskid+"&userId="+userId;
+//
+//                        var title="";
+//                        if(taskType=="文本配对标注#一对一"){
+//                            title='<img src="../../../../images/yiduiyiTab.png"> 一对一配对';
+//                        }else if(taskType=="文本配对标注#一对多"){
+//                            title='<img src="../../../../images/yiduiduoTab.png"> 一对多配对';
+//                        }else if(taskType=="文本配对标注#多对多"){
+//                            title='<img src="../../../../images/duoduiduoTab.png"> 多对多配对';
+//                        }
+//
+//                        parent.layui.element.tabAdd('home-tabs', {//从父页面添加tab选项卡，如果不指定id，选项卡id会自增
+//
+//                            title: title //用于演示
+//                            ,content: '<iframe data-frameid="'+taskid+'" scrolling="auto" frameborder="0" src="'+url+'" style="width:100%;height:745px;"></iframe>'
+//                            ,id: taskid+"具体内容"
+//                        });
+//
+//                        parent.layui.element.tabChange('home-tabs', taskid+"具体内容");
+//                    }else if(taskType=="文本排序"){
+//                        url="my_myPub_OneSorting.html?taskid="+taskid+"&userId="+userId;
+//
+//                        parent.layui.element.tabAdd('home-tabs', {//从父页面添加tab选项卡，如果不指定id，选项卡id会自增
+//
+//                            title: '<img src="../../../../images/sorting1.png"> 文本排序' //用于演示
+//                            ,content: '<iframe data-frameid="'+taskid+'" scrolling="auto" frameborder="0" src="'+url+'" style="width:100%;height:745px;"></iframe>'
+//                            ,id: taskid+"具体内容"
+//                        });
+//
+//                        parent.layui.element.tabChange('home-tabs', taskid+"具体内容");
+//                    }else if(taskType=="文本类比排序"){
+//                        url="my_myPub_TwoSorting.html?taskid="+taskid+"&userId="+userId;
+//
+//                        parent.layui.element.tabAdd('home-tabs', {//从父页面添加tab选项卡，如果不指定id，选项卡id会自增
+//
+//                            title: '<img src="../../../../images/sorting2.png"> 文本类比排序' //用于演示
+//                            ,content: '<iframe data-frameid="'+taskid+'" scrolling="auto" frameborder="0" src="'+url+'" style="width:100%;height:745px;"></iframe>'
+//                            ,id: taskid+"具体内容"
+//                        });
+//
+//                        parent.layui.element.tabChange('home-tabs', taskid+"具体内容");
+//                    }
+//                    console.log(url);
+//
+
+
+                    if(taskType.indexOf("信息抽取")!=-1){
+                        alert("该功能还未开发");
+                    }else if(taskType.indexOf("文本分类")!=-1){
+
+                        //todo:有问题吧
+                        url = "/html/myTask/myPub/my_myPub_Classification.html?taskid="+taskid+"&userId="+userId;
+                        parent.layui.element.tabAdd('home-tabs', {//从父页面添加tab选项卡，如果不指定id，选项卡id会自增
+
+                            title: '<img src="/images/fenleiTab.png"> '+taskType //用于演示
+                            ,content: '<iframe data-frameid="'+taskid+'" scrolling="auto" frameborder="0" src="'+url+'" style="width:100%;height:745px;"></iframe>'
+                            ,id: taskid+"具体内容"
+                        });
+
+                        parent.layui.element.tabChange('home-tabs', taskid+"具体内容");
+
+                    }else if(taskType.indexOf("文本关系")!=-1){
+                        alert("该功能还未开发");
+                    }else if(taskType.indexOf("文本配对")!=-1){
+                        alert("该功能还未开发");
+                    }else if(taskType.indexOf("文本排序")!=-1){
+                        alert("该功能还未开发");
+                    }else if(taskType.indexOf("类比排序")!=-1){
+                        alert("该功能还未开发");
+                    }
+                });
+
+            }
+        });
+    });
+</script>
+<script type="text/html" id="optionDemo">
+    <!--{{d.LAY_TABLE_INDEX+1}}-->
+    <!--<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="deletebtn">删除</a>-->
+    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="detailcontent">进入点赞</a>
+</script>
+
+<script>
+    layui.use(['element', 'layer'], function(){
+        var element = layui.element;
+        var layer = layui.layer;
+
+        //监听折叠
+        element.on('collapse(test)', function(data){
+            layer.msg('展开状态：'+ data.show);
+        });
+    });
+</script>
+</body>
+</html>

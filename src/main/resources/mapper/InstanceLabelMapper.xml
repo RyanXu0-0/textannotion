@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.annotation.dao.InstanceLabelMapper">
+
+
+    <!--BaseResultMap-->
+    <resultMap id="BaseResultMap" type="com.annotation.model.InstanceLabel" >
+        <result column="task_id" property="taskId" jdbcType="INTEGER" />
+        <result column="labeltype" property="labeltype" jdbcType="VARCHAR" />
+        <result column="label_id" property="labelId" jdbcType="INTEGER" />
+    </resultMap>
+
+    <!--插入-->
+    <insert id="insert" parameterType="com.annotation.model.InstanceLabel" >
+        insert into instance_label (task_id, labeltype, label_id
+        )
+        values (#{taskId,jdbcType=INTEGER}, #{labeltype,jdbcType=VARCHAR}, #{labelId,jdbcType=INTEGER}
+        )
+    </insert>
+
+
+    <select id="selectInstanceLabelByDocId" parameterType="Integer" resultType="com.annotation.model.Label">
+        SELECT l.lid,l.labelname FROM label l,instance_label tl,task_document td
+        WHERE td.document_id=#{docId} AND td.task_id=tl.task_id AND l.lid=tl.label_id AND tl.labeltype="instance"
+    </select>
+
+    <select id="selectItem1LabelByDocId" parameterType="Integer" resultType="com.annotation.model.Label">
+        SELECT l.lid,l.labelname FROM label l,instance_label tl,task_document td
+        WHERE td.document_id=#{docId} AND td.task_id=tl.task_id AND l.lid=tl.label_id AND tl.labeltype="item1"
+    </select>
+
+    <select id="selectItem2LabelByDocId" parameterType="Integer" resultType="com.annotation.model.Label">
+        SELECT l.lid,l.labelname FROM label l,instance_label tl,task_document td
+        WHERE td.document_id=#{docId} AND td.task_id=tl.task_id AND l.lid=tl.label_id AND tl.labeltype="item2"
+    </select>
+
+
+    <delete id="deleteByTid" parameterType="java.lang.Integer" >
+        delete from instance_label
+        where task_id = #{tid,jdbcType=INTEGER}
+    </delete>
+
+</mapper>

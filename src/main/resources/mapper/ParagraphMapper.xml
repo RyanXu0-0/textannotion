@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.annotation.dao.ParagraphMapper" >
+
+  <!--BaseResultMap-->
+  <resultMap id="BaseResultMap" type="com.annotation.model.Paragraph" >
+    <id column="pid" property="pid" jdbcType="INTEGER" />
+    <result column="paracontent" property="paracontent" jdbcType="VARCHAR" />
+    <result column="paraindex" property="paraindex" jdbcType="INTEGER" />
+    <result column="document_id" property="documentId" jdbcType="INTEGER" />
+  </resultMap>
+
+  <!--插入paragraph-->
+  <insert id="insert" useGeneratedKeys="true" keyProperty="pid" parameterType="com.annotation.model.Paragraph" >
+    insert into paragraph (paracontent, paraindex, document_id)
+    values ( #{paracontent,jdbcType=VARCHAR}, #{paraindex,jdbcType=INTEGER},
+    #{documentId,jdbcType=INTEGER})
+  </insert>
+
+  <!--设置数据库自增长为1-->
+  <update id="alterParagraphTable">
+    ALTER TABLE paragraph AUTO_INCREMENT =1
+  </update>
+
+    <!--根据文件ID查询所有的paragraph-->
+    <select id="selectParaByDocId" parameterType="Integer" resultType="Integer">
+        select pid from paragraph where document_id = #{docId} ORDER BY pid
+    </select>
+
+
+
+  <delete id="deleteByDocId" parameterType="java.lang.Integer" >
+    delete from paragraph
+    where document_id = #{docId}
+  </delete>
+
+
+  <select id="countTotalPart" parameterType="Integer" resultType="Integer">
+    select count(p.pid) from paragraph p,task_document td
+    where td.task_id=#{tid} AND p.document_id =td.document_id
+  </select>
+
+
+  <select id="countParaNum" parameterType="Integer" resultType="Integer">
+    select count(*) from paragraph where document_id=#{docId}
+  </select>
+
+
+    <!--根据pid查询docId-->
+    <select id="selectDocIdByPid" parameterType="Integer" resultType="Integer" >
+        select document_id from paragraph where pid = #{pid} ORDER BY pid
+    </select>
+
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from paragraph
+    where pid = #{pid,jdbcType=INTEGER}
+  </delete>
+
+  <update id="updateByPrimaryKey" parameterType="com.annotation.model.Paragraph" >
+    update paragraph
+    set paracontent = #{paracontent,jdbcType=VARCHAR},
+      paraindex = #{paraindex,jdbcType=INTEGER},
+      document_id = #{documentId,jdbcType=INTEGER}
+    where pid = #{pid,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select pid, paracontent, paraindex, document_id
+    from paragraph
+    where pid = #{pid,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select pid, paracontent, paraindex, document_id
+    from paragraph
+  </select>
+
+  <select id="selectContentByDocId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select  p.pid, p.paracontent, p.paraindex, p.document_id from paragraph p
+    where p.document_id = #{docId,jdbcType=INTEGER}
+  </select>
+
+
+</mapper>

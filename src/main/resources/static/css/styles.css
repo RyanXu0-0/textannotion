@@ -1,0 +1,181 @@
+*{
+	margin:0;
+	padding:0;
+	box-sizing: border-box;
+}
+
+html{
+	text-align: center;
+	background-color:#EFEFEF;
+
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.wrapper{
+	width: 100vw;
+	/*min-height: 100vh;*/
+	overflow-x: hidden;
+}
+
+.app {
+	width: 300vw;
+
+	transition: 0.4s;
+}
+
+
+
+html.stopwatch-mode .app{
+	transform: translate(-100vw);
+	-webkit-transform: translate(-100vw);
+}
+
+
+
+.container {
+	position: relative;
+	float: left;
+	width: 100vw;
+	max-width: none; /* canceling auto styles from materialize.css */
+}
+
+form{
+	width: 100%;
+	height: 85px;
+	padding: 10px;
+	margin: 50px auto;
+	color: #0277BD;
+	border-radius: 2px;
+
+}
+
+form a{
+	margin: 0 5px;
+}
+
+
+.checkbox{
+	padding-left: 20px;
+}
+
+.clock {
+	position: relative;
+	height: 300px;
+	max-width: 700px;
+	width: 100%;
+	display: block;
+	margin: 50px auto;
+
+	font-size: 150px;
+	color: #0277BD;
+	text-align: center;
+	line-height: 300px;
+
+	background-color: #fff;
+	border-radius: 2px;
+
+	transition: all 0.4s ease-in, box-shadow 0.2s;
+}
+
+.clock.inactive {
+	color: #9e9e9e;
+}
+
+.clock .overlay{
+	position: absolute;
+	top:0;
+	left:0;
+	width: 100%;
+	height: 100%;
+}
+
+.switch label .lever:after{
+	background-color:#fff;
+}
+
+
+
+
+.stopwatch form {
+	padding: 0;
+	line-height: 49px;
+}
+
+.stopwatch form a{
+	color: #0059bc;
+	margin-bottom: 0;
+}
+
+.stopwatch .clock{
+	max-width: 800px;
+}
+
+
+
+
+
+
+/*-----------------------
+	Responsiveness
+-----------------------*/
+
+@media (max-width: 800px){
+
+	.switch-clocks a{
+		padding: 20px;
+	}
+
+	form{
+		height: auto;
+		padding: 10px;
+		margin: 10px auto;
+	}
+
+	.checkbox{
+		padding-left: 0;
+		display: none;
+	}
+
+	.clock{
+		font-size: 60px;
+		height: 180px;
+		line-height: 180px;
+		margin-top:20px;
+	}
+
+	.stopwatch form a{
+		padding: 0 1rem;
+	}
+
+	.modal{
+		width: 80%;
+	}
+
+}
+
+/*开始服务的样式*/
+#stopwatch-btn-start{
+	background :#3bb4f2;
+	display: block;
+	width: 88%;
+	height: 4rem;
+	margin-bottom: 2rem;
+	border-radius:2rem;
+	color:#FFFFFF;
+	margin:0   2rem;
+}
+
+/*#stopwatch-btn-pause{
+	background :#3bb4f2;
+		display: block;
+		width: 97%;
+			height: 4rem;
+			border-radius:2rem;
+}
+*/
+
+
+
+

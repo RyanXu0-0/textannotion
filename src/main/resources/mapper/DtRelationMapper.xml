@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.annotation.dao.DtRelationMapper" >
+
+  <resultMap id="BaseResultMap" type="com.annotation.model.DtRelation" >
+    <id column="dtd_id" property="dtdId" jdbcType="INTEGER" />
+    <result column="dt_id" property="dtId" jdbcType="INTEGER" />
+    <result column="labeltype" property="labeltype" jdbcType="VARCHAR" />
+    <result column="label_id" property="labelId" jdbcType="INTEGER" />
+  </resultMap>
+
+
+  <resultMap id="InstanceItemByDocId" type="com.annotation.model.entity.InstanceItemEntity">
+      <id column="instid" jdbcType="INTEGER" property="instid" />
+      <result column="instindex" jdbcType="INTEGER" property="instindex" />
+      <result column="document_id" jdbcType="INTEGER" property="documentId" />
+      <result column="labelnum" jdbcType="INTEGER" property="labelnum" />
+      <result column="dotime" property="dotime" jdbcType="VARCHAR" />
+      <result column="comptime" property="comptime" jdbcType="VARCHAR" />
+      <result column="dtstatus" property="dtstatus" jdbcType="VARCHAR" />
+      <collection property="itemList" ofType="com.annotation.model.Item">
+          <id column="itid" jdbcType="INTEGER" property="itid" />
+          <result column="itemcontent" jdbcType="VARCHAR" property="itemcontent" />
+          <result column="itemindex" jdbcType="INTEGER" property="itemindex" />
+          <result column="instance_id" jdbcType="INTEGER" property="instanceId" />
+          <result column="labelnum" jdbcType="INTEGER" property="labelnum" />
+      </collection>
+      <collection property="alreadyDone" ofType="Map">
+          <result column="labeltype" property="labeltype" jdbcType="VARCHAR" />
+          <result column="label_id" property="labelId" jdbcType="INTEGER" />
+      </collection>
+  </resultMap>
+
+
+    <select id="selectRelation" parameterType="Integer" resultMap="InstanceItemByDocId">
+        select s.instid, s.instindex, s.document_id, s.labelnum,
+        it.itid, it.itemcontent, it.itemindex, it.instance_id, it.labelnum itemlabelnum
+        from instance s
+        left join item it on s.instid=it.instance_id
+        where s.document_id=#{docId}
+        ORDER BY s.instid
+    </select>
+
+
+  <select id="selectRelationInstanceItem" parameterType="Integer" resultMap="InstanceItemByDocId">
+    select s.instid, s.instindex, s.document_id, s.labelnum,
+    it.itid, it.itemcontent, it.itemindex, it.instance_id, it.labelnum itemlabelnum,
+    di.dotime,di.comptime,di.dtstatus,
+    dtr.labeltype, dtr.label_id
+    from instance s
+    left join item it on s.instid=it.instance_id
+    left join task_document td on s.document_id =td.document_id
+    left join d_task dt on dt.task_id=td.task_id
+    left join d_instance di on (di.dtask_id=#{dTaskId} and s.instid=di.instance_id)
+    left join dt_relation dtr on dtr.dt_id =di.dtid
+     where s.document_id=#{docId}
+    ORDER BY s.instid
+  </select>
+
+    <select id="selectRelationWithStatus" parameterType="Map" resultMap="InstanceItemByDocId">
+        select s.instid, s.instindex, s.document_id, s.labelnum,
+        it.itid, it.itemcontent, it.itemindex, it.instance_id, it.labelnum itemlabelnum,
+        di.dotime,di.comptime,di.dtstatus,
+        dtr.labeltype, dtr.label_id
+        from instance s
+        left join item it on s.instid=it.instance_id
+        left join d_instance di on (di.dtask_id=#{dTaskId} and s.instid=di.instance_id)
+        left join dt_relation dtr on dtr.dt_id =di.dtid
+        where s.document_id=#{docId} and (di.dtstatus =#{status} or di.dtstatus is null)
+        ORDER BY s.instid
+    </select>
+
+  <insert id="insert" useGeneratedKeys="true" keyProperty="dtd_id" parameterType="com.annotation.model.DtRelation" >
+    insert into dt_relation (dtd_id, dt_id, labeltype,
+    label_id)
+    values (#{dtdId,jdbcType=INTEGER}, #{dtId,jdbcType=INTEGER}, #{labeltype,jdbcType=VARCHAR},
+    #{labelId,jdbcType=INTEGER})
+  </insert>
+
+  <!--设置自增-->
+  <update id="alterDtRelationTable">
+    ALTER TABLE dt_relation AUTO_INCREMENT =1
+  </update>
+
+
+  <insert id="insertLabelList" useGeneratedKeys="true" keyProperty="dtd_id">
+    insert into dt_relation (dt_id,labeltype,label_id) values
+    <foreach collection="itemLabels" index="index" item="item" separator=",">
+      ( #{dt_id},#{labeltype},#{item} )
+    </foreach>
+    ON DUPLICATE KEY UPDATE labeltype = values(labeltype)
+  </insert>
+
+
+    <delete id="deleteByDtId" parameterType="java.lang.Integer" >
+        delete from dt_relation
+        where dt_id = #{dtId}
+    </delete>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from dt_relation
+    where dtd_id = #{dtdId,jdbcType=INTEGER}
+  </delete>
+
+  <update id="updateByPrimaryKey" parameterType="com.annotation.model.DtRelation" >
+    update dt_relation
+    set dt_id = #{dtId,jdbcType=INTEGER},
+      labeltype = #{labeltype,jdbcType=VARCHAR},
+      label_id = #{labelId,jdbcType=INTEGER}
+    where dtd_id = #{dtdId,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select dtd_id, dt_id, labeltype, label_id
+    from dt_relation
+    where dtd_id = #{dtdId,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select dtd_id, dt_id, labeltype, label_id
+    from dt_relation
+  </select>
+
+    <resultMap id="relationDataOut" type="com.annotation.model.entity.RelationData">
+        <result column="docName" property="docName" jdbcType="VARCHAR"/>
+        <result column="labelType" property="labelType" jdbcType="VARCHAR"/>
+        <result column="instanceIndex" property="instanceIndex" jdbcType="INTEGER"/>
+        <result column="itemIndex" property="itemIndex" jdbcType="INTEGER"/>
+        <result column="itemContent" property="itemContent" jdbcType="VARCHAR"/>
+        <result column="labelName" property="labelName" jdbcType="VARCHAR"/>
+        <result column="labelNum" property="labelNum" jdbcType="INTEGER"/>
+    </resultMap>
+    <select id="getRelationDataOut" parameterType="Integer" resultMap="relationDataOut">
+SELECT any_value(doc.filename) docName,any_value(dtr.labeltype) labelType, inst.instindex instanceIndex,any_value(it.itemindex) itemIndex, any_value(it.itemcontent) itemContent,lb.labelname labelName,count(*) as labelNum FROM d_task dt,d_instance di,dt_relation dtr,document doc,instance inst,item it,label lb where di.dtask_id=dt.tkid and dtr.dt_id=di.dtid and it.instance_id=inst.instid and inst.instid=di.instance_id and doc.did=di.document_id and lb.lid=dtr.label_id and dt.task_id=#{tid} and (SUBSTR(dtr.labeltype,5,1) = it.itemindex OR dtr.labeltype = 'instance') group by dtr.label_id,di.instance_id,it.itid order by di.instance_id
+</select>
+</mapper>

@@ -1,0 +1,245 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>任务管理</title>
+
+    <link rel="stylesheet" href="/plugins/layui/css/layui.css">
+    <link rel="stylesheet" href="/plugins/css/font.css">
+    <script src="/plugins/js/jquery-2.1.4.min.js"></script>
+    <script type="text/javascript" src="/js/nav.js"></script>
+
+    <style>
+    .layui-side-scroll{ width: 56px; }
+    .layui-side{width: 54px;}
+    .layui-layout-admin .layui-side{width: 56px;}
+    .layui-body{left:56px;}
+    .layui-layout-admin .layui-footer{left:56px;}
+
+    </style>
+
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+
+    <div class="layui-header">
+        <div class="layui-logo">
+           <!--<span><i class="layui-icon">&#xe65c;</i> 返回主页</span>-->
+            <a href="/html/u_homepage.html" style="color: #009688;"><i class="layui-icon">&#xe65c;</i> 返回主页</a>
+        </div>
+        <!--<div class="layui-logo"><a href="./homepage.html"><i class="layui-icon">&#xe65c;</i> 返回主页</a></div>-->
+        <ul class="layui-nav layui-layout-left " lay-filter="">
+            <!--<li class="layui-nav-item"><a data-url="test2.html" data-id="11" data-title="我的任务"  class="site-demo-active"  href="javascript:void(0);">我的任务</a></li>-->
+            <!--<li class="layui-nav-item"><a data-url="do_OneSorting.html" data-id="22" data-title="我的文件"  class="site-demo-active"  href="javascript:void(0);">测试用</a></li>-->
+            <li class="layui-nav-item">
+                <a href="javascript:;">+其他功能区</a>
+                <dl class="layui-nav-child"> <!-- 二级菜单 -->
+                    <dd><a href="/html/pub_Homepage.html"><i class="iconfont">&#xe705;</i>发布任务</a></dd>
+                    <dd><a href="/html/do_Homepage.html"><i class="iconfont">&#xe6b2;</i>做任务</a></dd>
+
+                </dl>
+            </li>
+        </ul>
+
+        <ul class="layui-nav layui-layout-right" lay-filter="">
+            <li class="layui-nav-item">
+                <a href="javascript:;"><div id="username"></div></a>
+                <dl class="layui-nav-child"> <!-- 二级菜单 -->
+                    <dd><a href="index.html">个人信息</a></dd>
+                    <dd><a onclick="x_admin_show('切换帐号','http://www.baidu.com')">切换帐号</a></dd>
+                    <dd><a><div id="userlogout">退出登陆</div></a></dd>
+                </dl>
+            </li>
+            <!--<li class="layui-nav-item to-index"><a href="/">前台首页</a></li>-->
+        </ul>
+
+    </div>
+
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+            <ul class="layui-nav layui-nav-tree"  lay-filter="test">
+
+                <!--<li class="layui-nav-item">-->
+                    <!--<a href="javascript:;">解决方案</a>-->
+                    <!--<dl class="layui-nav-child">-->
+                        <!--<dd><a href="javascript:;">列表一</a></dd>-->
+                        <!--<dd><a href="javascript:;">列表二</a></dd>-->
+                        <!--<dd><a href="">超链接</a></dd>-->
+                    <!--</dl>-->
+                <!--</li>-->
+                <li class="layui-nav-item">
+                    <a data-url="/html/myTask/myPub/my_myPubTask.html" data-id="myPub" data-title="我发布的"  class="site-demo-active"  href="javascript:void(0);">
+                        <img src="/images/pub.png"/>
+                    </a>
+                </li>
+                <li class="layui-nav-item layui-nav-itemed">
+                    <a class="" href="javascript:;">
+                        <img src="/images/myTask.png"/>
+                    </a>
+                    <dl class="layui-nav-child">
+                        <dd><a data-url="/html/myTask/myDo/my_TaskDoingByMe.html" data-id="taskDoingByMe" data-title="进行中"  class="site-demo-active"  href="javascript:void(0);">
+                            <img src="/images/doing.png"/>
+                        </a></dd>
+                        <dd><a data-url="/html/myTask/myDo/my_TaskDoneByMe.html" data-id="taskDoneByMe" data-title="已完成"  class="site-demo-active"  href="javascript:void(0);">
+                            <img src="/images/done.png"/>
+                        </a></dd>
+                        <!--<dd><a href="">超链接</a></dd>-->
+                    </dl>
+                </li>
+
+                <li class="layui-nav-item">
+                    <a data-url="/html/myTask/my_myFile.html" data-id="myFile" data-title="积分充值"  class="site-demo-active"  href="javascript:void(0);">
+                        <img src="/images/charge.png"/>
+                    </a>
+                </li>
+                <!--<li class="layui-nav-item">-->
+                    <!--<a data-url="my_myPubTask.html" data-id="myPub" data-title="结果预处理"  class="site-demo-active"  href="javascript:void(0);">结果预处理</a>-->
+                    <!--</a>-->
+                <!--</li>-->
+            </ul>
+        </div>
+    </div>
+
+    <div class="layui-body">
+
+        <div class="layui-tab layui-tab-card" lay-allowclose="true" lay-filter="home-tabs">
+            <ul class="layui-tab-title">
+
+            </ul>
+
+            <div class="layui-tab-content">
+
+            </div>
+        </div>
+
+    </div>
+    <div class="layui-footer">
+        <!-- 底部固定区域 -->
+        @文本标注系统
+    </div>
+</div>
+
+<script src="/plugins/layui/layui.js"></script>
+<script>
+    layui.use('element', function(){
+        var $ = layui.jquery
+            ,element = layui.element; //Tab的切换功能，切换事件监听等，需要依赖element模块
+
+
+        //触发事件
+        var active = {
+            tabAdd: function(json){
+                //新增一个Tab项
+                element.tabAdd('home-tabs', {
+                    title: json.title //用于演示
+                    ,content: '<iframe data-frameid="'+json.id+'" scrolling="auto" frameborder="0" src="'+json.url+'" style="width:100%;height:745px;"></iframe>'
+                    ,id: json.id
+                });
+
+                //通过鼠标mouseover事件  动态将新增的tab下的li标签绑定鼠标右键功能的菜单
+                //下面的json.id是动态新增Tab的id，一定要传入这个id,避免重复加载mouseover数据
+//                $(".layui-tab-title li[lay-id="+json.id+"]").mouseover(function(){
+//                    var tabId = $(this).attr("lay-id");
+//                    CustomRightClick(tabId);
+//                });
+                //-----------以上是动态新增鼠标右键的事件-----------------
+
+            }
+            ,tabChange: function(id) {
+                //切换到指定Tab项
+                element.tabChange('home-tabs', id); //根据传入的id传入到指定的tab项
+            },
+            tabDelete: function (id) {
+                element.tabDelete('home-tabs', id);//删除
+            },
+            tabRefresh: function (id) {//刷新页面
+                $("iframe[data-frameid='"+id+"']").attr("src",$("iframe[data-frameid='"+id+"']").attr("src"))//刷新框架
+            }
+        };
+
+
+        //当点击有site-demo-active属性的标签时，即左侧菜单栏中内容 ，触发点击事件
+        $('.site-demo-active').on('click', function() {
+            var dataid = $(this);
+            var json = {
+                url : dataid.attr("data-url"),
+                id : dataid.attr("data-id"),
+                title : dataid.attr("data-title")
+            };
+
+            //这时会判断右侧.layui-tab-title属性下的有lay-id属性的li的数目，即已经打开的tab项数目
+            if ($(".layui-tab-title li[lay-id]").length <= 0) {
+                //如果比零小，则直接打开新的tab项
+                active.tabAdd(json);
+            } else {
+                //否则判断该tab项是否以及存在
+
+                var isData = false; //初始化一个标志，为false说明未打开该tab项 为true则说明已有
+                $.each($(".layui-tab-title li[lay-id]"), function () {
+                    //如果点击左侧菜单栏所传入的id 在右侧tab项中的lay-id属性可以找到，则说明该tab项已经打开
+                    if ($(this).attr("lay-id") == dataid.attr("data-id")) {
+                        isData = true;
+
+                    }
+                });
+                if (isData == false) {
+                    //标志为false 新增一个tab项
+                    active.tabAdd(json);
+
+                }
+                //active.tabAdd(json);
+            }
+            //最后不管是否新增tab，最后都转到要打开的选项页面上
+            active.tabChange(dataid.attr("data-id"));
+            active.tabRefresh(dataid.attr("data-id"));
+        });
+
+
+
+        $(".rightmenu li").click(function () {
+            //当前的tabId
+            var currentTabId = $(this).attr("data-id");
+
+            if ($(this).attr("data-type") == "closeOthers") {//关闭其他
+                var tabtitle = $(".layui-tab-title li");
+                $.each(tabtitle, function (i) {
+                    if($(this).attr("lay-id")!=currentTabId){
+                        active.tabDelete($(this).attr("lay-id"))
+                    }
+                })
+            } else if ($(this).attr("data-type") == "closeAll") {//关闭全部
+                var tabtitle = $(".layui-tab-title li");
+                $.each(tabtitle, function (i) {
+                    active.tabDelete($(this).attr("lay-id"))
+                })
+
+            }else if ($(this).attr("data-type") == "refresh") {//刷新页面
+                active.tabRefresh($(this).attr("data-id"));
+
+            }else if ($(this).attr("data-type") == "closeRight") {//关闭右边所有
+                //找到当前聚焦的li之后的所有li标签 然后遍历
+                var tabtitle = $(".layui-tab-title li[lay-id="+currentTabId+"]~li");
+                $.each(tabtitle, function (i) {
+                    active.tabDelete($(this).attr("lay-id"))
+                })
+            }
+
+            $('.rightmenu').hide();
+        })
+
+        //默认开始就新增一个tab
+        var json = {
+            url : "/html/myTask/myPub/my_myPubTask.html",
+            id : "myPub",
+            title : '<i class="layui-icon">&#xe62a;</i> 我发布的任务'
+        };
+        active.tabAdd(json);
+        active.tabChange(json.id);
+
+    });
+</script>
+</body>
+</html>

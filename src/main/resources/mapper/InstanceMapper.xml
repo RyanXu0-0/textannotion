@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.annotation.dao.InstanceMapper" >
+
+    <!--BaseResultMap-->
+    <resultMap id="BaseResultMap" type="com.annotation.model.Instance">
+        <id column="instid" jdbcType="INTEGER" property="instid" />
+        <result column="instindex" jdbcType="INTEGER" property="instindex" />
+        <result column="document_id" jdbcType="INTEGER" property="documentId" />
+        <result column="labelnum" jdbcType="INTEGER" property="labelnum" />
+    </resultMap>
+
+
+    <!--设置自增-->
+    <update id="alterInstanceTable">
+        ALTER TABLE instance AUTO_INCREMENT =1
+    </update>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="instid" parameterType="com.annotation.model.Instance" >
+        insert into instance (instid, instindex, document_id,
+        labelnum)
+        values (#{instid,jdbcType=INTEGER}, #{instindex,jdbcType=INTEGER}, #{documentId,jdbcType=INTEGER},
+        #{labelnum,jdbcType=INTEGER})
+    </insert>
+
+
+
+    <select id="selectInstanceByDocId" parameterType="Integer" resultType="Integer">
+        select instid from instance where document_id = #{docId} ORDER BY instid
+    </select>
+
+
+    <delete id="deleteByDocId" parameterType="java.lang.Integer" >
+        delete from instance
+        where document_id = #{docId}
+    </delete>
+
+
+
+
+
+
+    <select id="countTotalPart" parameterType="Integer" resultType="Integer">
+        select count(ins.instid) from instance ins,task_document td
+        where td.task_id=#{tid} AND ins.document_id =td.document_id
+    </select>
+
+    <select id="countInstanceNum" parameterType="Integer" resultType="Integer">
+        select count(*) from instance where document_id=#{docId}
+    </select>
+
+
+
+</mapper>

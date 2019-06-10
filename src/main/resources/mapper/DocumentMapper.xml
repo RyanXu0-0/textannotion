@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.annotation.dao.DocumentMapper">
+
+  <!--BaseResultMap-->
+  <resultMap id="BaseResultMap" type="com.annotation.model.Document" >
+    <id column="did" property="did" jdbcType="INTEGER" />
+    <result column="filename" property="filename" jdbcType="VARCHAR" />
+    <result column="filetype" property="filetype" jdbcType="VARCHAR" />
+    <result column="filesize" property="filesize" jdbcType="INTEGER" />
+    <result column="relativepath" property="relativepath" jdbcType="VARCHAR" />
+    <result column="absolutepath" property="absolutepath" jdbcType="VARCHAR" />
+    <result column="docuploadtime" property="docuploadtime" jdbcType="VARCHAR" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+  </resultMap>
+
+  <!--插入文件-->
+  <insert id="insert" useGeneratedKeys="true" keyProperty="did" parameterType="com.annotation.model.Document" >
+    insert into document (did, filename, filetype,
+    filesize, relativepath, absolutepath,
+    docuploadtime, user_id)
+    values (#{did,jdbcType=INTEGER}, #{filename,jdbcType=VARCHAR}, #{filetype,jdbcType=VARCHAR},
+    #{filesize,jdbcType=INTEGER}, #{relativepath,jdbcType=VARCHAR}, #{absolutepath,jdbcType=VARCHAR},
+    #{docuploadtime,jdbcType=VARCHAR}, #{userId,jdbcType=INTEGER})
+  </insert>
+
+    <!--设置数据库自增长为1-->
+    <update id="alterDocumentTable">
+        ALTER TABLE document AUTO_INCREMENT =1
+    </update>
+
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from document
+    where did = #{did,jdbcType=INTEGER}
+  </delete>
+
+
+
+
+
+
+</mapper>

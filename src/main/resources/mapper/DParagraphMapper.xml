@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.annotation.dao.DParagraphMapper" >
+  <resultMap id="BaseResultMap" type="com.annotation.model.DParagraph" >
+    <id column="dtid" property="dtid" jdbcType="INTEGER" />
+    <result column="document_id" property="documentId" jdbcType="INTEGER" />
+    <result column="paragraph_id" property="paragraphId" jdbcType="INTEGER" />
+    <result column="dotime" property="dotime" jdbcType="VARCHAR" />
+    <result column="comptime" property="comptime" jdbcType="VARCHAR" />
+    <result column="dtstatus" property="dtstatus" jdbcType="VARCHAR" />
+    <result column="dtask_id" property="dtaskId" jdbcType="INTEGER" />
+  </resultMap>
+
+
+  <select id="selectByDtaskIdAndParaId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select dtid, document_id, paragraph_id, dotime, comptime, dtstatus, dtask_id
+    from d_paragraph
+    where dtask_id = #{dtaskId} AND document_id=#{docId} AND paragraph_id=#{paraId}
+  </select>
+
+
+  <select id="selectByDtaskIdAndDocId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select dtid, document_id, paragraph_id, dotime, comptime, dtstatus, dtask_id
+    from d_paragraph
+    where dtask_id = #{dtaskId} AND document_id=#{docId}
+  </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="dtid" parameterType="com.annotation.model.DParagraph" >
+        insert into d_paragraph (dtid, document_id, paragraph_id,
+        dotime, comptime, dtstatus,
+        dtask_id)
+        values (#{dtid,jdbcType=INTEGER}, #{documentId,jdbcType=INTEGER}, #{paragraphId,jdbcType=INTEGER},
+        #{dotime,jdbcType=VARCHAR}, #{comptime,jdbcType=VARCHAR}, #{dtstatus,jdbcType=VARCHAR},
+        #{dtaskId,jdbcType=INTEGER})
+    </insert>
+
+    <!--设置数据库自增长为1-->
+    <update id="alterDParagraphTable">
+        ALTER TABLE d_paragraph AUTO_INCREMENT =1
+    </update>
+
+  <select id="selectByDtaskId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select dtid, document_id, paragraph_id, dotime, comptime, dtstatus, dtask_id
+    from d_paragraph
+    where dtask_id = #{tkId}
+  </select>
+
+  <delete id="deleteByDtaskId" parameterType="java.lang.Integer" >
+    delete from d_paragraph
+    where dtask_id = #{dtaskId}
+  </delete>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from d_paragraph
+    where dtid = #{dtid,jdbcType=INTEGER}
+  </delete>
+
+  <update id="updateByPrimaryKey" parameterType="com.annotation.model.DParagraph" >
+    update d_paragraph
+    set document_id = #{documentId,jdbcType=INTEGER},
+      paragraph_id = #{paragraphId,jdbcType=INTEGER},
+      dotime = #{dotime,jdbcType=VARCHAR},
+      comptime = #{comptime,jdbcType=VARCHAR},
+      dtstatus = #{dtstatus,jdbcType=VARCHAR},
+      dtask_id = #{dtaskId,jdbcType=INTEGER}
+    where dtid = #{dtid,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select dtid, document_id, paragraph_id, dotime, comptime, dtstatus, dtask_id
+    from d_paragraph
+    where dtid = #{dtid,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select dtid, document_id, paragraph_id, dotime, comptime, dtstatus, dtask_id
+    from d_paragraph
+  </select>
+
+  <update id="updateStatusByPk" parameterType="com.annotation.model.DParagraph" >
+    update d_paragraph
+    set dtstatus = #{dtstatus,jdbcType=VARCHAR}
+    where dtid = #{dtid,jdbcType=INTEGER}
+  </update>
+
+
+  <select id="countDParaNum" parameterType="Integer" resultType="Integer">
+    select count(*) from d_paragraph
+    where document_id=#{docId} AND dtask_id=#{dtaskId} AND dtstatus="进行中"
+  </select>
+
+
+
+
+
+
+
+
+
+
+
+  <!--<insert id="insertDoTask2" useGeneratedKeys="true" keyProperty="dtid" parameterType="com.annotation.model.DoTask">-->
+    <!--insert into dotask-->
+    <!--(userid,taskid,contentid,dotime, comptime, dtstatus)-->
+    <!--values-->
+    <!--(#{userid}, #{taskid}, #{contentid},#{dotime,jdbcType=VARCHAR}, #{comptime,jdbcType=VARCHAR},-->
+    <!--#{dtstatus,jdbcType=VARCHAR})-->
+  <!--</insert>-->
+
+  <!--<select id="countTaskNumByUserid" parameterType="Integer" resultType="Integer">-->
+    <!--select contentid from dotask where userid = #{userid}-->
+  <!--</select>-->
+
+  <!--<select id="selectTask" parameterType="Integer" resultType="com.annotation.model.DoTask">-->
+    <!--select * from dotask where userid = #{userid} and taskid = #{taskid} and contentid = #{contentid}-->
+  <!--</select>-->
+
+  <!--<insert id="insertDoTask" useGeneratedKeys="true" keyProperty="dtid" parameterType="com.annotation.model.DoTask" >-->
+    <!--insert into dotask-->
+    <!--<trim prefix="(" suffix=")" suffixOverrides="," >-->
+      <!--<if test="dtid != null" >-->
+        <!--dtid,-->
+      <!--</if>-->
+      <!--<if test="userid != null" >-->
+        <!--userid,-->
+      <!--</if>-->
+      <!--<if test="taskid != null" >-->
+        <!--taskid,-->
+      <!--</if>-->
+      <!--<if test="contentid != null" >-->
+        <!--contentid,-->
+      <!--</if>-->
+      <!--<if test="dotime != null" >-->
+        <!--dotime,-->
+      <!--</if>-->
+      <!--<if test="comptime != null" >-->
+        <!--comptime,-->
+      <!--</if>-->
+      <!--<if test="dtstatus != null" >-->
+        <!--dtstatus,-->
+      <!--</if>-->
+    <!--</trim>-->
+    <!--<trim prefix="values (" suffix=")" suffixOverrides="," >-->
+      <!--<if test="dtid != null" >-->
+        <!--#{dtid,jdbcType=INTEGER},-->
+      <!--</if>-->
+      <!--<if test="userid != null" >-->
+        <!--#{userid,jdbcType=INTEGER},-->
+      <!--</if>-->
+      <!--<if test="taskid != null" >-->
+        <!--#{taskid,jdbcType=INTEGER},-->
+      <!--</if>-->
+      <!--<if test="contentid != null" >-->
+        <!--#{contentid,jdbcType=INTEGER},-->
+      <!--</if>-->
+      <!--<if test="dotime != null" >-->
+        <!--#{dotime,jdbcType=VARCHAR},-->
+      <!--</if>-->
+      <!--<if test="comptime != null" >-->
+        <!--#{comptime,jdbcType=VARCHAR},-->
+      <!--</if>-->
+      <!--<if test="dtstatus != null" >-->
+        <!--#{dtstatus,jdbcType=VARCHAR},-->
+      <!--</if>-->
+    <!--</trim>-->
+  <!--</insert>-->
+  <!--<update id="alterDotaskTable">-->
+    <!--ALTER TABLE dotask AUTO_INCREMENT =1-->
+  <!--</update>-->
+
+  <!--<select id="selectMyPubTask" parameterType="Integer" resultType="com.annotation.model.DoTask">-->
+    <!--select * from dotask where userid = #{userid} and taskid = #{taskid} and contentid = #{contentid}-->
+  <!--</select>-->
+
+
+  <!--<resultMap id="myPubDoingTaskInfo" type="com.annotation.model.entity.MyPubTaskByDoing">-->
+    <!--<id column="userid" property="userid"></id>-->
+    <!--<result column="dotime" property="dotime"></result>-->
+    <!--<result column="comptime" property="comptime"></result>-->
+    <!--<result column="dtstatus" property="dtstatus"></result>-->
+    <!--<result column="username" property="username"></result>-->
+    <!--<result column="lastLogInTime" property="lastLogInTime"></result>-->
+    <!--<result column="type" property="type"></result>-->
+    <!--<result column="tid" property="tid"></result>-->
+  <!--</resultMap>-->
+
+  <!--<select id="selectMyDoingPubTaskInfo" parameterType="Integer" resultMap="myPubDoingTaskInfo">-->
+    <!--select dt.userid,dt.dotime,dt.comptime,dt.dtstatus,-->
+    <!--u.username,u.lastLogInTime,-->
+    <!--t.tid,t.type-->
+    <!--from task t-->
+    <!--INNER join dotask dt on t.tid=dt.taskid-->
+    <!--INNER join user u on u.id=dt.userid-->
+    <!--where dt.taskid=#{taskId}-->
+    <!--ORDER BY u.id-->
+    <!--limit #{curIndex},#{pageSize}-->
+  <!--</select>-->
+
+
+  <!--<resultMap id="myPubDoingTaskInfoInst" type="com.annotation.model.entity.MyPubTaskByDoing">-->
+    <!--<id column="userid" property="userid"></id>-->
+    <!--<result column="dotime" property="dotime"></result>-->
+    <!--<result column="comptime" property="comptime"></result>-->
+    <!--<result column="dtstatus" property="dtstatus"></result>-->
+    <!--<result column="username" property="username"></result>-->
+    <!--<result column="lastLogInTime" property="lastLogInTime"></result>-->
+    <!--<result column="type" property="type"></result>-->
+    <!--<result column="tid" property="tid"></result>-->
+  <!--</resultMap>-->
+
+  <!--<select id="selectMyDoingPubTaskInfoInst" parameterType="Integer" resultMap="myPubDoingTaskInfoInst">-->
+    <!--select dt.user_id userid,dt.dotime,dt.comptime,dt.dtstatus,-->
+    <!--u.username,u.lastLogInTime,-->
+    <!--t.tid,t.type-->
+    <!--from task t-->
+    <!--inner join dt_instance dt on t.tid=dt.task_id-->
+    <!--inner join user u on u.id=dt.user_id-->
+    <!--where dt.task_id=#{taskId}-->
+    <!--ORDER BY u.id-->
+    <!--limit #{curIndex},#{pageSize}-->
+  <!--</select>-->
+
+
+
+  <!--<select id="selectTaskIPartIn"  resultMap="myPubDoingTaskInfo">-->
+    <!--select dt.dotime,dt.comptime,dt.dtstatus,-->
+    <!--u.username,u.lastLogInTime,-->
+    <!--t.tid,t.type,t.userid-->
+    <!--from task t-->
+    <!--INNER join dotask dt on t.tid=dt.taskid-->
+    <!--INNER join user u on u.id=t.userid-->
+    <!--where dt.userid=#{userId} AND dt.dtstatus=#{dtstatus}-->
+    <!--ORDER BY u.id-->
+    <!--limit #{curIndex},#{pageSize}-->
+  <!--</select>-->
+
+
+  <!--<select id="selectTaskIPartInInstance"  resultMap="myPubDoingTaskInfo">-->
+    <!--select dt.dotime,dt.comptime,dt.dtstatus,-->
+    <!--u.username,u.lastLogInTime,-->
+    <!--t.tid,t.type,t.userid-->
+    <!--from task t-->
+    <!--INNER join dt_instance dt on t.tid=dt.task_id-->
+    <!--INNER join user u on u.id=t.userid-->
+    <!--where dt.user_id=#{userId} AND dt.dtstatus=#{dtstatus}-->
+    <!--ORDER BY u.id-->
+    <!--limit #{curIndex},#{pageSize}-->
+  <!--</select>-->
+
+  <!--<insert id="insertDoTaskDetail" useGeneratedKeys="true" keyProperty="dtdid" parameterType="com.annotation.model.DoTaskDetail">-->
+    <!--insert into dotaskdetail-->
+    <!--(dotaskid,labelid,contentbegin,contentend)-->
+    <!--values-->
+    <!--(#{dotaskid}, #{labelid},  #{contentbegin},#{contentend})-->
+  <!--</insert>-->
+  <!--<update id="alterDotaskDetailTable">-->
+    <!--ALTER TABLE dotaskdetail AUTO_INCREMENT =1-->
+  <!--</update>-->
+</mapper>

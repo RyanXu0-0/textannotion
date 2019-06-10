@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.annotation.dao.LabelMapper">
+
+    <!--BaseResultMap-->
+    <resultMap id="BaseResultMap" type="com.annotation.model.Label" >
+        <id column="lid" property="lid" jdbcType="INTEGER" />
+        <result column="labelname" property="labelname" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <!--根据标签名称选择标签-->
+    <select id="selectLabelByLabelname" resultMap="BaseResultMap">
+        SELECT * FROM label WHERE labelname = #{labelname}
+    </select>
+
+    <!--插入标签-->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="lid" parameterType="com.annotation.model.Label" >
+        insert into label (labelname)values (#{labelname,jdbcType=VARCHAR})
+    </insert>
+
+    <!--设置数据库自增长-->
+
+
+    <update id="alterLabelTable">
+        ALTER TABLE label AUTO_INCREMENT =1
+    </update>
+
+
+
+
+    <!--<select id="selectLabelByTaskid" parameterType="Integer" resultType="com.annotation.model.Label">-->
+        <!--SELECT l.lid lid,l.labelname labelname FROM task t INNER JOIN task_label tl ON t.tid=tl.taskid-->
+        <!--INNER JOIN label l on tl.labelid = l.lid WHERE t.tid=#{taskid}-->
+    <!--</select>-->
+
+
+
+
+</mapper>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.annotation.dao.TaskDocumentMapper">
+
+    <!--BaseResultMap-->
+    <resultMap id="BaseResultMap" type="com.annotation.model.TaskDocument" >
+        <result column="task_id" property="taskId" jdbcType="INTEGER" />
+        <result column="document_id" property="documentId" jdbcType="INTEGER" />
+    </resultMap>
+
+    <!--插入任务-文件关系表-->
+    <insert id="insert" parameterType="com.annotation.model.TaskDocument" >
+        insert into task_document (task_id, document_id)
+        values (#{taskId,jdbcType=INTEGER}, #{documentId,jdbcType=INTEGER})
+    </insert>
+
+
+
+    <select id="selectDocIdByTid" parameterType="Integer" resultType="Integer">
+        select document_id from task_document where task_id = #{tid}
+    </select>
+
+
+    <delete id="deleteByTid" parameterType="java.lang.Integer">
+        delete from task_document
+        where task_id = #{tid,jdbcType=INTEGER}
+    </delete>
+</mapper>

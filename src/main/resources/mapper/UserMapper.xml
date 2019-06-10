@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.annotation.dao.UserMapper">
+    <!--BaseResultMap-->
+    <resultMap id="BaseResultMap" type="com.annotation.model.User" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="username" property="username" jdbcType="VARCHAR" />
+        <result column="email" property="email" jdbcType="VARCHAR" />
+        <result column="password" property="password" jdbcType="VARCHAR" />
+        <result column="sex" property="sex" jdbcType="VARCHAR" />
+        <result column="birthday" property="birthday" jdbcType="VARCHAR" />
+        <result column="regTime" property="regtime" jdbcType="VARCHAR" />
+        <result column="lastLogInTime" property="lastlogintime" jdbcType="VARCHAR" />
+        <result column="job" property="job" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <!--插入用户-->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.annotation.model.User" >
+        insert into user (id, username, email,password, sex, birthday,regTime, lastLogInTime, job)
+        values (#{id,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},
+        #{password,jdbcType=VARCHAR}, #{sex,jdbcType=VARCHAR}, #{birthday,jdbcType=VARCHAR},
+        #{regtime,jdbcType=VARCHAR}, #{lastlogintime,jdbcType=VARCHAR}, #{job,jdbcType=VARCHAR}
+        )
+    </insert>
+
+    <!--根据用户名查询用户 username#user -->
+    <select id="selectUserByUsername" parameterType="String" resultMap="BaseResultMap">
+        SELECT * FROM user WHERE username = #{username}
+    </select>
+
+    <!--根据用户ID查询用户信息-->
+    <select id="selectUserByUserId" resultType="User">
+    SELECT * FROM user WHERE id = #{id}
+    </select>
+
+    <!--根据邮箱查询用户-->
+    <select id="selectUserByEmail" resultType="User">
+        SELECT * FROM user WHERE email = #{email}
+    </select>
+
+    <!--更新用户信息-->
+    <update id="updateByPrimaryKey" parameterType="com.annotation.model.User" >
+        update user
+        <set >
+            <if test="email != null" >
+                email = #{email,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null" >
+                password = #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="username != null" >
+                username = #{username,jdbcType=VARCHAR},
+            </if>
+            <if test="regtime != null" >
+                regTime = #{regtime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="lastlogintime != null" >
+                lastLogInTime = #{lastlogintime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="job != null" >
+                job = #{job,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+</mapper>

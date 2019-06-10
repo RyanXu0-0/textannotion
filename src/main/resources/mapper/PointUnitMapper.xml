@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.annotation.dao.PointUnitMapper" >
+
+  <resultMap id="BaseResultMap" type="com.annotation.model.PointUnit" >
+    <id column="pu_id" property="puId" jdbcType="INTEGER" />
+    <result column="pointunit" property="pointunit" jdbcType="INTEGER" />
+    <result column="task_id" property="taskId" jdbcType="INTEGER" />
+  </resultMap>
+
+  <!--设置数据库自增长-->
+  <update id="alterPointUnitTable">
+        ALTER TABLE pointunit AUTO_INCREMENT =1
+  </update>
+
+  <insert id="insert" useGeneratedKeys="true" keyProperty="pu_id" parameterType="com.annotation.model.PointUnit">
+    insert into pointunit (pu_id, pointunit, task_id)
+    values (#{puId,jdbcType=INTEGER}, #{pointunit,jdbcType=INTEGER}, #{taskId,jdbcType=INTEGER})
+  </insert>
+
+  <select id="selectBytaskId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select p.pu_id,p.pointunit,p.task_id from pointunit p
+    where p.task_id = #{taskId,jdbcType=INTEGER}
+  </select>
+
+
+  <delete id="deleteByTid" parameterType="java.lang.Integer">
+    delete from pointunit
+    where task_id = #{tid,jdbcType=INTEGER}
+  </delete>
+
+</mapper>

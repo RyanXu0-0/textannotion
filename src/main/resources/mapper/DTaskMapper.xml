@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.annotation.dao.DTaskMapper" >
+
+  <!--BaseResultMap-->
+  <resultMap id="BaseResultMap" type="com.annotation.model.DTask" >
+    <id column="tkid" property="tkid" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="task_id" property="taskId" jdbcType="INTEGER" />
+    <result column="dotime" property="dotime" jdbcType="VARCHAR" />
+    <result column="dcomptime" property="dcomptime" jdbcType="VARCHAR" />
+    <result column="dstatus" property="dstatus" jdbcType="VARCHAR" />
+    <result column="dpercent" property="dpercent" jdbcType="VARCHAR" />
+    <result column="doUserName" property="doUserName" jdbcType="VARCHAR" />
+    <result column="type_name" property="typeName" jdbcType="VARCHAR" />
+    <result column="title" property="title" jdbcType="VARCHAR" />
+    <result column="description" property="description" jdbcType="VARCHAR" />
+    <result column="deadline" property="deadline" jdbcType="VARCHAR" />
+    <result column="otherinfo" property="otherinfo" jdbcType="VARCHAR" />
+    <result column="viewnum" property="viewnum" jdbcType="INTEGER" />
+    <result column="attendnum" property="attendnum" jdbcType="INTEGER" />
+      <result column="alreadypart" property="alreadypart" jdbcType="INTEGER" />
+      <result column="totalpart" property="totalpart" jdbcType="INTEGER" />
+  </resultMap>
+
+  <select id="selectByTaskIdAndUserId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select tkid, user_id, task_id, dotime, dcomptime, dstatus, dpercent,alreadypart,totalpart
+    from d_task
+    where task_id = #{taskId} AND user_id=#{userId}
+  </select>
+
+  <insert id="insert" useGeneratedKeys="true" keyProperty="tkid" parameterType="com.annotation.model.DTask" >
+    insert into d_task (tkid, user_id, task_id,
+    dotime, dcomptime, dstatus,
+    dpercent,alreadypart,totalpart)
+    values (#{tkid,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{taskId,jdbcType=INTEGER},
+    #{dotime,jdbcType=VARCHAR}, #{dcomptime,jdbcType=VARCHAR}, #{dstatus,jdbcType=VARCHAR},
+    #{dpercent,jdbcType=VARCHAR},#{alreadypart},#{totalpart})
+  </insert>
+
+
+    <!--根据发布者ID查询所有发布的任务-->
+    <select id="selectMyPubTaskByDoingDetail" parameterType="map" resultMap="BaseResultMap">
+        select dt.tkid, dt.user_id, dt.task_id,dt.dotime, dt.dcomptime, dt.dstatus,dt.dpercent,dt.alreadypart,dt.totalpart,
+        u.username doUserName,
+        t.type_name
+        from d_task dt
+        INNER JOIN task t on t.tid=dt.task_id
+        INNER JOIN user u on u.id=dt.user_id where dt.task_id = #{taskId}
+        ORDER BY dt.tkid
+        limit #{currIndex},#{pageSize}
+
+    </select>
+
+
+
+    <!--根据参与者ID查询所有参与的任务-->
+    <select id="selectMyDoingTaskByStatus" parameterType="map" resultMap="BaseResultMap">
+        select dt.tkid, dt.user_id, dt.task_id,dt.dotime, dt.dcomptime, dt.dstatus,dt.dpercent,dt.alreadypart,dt.totalpart,
+        u.username doUserName,
+        t.type_name,t.title,t.description,t.deadline,t.otherinfo,t.viewnum,t.attendnum
+        from d_task dt
+        INNER JOIN task t on t.tid=dt.task_id
+        INNER JOIN user u on u.id=dt.user_id where dt.user_id = #{userId}
+        AND dt.dstatus=#{dstatus}
+        ORDER BY dt.tkid
+        limit #{currIndex},#{pageSize}
+
+    </select>
+
+
+    <delete id="deleteByTaskId" parameterType="java.lang.Integer" >
+        delete from d_task
+        where task_id = #{tid}
+    </delete>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from d_task
+    where tkid = #{tkid,jdbcType=INTEGER}
+  </delete>
+
+  <update id="updateByPrimaryKey" parameterType="com.annotation.model.DTask" >
+    update d_task
+    set user_id = #{userId,jdbcType=INTEGER},
+      task_id = #{taskId,jdbcType=INTEGER},
+      dotime = #{dotime,jdbcType=VARCHAR},
+      dcomptime = #{dcomptime,jdbcType=VARCHAR},
+      dstatus = #{dstatus,jdbcType=VARCHAR},
+      dpercent = #{dpercent,jdbcType=VARCHAR},
+      alreadypart=#{alreadypart},
+      totalpart=#{totalpart}
+    where tkid = #{tkid,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select tkid, user_id, task_id, dotime, dcomptime, dstatus, dpercent,alreadypart,totalpart
+    from d_task
+    where tkid = #{tkid,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select tkid, user_id, task_id, dotime, dcomptime, dstatus, dpercent,alreadypart,totalpart
+    from d_task
+  </select>
+
+    <select id="selectByTaskId" resultMap="BaseResultMap" >
+        select tkid, user_id, task_id, dotime, dcomptime, dstatus, dpercent,alreadypart,totalpart
+        from d_task WHERE task_id=#{tid}
+    </select>
+</mapper>

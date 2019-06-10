@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.annotation.dao.ListitemMapper">
+
+  <!--BaseResultMap-->
+  <resultMap id="BaseResultMap" type="com.annotation.model.Listitem" >
+    <id column="ltid" property="ltid" jdbcType="INTEGER" />
+    <result column="litemcontent" property="litemcontent" jdbcType="VARCHAR" />
+    <result column="list_index" property="listIndex" jdbcType="INTEGER" />
+    <result column="litemindex" property="litemindex" jdbcType="INTEGER" />
+    <result column="instance_id" property="instanceId" jdbcType="INTEGER" />
+  </resultMap>
+
+  <!--插入-->
+  <insert id="insert" useGeneratedKeys="true" keyProperty="ltid" parameterType="com.annotation.model.Listitem" >
+    insert into listitem (ltid, litemcontent, list_index,
+    litemindex, instance_id)
+    values (#{ltid,jdbcType=INTEGER}, #{litemcontent,jdbcType=VARCHAR}, #{listIndex,jdbcType=INTEGER},
+    #{litemindex,jdbcType=INTEGER}, #{instanceId,jdbcType=INTEGER})
+  </insert>
+
+  <!--设置自增-->
+  <update id="alterListitemTable">
+    ALTER TABLE listitem AUTO_INCREMENT =1
+  </update>
+
+
+  <update id="updateByPrimaryKey" parameterType="com.annotation.model.Listitem" >
+    update listitem
+    set litemcontent = #{litemcontent,jdbcType=VARCHAR},
+    list_index = #{listIndex,jdbcType=INTEGER},
+    litemindex = #{litemindex,jdbcType=INTEGER},
+    instance_id = #{instanceId,jdbcType=INTEGER}
+    where ltid = #{ltid,jdbcType=INTEGER}
+  </update>
+
+  <delete id="deleteByInstId" parameterType="java.lang.Integer" >
+    delete from listitem
+    where instance_id = #{instId,jdbcType=INTEGER}
+  </delete>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select ltid, litemcontent, list_index, litemindex, instance_id
+    from listitem
+    where ltid = #{ltid,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select ltid, litemcontent, list_index, litemindex, instance_id
+    from listitem
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from listitem
+    where ltid = #{ltid,jdbcType=INTEGER}
+  </delete>
+
+  <select id="selectListItemContentByDocId" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+    select list.ltid, list.litemcontent, list.list_index, list.litemindex, list.instance_id
+     from listitem list,instance inst
+    where list.instance_id = inst.instid and inst.document_id = #{docId,jdbcType=INTEGER}
+  </select>
+
+</mapper>

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="/plugins/css/font.css">
+    <link rel="stylesheet" href="/plugins/css/xadmin.css">
+    <link rel="stylesheet" type="text/css" href="/plugins/css/tag.css" />
+    <!--<link rel="stylesheet" href="./css/bootstrap/bootstrap.css"/>-->
+
+    <!--<style>-->
+        <!--.layui-form-label{ width: 92px; }-->
+        <!--/*.layui-input-block { margin-left: 90px; min-height: 36px }*/-->
+    <!--</style>-->
+
+</head>
+
+<body>
+
+
+<div class="layui-row layui-col-space1">
+    <div class="layui-card">
+        <!--<div class="layui-card-header"></div>-->
+        <div class="layui-card-body">
+            <blockquote class="layui-elem-quote layui-text">
+                <div class="layui-row">
+
+                    <div class="layui-col-md11" id="info-alert" >
+                        <p>请先选择标注类型：</p>
+                    </div>
+                    <div class="layui-col-md1">
+                        <input  type="button" class="layui-btn layui-btn-normal" id="sub-info" value="确认发布">
+                    </div>
+
+                </div>
+
+            </blockquote>
+
+            <div class="layui-row">
+                <div class="layui-col-md6">
+                    <form class="layui-form">
+                        <div class="layui-form-item" >
+                            <label class="layui-form-label">请选择类型</label>
+                            <div class="layui-col-md3">
+                                <select name="type" id="type" lay-filter="selectType">
+                                    <option value="" selected>请选择标注类型：</option>
+                                    <option value="1">信息抽取</option>
+                                    <option value="2">文本分类</option>
+                                    <option value="3">文本关系</option>
+                                    <option value="4">文本配对</option>
+                                    <option value="5">文本排序</option>
+                                    <option value="6">文本类比排序</option>
+                                </select>
+                            </div>
+
+                            <!--<option value="" selected>请选择标注类型：</option>-->
+                            <!--<option value="1">信息抽取</option>-->
+                            <!--<option value="2">分类</option>-->
+                            <!--<option value="3">文本关系类别标注</option>-->
+                            <!--<option value="4">文本配对标注</option>-->
+                            <!--<option value="5">文本排序</option>-->
+                            <!--<option value="6">文本类比排序</option>-->
+
+                            <div id="type4-relation-div" style="display: none">
+                                <label class="layui-form-label">请选择关系</label>
+                                <div class="layui-col-md3">
+                                    <select name="relation" id="relation" lay-filter="selectRelation">
+                                        <option value="" selected>请选择关系类型：</option>
+                                        <option value="1">一对一</option>
+                                        <option value="2">一对多</option>
+                                        <option value="3">多对多</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                        </div>
+                    </form>
+                    <div class="layui-row grid-demo">
+                        <div class="layui-row">
+                            <div class="layui-col-md2">
+                                <label class="layui-form-label">任务标题</label>
+                            </div>
+                            <div class="layui-col-md10">
+                                <input type="text" name="title" id="title" autocomplete="off" placeholder="请输入标题" class="layui-input">
+                            </div>
+                        </div>
+                        <br>
+                        <div class="layui-row" >
+                            <div class="layui-col-md2">
+                                <label class="layui-form-label">任务描述</label>
+                            </div>
+
+                            <div class="layui-col-md10">
+                                <textarea placeholder="请输入内容" class="layui-textarea" id="description"></textarea>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="layui-row">
+                            <div class="layui-col-md2">
+                                <label class="layui-form-label">其他备注</label>
+                            </div>
+                            <div class="layui-col-md10">
+                                <input type="text" name="otherinfo" id="otherinfo" autocomplete="off" placeholder="请输入任务描述" class="layui-input">
+                            </div>
+
+                        </div>
+                        <br>
+                        <div class="layui-row" id="multifile-div">
+
+                            <div class="layui-col-md2">
+                                <label class="layui-form-label">多文件上传</label>
+                            </div>
+                            <div class="layui-col-md3">
+                                <input id="mf" type="file" style="display:none" name="mf" multiple="multiple">
+                                <!--<input type="button" class="layui-btn layui-btn-primary" id="sub-upload" value="上传文件">-->
+                                <button type="button" class="layui-btn layui-btn-primary" id="mf-upload" onclick="$('input[id=mf]').click();"><i class="layui-icon">&#xe67c;</i>上传文件</button>
+                            </div>
+
+                            <div class="layui-col-md7">
+                                <!--<div class="layui-form-mid layui-word-aux">此处只是演示联动排版，并未做联动交互</div>-->
+                                <div class="row" id="file-ul">
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <br>
+                    </div>
+                </div>
+                <div class="layui-col-md6">
+                    <div class="layui-row grid-demo">
+                        <div class="layui-row">
+                            <div class="layui-col-md2">
+                                <label class="layui-form-label">截止日期</label>
+                            </div>
+                            <div class="layui-col-md5">
+                                <input type="text" name="date" id="date" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <br>
+
+                        <div class="layui-row">
+                            <div class="layui-col-md2">
+                                <label class="layui-form-label">查看样例</label>
+                            </div>
+                            <div class="layui-col-md5" id="example-pic">
+                                <a id="test" onclick="seedetail(this.id)">
+                                    <img src="../../images/seepicture.png">
+                                    <span style="color: #0d96f2">查看样例图片</span>
+                                </a>
+                            </div>
+                            <div class="layui-col-md5">
+
+                                <!--<div class="layui-unselect layui-form-checkbox layui-form-checked">-->
+                                    <!--<span>dsafd</span>-->
+                                <!--</div>-->
+
+                            </div>
+                        </div>
+                        <br>
+
+                        <!--<div class="layui-row">-->
+                            <!--<div class="layui-col-md2">-->
+                                <!--<label class="layui-form-label">期望人数</label>-->
+                            <!--</div>-->
+                            <!--<div class="layui-col-md2" >-->
+                                <!--<input type="text" name="otherinfo" id="num" autocomplete="off" placeholder="期望参与人数" class="layui-input">-->
+                            <!--</div>-->
+                            <!--<div class="layui-col-md1">-->
+                                <!--.-->
+                            <!--</div>-->
+                            <!--<div class="layui-col-md2">-->
+                                <!--<label class="layui-form-label">激励积分</label>-->
+                            <!--</div>-->
+                            <!--<div class="layui-col-md2" >-->
+                                <!--<input type="text" name="otherinfo" id="num2" autocomplete="off" placeholder="贡献积分数" class="layui-input">-->
+                            <!--</div>-->
+                        <!--</div>-->
+                        <!--<br>-->
+                        <!--<div class="layui-row">-->
+                            <!--<div class="layui-col-md2">-->
+                                <!--&lt;!&ndash;<h4 style="float: right;"> 标签数量</h4>&ndash;&gt;-->
+                                <!--<label class="layui-form-label">标签数量</label>-->
+                            <!--</div>-->
+                            <!--<div class="layui-col-md2" >-->
+                                <!--<label class="layui-form-label">Instance：</label>-->
+                                <!--&lt;!&ndash;<h4>每段标签数量</h4>&ndash;&gt;-->
+                            <!--</div>-->
+                            <!--<div class="layui-col-md1">-->
+                                <!--<input type="number"class="layui-input">-->
+                            <!--</div>-->
+                            <!--<div class="layui-col-md2">-->
+                                <!--<label class="layui-form-label">item1标签：</label>-->
+                            <!--</div>-->
+                            <!--<div class="layui-col-md1">-->
+                               <!--<input type="number"class="layui-input">-->
+                            <!--</div>-->
+                            <!--<div class="layui-col-md2">-->
+                                <!--<label class="layui-form-label">item2标签：</label>-->
+                            <!--</div>-->
+                            <!--<div class="layui-col-md1">-->
+                                <!--<input type="number"class="layui-input">-->
+                            <!--</div>-->
+                        <!--</div>-->
+
+                       <div id="tag-div">
+
+                       </div>
+
+                        <div id="color-div">
+
+                        </div>
+
+                        <!--<div class="layui-row">-->
+                            <!--<div class="layui-col-md2">-->
+                                <!--<label class="layui-form-label">每段标签</label>-->
+                            <!--</div>-->
+                            <!--<div class="layui-col-md8" >-->
+                                <!--<input type="text" id="tagValueInstance">-->
+                            <!--</div>-->
+                        <!--</div>-->
+                        <!--<div class="layui-row">-->
+                            <!--<div class="layui-col-md2">-->
+                                <!--<label class="layui-form-label">Item1标签</label>-->
+                            <!--</div>-->
+                            <!--<div class="layui-col-md8">-->
+                                <!--<input type="text" id="tagValueItem1">-->
+                            <!--</div>-->
+                        <!--</div>-->
+                        <!--<div class="layui-row">-->
+                            <!--<div class="layui-col-md2">-->
+                                <!--<label class="layui-form-label">Item2标签</label>-->
+                            <!--</div>-->
+                            <!--<div class="layui-col-md8">-->
+                                <!--<input type="text" id="tagValueItem2">-->
+                            <!--</div>-->
+                        <!--</div>-->
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<br>
+
+<script src="/plugins/layui/layui.js" charset="utf-8"></script>
+<script src="/plugins/js/jquery-2.1.4.min.js"></script>
+<script type="text/javascript" src="/js/pubTask/p_publishTask.js"></script>
+
+<script type="text/javascript">
+
+
+
+
+//    layui.use(['form', 'layedit', 'laydate'], function() {
+//        var laydate = layui.laydate;
+//
+//        //日期
+//        laydate.render({
+//            elem: '#date',
+//            type: 'datetime'
+//        });
+//
+//        var form = layui.form;
+//        form.on('select(selectType)', function(data){
+//            /**
+//             *获取任务类型
+//             */
+//            taskType=data.elem[data.elem.selectedIndex].text;//console.log(taskType);
+//            taskValue=data.value; //console.log(taskValue);
+//
+//            var $ = layui.$ //重点处
+//                ,layer = layui.layer;
+//            $(function(){
+//
+//                if(taskValue=="1" || taskValue=="2"){
+//
+//                    $("#test").html();
+//                    tagNum[0] = 0;//添加的标签数量
+//                    tagContent = new Array;//标签内容，#分隔，比如"a#b#c"
+//                }else if(taskValue=="3"){
+//
+//
+//                    tagNum[1] = 0;//添加的标签数量
+//                    tagNum[2] = 0;//添加的标签数量
+//                    tagNum[3] = 0;//添加的标签数量
+//                    tagInstanceContent = new Array;//标签内容，#分隔，比如"a#b#c"
+//                    tagItem1Content = new Array;//标签内容，#分隔，比如"a#b#c"
+//                    tagItem2Content = new Array;//标签内容，#分隔，比如"a#b#c"
+//                }else{
+//                    $("#tag-div").html("");
+//                }
+//            });
+//
+//            // console.log(data.othis); //得到美化后的DOM对象
+//        });
+//
+//
+//    });
+
+
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.annotation.dao.ItemMapper" >
+
+  <resultMap id="BaseResultMap" type="com.annotation.model.Item">
+    <id column="itid" jdbcType="INTEGER" property="itid" />
+    <result column="itemcontent" jdbcType="VARCHAR" property="itemcontent" />
+    <result column="itemindex" jdbcType="INTEGER" property="itemindex" />
+    <result column="instance_id" jdbcType="INTEGER" property="instanceId" />
+    <result column="labelnum" jdbcType="INTEGER" property="labelnum" />
+  </resultMap>
+
+  <!--插入-->
+  <insert id="insert" parameterType="com.annotation.model.Item" >
+    insert into item (itid, itemcontent, itemindex,
+    instance_id, labelnum)
+    values (#{itid,jdbcType=INTEGER}, #{itemcontent,jdbcType=VARCHAR}, #{itemindex,jdbcType=INTEGER},
+    #{instanceId,jdbcType=INTEGER}, #{labelnum,jdbcType=INTEGER})
+  </insert>
+
+  <!--自增长-->
+  <update id="alterItemTable">
+    ALTER TABLE item AUTO_INCREMENT =1
+  </update>
+
+
+
+
+  <delete id="deleteByInstId" parameterType="java.lang.Integer" >
+    delete from item
+    where instance_id = #{instId,jdbcType=INTEGER}
+  </delete>
+
+
+
+
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from item
+    where itid = #{itid,jdbcType=INTEGER}
+  </delete>
+
+
+
+  <update id="updateByPrimaryKey" parameterType="com.annotation.model.Item" >
+    update item
+    set itemcontent = #{itemcontent,jdbcType=VARCHAR},
+      itemindex = #{itemindex,jdbcType=VARCHAR},
+      instanceid = #{instanceid,jdbcType=INTEGER},
+      labelnum = #{labelid,jdbcType=INTEGER}
+    where itid = #{itid,jdbcType=INTEGER}
+  </update>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select itid, itemcontent, itemindex, instanceid, labelnum
+    from item
+    where itid = #{itid,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select itid, itemcontent, itemindex, instanceid, labelnum
+    from item
+  </select>
+
+  <select id="selectItemContentByDocId" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+   select it.itid, it.itemcontent, it.itemindex, it.instance_id, it.labelnum
+    from item it,instance inst
+   where it.instance_id = inst.instid and inst.document_id = #{docId,jdbcType=INTEGER}
+  </select>
+
+</mapper>

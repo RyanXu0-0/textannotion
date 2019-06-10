@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.annotation.dao.DtuCommentMapper" >
+  <resultMap id="BaseResultMap" type="com.annotation.model.DtuComment" >
+    <id column="dtu_id" property="dtuId" jdbcType="INTEGER" />
+    <result column="dtd_id" property="dtdId" jdbcType="INTEGER" />
+    <result column="u_id" property="uId" jdbcType="INTEGER" />
+    <result column="cnum" property="cnum" jdbcType="INTEGER" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from dtu_comment
+    where dtu_id = #{dtuId,jdbcType=INTEGER}
+  </delete>
+
+  <delete id="deleteByDtdIdAndUId" parameterType="java.lang.Integer" >
+    delete from dtu_comment
+    where dtd_id = #{dtdId,jdbcType=INTEGER} and u_id = #{uId,jdbcType=INTEGER}
+  </delete>
+
+  <insert id="insert"  useGeneratedKeys="true" keyProperty="dtu_id" parameterType="com.annotation.model.DtuComment" >
+    insert into dtu_comment (dtu_id, dtd_id, u_id, 
+      cnum)
+    values (#{dtuId,jdbcType=INTEGER}, #{dtdId,jdbcType=INTEGER}, #{uId,jdbcType=INTEGER}, 
+      #{cnum,jdbcType=INTEGER})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.annotation.model.DtuComment" >
+    update dtu_comment
+    set dtd_id = #{dtdId,jdbcType=INTEGER},
+      u_id = #{uId,jdbcType=INTEGER},
+      cnum = #{cnum,jdbcType=INTEGER}
+    where dtu_id = #{dtuId,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select dtu_id, dtd_id, u_id, cnum
+    from dtu_comment
+    where dtu_id = #{dtuId,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select dtu_id, dtd_id, u_id, cnum
+    from dtu_comment
+  </select>
+</mapper>

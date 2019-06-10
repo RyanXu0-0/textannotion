@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>文本关系类别标注</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="/plugins/css/font.css">
+    <link rel="stylesheet" href="/plugins/layui/css/layui.css">
+    <link rel="stylesheet" type="text/css" href="/plugins/css/tag.css" />
+    <link rel="stylesheet" href="/plugins/bootstrap/bootstrap.min.css">
+    <script src="/plugins/js/jquery-2.1.4.min.js"></script>
+    <script src="/plugins/layui/layui.js"></script>
+    <script src="/plugins/bootstrap/bootstrap.min.js"></script>
+
+
+    <style>
+        .layui-form-label{ width: 90px; }
+        /* Custom Styles */
+        ul.nav-tabs{
+            width: 100px;
+            margin-top: 20px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.067);
+        }
+        ul.nav-tabs li{
+            margin: 0;
+            border-top: 1px solid #ddd;
+        }
+        ul.nav-tabs li:first-child{
+            border-top: none;
+        }
+        ul.nav-tabs li a{
+            margin: 0;
+            padding: 8px 16px;
+            border-radius: 0;
+        }
+        ul.nav-tabs li.active a, ul.nav-tabs li.active a:hover{
+            color: #fff;
+            background: #0088cc;
+            border: 1px solid #0088cc;
+        }
+        ul.nav-tabs li:first-child a{
+            border-radius: 4px 4px 0 0;
+        }
+        ul.nav-tabs li:last-child a{
+            border-radius: 0 0 4px 4px;
+        }
+        ul.nav-tabs.affix{
+            top: 30px; /* Set the top position of pinned element */
+        }
+
+    </style>
+</head>
+<body>
+
+<!--折叠面板-->
+<div class="panel panel-success">
+    <div class="panel-heading">
+        <div class="layui-row">
+            <div class="layui-col-md11">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion"
+                       href="#taskInfoPanel">
+                        <img src="/images/open.png">
+                        任务相关信息
+                    </a>
+                </h4>
+            </div>
+        </div>
+
+    </div>
+    <div id="taskInfoPanel" class="panel-collapse collapse">
+        <div class="panel-body">
+            <div class="layui-row" id="taskDetailInfo">
+                <div class="layui-col-md6">
+                    <div class="layui-row">
+                        <div class="layui-col-md2">
+                            <h5 class="panel-title">任务标题:</h5>
+                        </div>
+                        <div class="layui-col-md10">
+                            <h6 class="panel-title"><p id="taskTitle"></p></h6>
+                        </div>
+                    </div>
+                    <div class="layui-row">
+                        <div class="layui-col-md2">
+                            <h5 class="panel-title">任务描述:</h5>
+                        </div>
+                        <div class="layui-col-md10">
+                            <h6 class="panel-title"><p id="taskDescription"></p></h6>
+                        </div>
+                    </div>
+                    <div class="layui-row">
+                        <div class="layui-col-md2">
+                            <h5 class="panel-title">其他备注:</h5>
+                        </div>
+                        <div class="layui-col-md10">
+                            <h6 class="panel-title"><p id="taskOtherInfo"></p></h6>
+                        </div>
+                    </div>
+                    <div class="layui-row">
+                        <div class="layui-col-md2">
+                            <h5 class="panel-title">文件列表:</h5>
+                        </div>
+                        <div class="layui-col-md10" id="taskFiles">
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layui-col-md6">
+                    <div class="layui-row">
+                        <div class="layui-col-md2">
+                            <h5 class="panel-title">创建时间:</h5>
+                        </div>
+                        <div class="layui-col-md10">
+                            <h6 class="panel-title"><p id="taskCreateTime"></p></h6>
+                        </div>
+                    </div>
+                    <div class="layui-row">
+                        <div class="layui-col-md2">
+                            <h5 class="panel-title">截止日期:</h5>
+                        </div>
+                        <div class="layui-col-md10">
+                            <h6 class="panel-title"><p id="taskDeadline"></p></h6>
+                        </div>
+                    </div>
+                    <div class="layui-row">
+                        <div class="layui-col-md2">
+                            <h5 class="panel-title"> 发布者:</h5>
+                        </div>
+                        <div class="layui-col-md10">
+                            <h6 class="panel-title"><p id="pubUserName"></p></h6>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="layui-row " id="div-instance-item">
+
+    <div class="layui-row">
+        <div class="layui-col-md1">
+            .
+        </div>
+
+        <div class="layui-col-md11">
+            <form class="layui-form">
+                <div class="layui-form-item" >
+                    <label class="layui-form-label">文件列表</label>
+                    <div class="layui-col-md4" id="doc-div">
+
+                    </div>
+
+                    <label class="layui-form-label">完成状态</label>
+                    <div class="layui-col-md2" id="status-div">
+                        <select name="status" id="status" lay-filter="selectStatus">
+                            <option value="1" selected>全部</option>
+                            <option value="2">进行中</option>
+                        </select>
+                    </div>
+                    .
+                    <div class="layui-col-md1">
+                        <input type="button" class="layui-btn layui-btn-primary" value="查看" id="select-docStatus">
+                    </div>
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+
+    <div class="layui-row ">
+        <div class="layui-col-md1">
+            <ul class="nav nav-tabs nav-stacked" data-spy="affix" data-offset-top="200" id="ul-nav">
+
+            </ul>
+        </div>
+        <div class="layui-col-md11">
+
+            <div class="panel panel-success">
+                <div class="panel-heading">
+
+                    <div class="layui-row">
+                        <div class="layui-col-md1">
+                            <h5>可选标签:</h5>
+                        </div>
+                        <div class="layui-col-md10" id="instance-label-div">
+                        </div>
+                        <div class="layui-col-md1">
+
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="panel-body">
+                    <div class="layui-row">
+
+                        <!--<div class="layui-col-md12">-->
+                        <div class="layui-row layui-col-space10">
+                            <div class="layui-col-md6">
+                                <div class="panel panel-default">
+
+                                    <table class="table">
+                                        <tr>
+                                            <td>
+                                                <div class="layui-col-md2">
+                                                    <h5>可选标签:</h5>
+                                                </div>
+                                                <div class="layui-col-md10" id="item1-label-div">
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                    </table>
+                                    <div class="panel-body" style="max-height: 500px;overflow:auto" >
+                                        <form class="form-horizontal">
+                                            <div class="form-group">
+                                                <p class="layui-col-md12" style="font-size: 18px;letter-spacing: 2px;text-indent: 20px;" id="p-item-0"></p>
+                                            </div>
+                                        </form>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="layui-col-md6">
+                                <div class="panel panel-default">
+
+                                    <table class="table">
+
+                                        <tr>
+                                            <td>
+                                                <div class="layui-col-md2">
+                                                    <h5>可选标签:</h5>
+                                                </div>
+                                                <div class="layui-col-md10" id="item2-label-div">
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <div class="panel-body" style="max-height: 500px;overflow:auto" >
+
+                                        <form class="form-horizontal">
+                                            <div class="form-group">
+                                                <p class="layui-col-md12" style="font-size: 18px;letter-spacing: 2px;text-indent: 20px;" id="p-item-1">
+                                                </p>
+                                            </div>
+                                        </form>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <!--</div>-->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="/js/myTask/myPub/my_myPub_Relation.js" ></script>
+<script type="text/javascript">
+
+    $(function () { $('#taskInfoPanel').collapse('show')});
+    //    $(function () { $('#collapseTwo2').collapse('hide')});
+
+</script>
+
+</body>
+</html>

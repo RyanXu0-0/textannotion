@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.annotation.dao.DtClassifyMapper" >
+  <resultMap id="BaseResultMap" type="com.annotation.model.DtClassify" >
+    <id column="dtd_id" property="dtdId" jdbcType="INTEGER" />
+    <result column="dt_id" property="dtId" jdbcType="INTEGER" />
+    <result column="label_id" property="labelId" jdbcType="INTEGER" />
+      <result column="goodlabel" property="goodlabel" jdbcType="INTEGER" />
+      <result column="badlabel" property="badlabel" jdbcType="INTEGER" />
+  </resultMap>
+
+    <resultMap id="labelCount" type="com.annotation.model.entity.LabelCountEntity" >
+        <id column="paragraph_id" property="paragraph_id" jdbcType="INTEGER" />
+        <collection property="labelCl" ofType="Map">
+            <result column="label_id" property="label_id" jdbcType="INTEGER" />
+            <result column="labelNum" property="labelNum" jdbcType="INTEGER" />
+        </collection>
+    </resultMap>
+
+    <select id="selectLabelCount" parameterType="Integer" resultMap="labelCount">
+         SELECT  dp.paragraph_id,dtc.label_id ,count(*) as labelNum
+            FROM d_task dt
+            left join d_paragraph dp on dt.tkid=dp.dtask_id
+            left join dt_classify dtc on dtc.dt_id=dp.dtid
+            where dt.task_id=#{tid}
+            group by dtc.label_id,dp.paragraph_id
+            order by dp.paragraph_id ;
+    </select>
+
+    <!--分类查询文件的所有段落以及已经做了的标签-->
+    <resultMap id="ClassifyParaLabelByDocId" type="com.annotation.model.entity.ParagraphLabelEntity">
+        <id column="pid" property="pid" jdbcType="INTEGER" />
+        <result column="paracontent" property="paracontent" jdbcType="VARCHAR" />
+        <result column="paraindex" property="paraindex" jdbcType="INTEGER" />
+        <result column="document_id" property="documentId" jdbcType="INTEGER" />
+        <result column="dotime" property="dotime" jdbcType="VARCHAR" />
+        <result column="comptime" property="comptime" jdbcType="VARCHAR" />
+        <result column="dtstatus" property="dtstatus" jdbcType="VARCHAR" />
+        <collection property="alreadyDone" ofType="Map">
+            <result column="label_id" property="label_id" jdbcType="INTEGER" />
+            <result column="dtd_id" property="dtd_id" jdbcType="INTEGER" />
+            <result column="goodlabel" property="goodlabel" jdbcType="INTEGER" />
+            <result column="badlabel" property="badlabel" jdbcType="INTEGER" />
+            <result column="u_id" property="u_id" jdbcType="INTEGER" />
+            <result column="cnum" property="cnum" jdbcType="INTEGER" />
+        </collection>
+    </resultMap>
+
+
+    <select id="selectClassify" parameterType="Integer" resultMap="ClassifyParaLabelByDocId">
+        select p.pid, p.paracontent, p.paraindex, p.document_id
+        from paragraph p
+        where p.document_id=#{docId}
+        ORDER BY p.pid
+    </select>
+
+
+    <select id="selectClassifyParaLabel" parameterType="Integer" resultMap="ClassifyParaLabelByDocId">
+        select p.pid, p.paracontent, p.paraindex, p.document_id,
+        dtc.label_id,dtc.goodlabel,dtc.badlabel,dtc.dtd_id,
+        dp.dotime,dp.comptime,dp.dtstatus,
+        dtu.u_id,dtu.cnum
+        from paragraph p
+        left join d_paragraph dp on (dp.dtask_id=#{dTaskId} and p.pid=dp.paragraph_id)
+        left join dt_classify dtc on dp.dtid =dtc.dt_id
+        left join dtu_comment dtu on dtu.dtd_id=dtc.dtd_id
+        where p.document_id=#{docId}
+        ORDER BY p.pid
+    </select>
+
+
+    <select id="selectClassifyWithStatus" parameterType="Map" resultMap="ClassifyParaLabelByDocId">
+        select p.pid, p.paracontent, p.paraindex, p.document_id,
+        dtc.label_id,dtc.dtd_id,
+        dp.dotime,dp.comptime,dp.dtstatus
+        from paragraph p
+        left join d_paragraph dp on (dp.dtask_id=#{dTaskId} and p.pid=dp.paragraph_id)
+        left join dt_classify dtc on dp.dtid =dtc.dt_id
+        where p.document_id=#{docId} and ( dp.dtstatus =#{status} or dp.dtstatus is null)
+        ORDER BY p.pid
+    </select>
+
+    <select id="selectClassifyWithoutDocId" parameterType="Integer" resultMap="ClassifyParaLabelByDocId">
+        select p.pid, p.paracontent, p.paraindex, p.document_id,
+        dtc.label_id,dtc.dtd_id,
+        dp.dotime,dp.comptime,dp.dtstatus
+        from task_document td
+        left join paragraph p on p.document_id =td.document_id
+        left join d_task dt on dt.task_id=td.task_id
+        left join d_paragraph dp on p.pid=dp.paragraph_id
+        left join dt_classify dtc on dp.dtid =dtc.dt_id
+        AND dt.user_id=#{userId} where td.task_id=#{tid}
+        ORDER BY p.pid
+    </select>
+
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="dtd_id" parameterType="com.annotation.model.DtClassify" >
+        insert into dt_classify (dtd_id, dt_id, label_id,goodlabel,badlabel
+        )
+        values (#{dtdId,jdbcType=INTEGER}, #{dtId,jdbcType=INTEGER}, #{labelId,jdbcType=INTEGER},
+        #{goodlabel,jdbcType=INTEGER},#{badlabel,jdbcType=INTEGER}
+        )
+    </insert>
+
+
+    <!--设置数据库自增长-->
+    <update id="alterDtClassifyTable">
+        ALTER TABLE dt_classify AUTO_INCREMENT =1
+    </update>
+
+
+
+
+
+    <resultMap id="classifyDataOut" type="com.annotation.model.entity.ClassifyData" >
+        <result column="docName" property="docName" jdbcType="VARCHAR" />
+        <result column="paraIndex" property="paraIndex" jdbcType="INTEGER" />
+        <result column="paraContent" property="paraContent" jdbcType="VARCHAR" />
+        <collection property="classifyContent" ofType="Map">
+            <result column="labelName" property="labelName" jdbcType="VARCHAR" />
+            <result column="labelNum" property="labelNum" jdbcType="INTEGER" />
+        </collection>
+    </resultMap>
+
+    <select id="getClassifyDataOut" parameterType="Integer" resultMap="classifyDataOut">
+        SELECT  dc.filename docName,
+        dp.paragraph_id,
+        pa.paraindex paraIndex,pa.paracontent paraContent,
+        lb.labelname labelName,
+        dtc.label_id ,count(*) as labelNum
+        FROM d_task dt
+        left join d_paragraph dp on dt.tkid=dp.dtask_id
+        left join dt_classify dtc on dtc.dt_id=dp.dtid
+        left join document dc on dc.did=dp.document_id
+        left join paragraph pa on pa.pid = dp.paragraph_id
+        left join label lb on lb.lid=dtc.label_id
+        where dt.task_id=#{tid}
+        group by dtc.label_id,dp.paragraph_id
+        order by dp.paragraph_id;
+    </select>
+
+
+
+
+    <delete id="deleteByDtId" parameterType="java.lang.Integer" >
+        delete from dt_classify
+        where dt_id = #{dtId}
+    </delete>
+
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from dt_classify
+    where dtd_id = #{dtdId,jdbcType=INTEGER}
+  </delete>
+
+    <update id="updateByPrimaryKey" parameterType="com.annotation.model.DtClassify">
+    update dt_classify
+    set dt_id = #{dtId,jdbcType=INTEGER},
+      label_id = #{labelId,jdbcType=INTEGER},
+      goodlabel = #{goodlabel,jdbcType=INTEGER},
+      badlabel = #{badlabel,jdbcType=INTEGER}
+    where dtd_id = #{dtdId,jdbcType=INTEGER}
+  </update>
+
+
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select dtd_id, dt_id, label_id,goodlabel,badlabel
+    from dt_classify
+    where dtd_id = #{dtdId,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select dtd_id, dt_id, label_id
+    from dt_classify
+  </select>
+</mapper>

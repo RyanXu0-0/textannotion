@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.annotation.dao.DtSortingMapper" >
+  <resultMap id="BaseResultMap" type="com.annotation.model.DtSorting" >
+    <id column="dtd_id" property="dtdId" jdbcType="INTEGER" />
+    <result column="dt_id" property="dtId" jdbcType="INTEGER" />
+    <result column="item_id" property="itemId" jdbcType="INTEGER" />
+    <result column="newindex" property="newindex" jdbcType="INTEGER" />
+  </resultMap>
+
+
+  <resultMap id="InstanceItemSortingByDocId" type="com.annotation.model.entity.InstanceItemEntity">
+    <id column="instid" jdbcType="INTEGER" property="instid" />
+    <result column="instindex" jdbcType="INTEGER" property="instindex" />
+    <result column="document_id" jdbcType="INTEGER" property="documentId" />
+    <result column="labelnum" jdbcType="INTEGER" property="labelnum" />
+    <result column="dotime" property="dotime" jdbcType="VARCHAR" />
+    <result column="comptime" property="comptime" jdbcType="VARCHAR" />
+    <result column="dtstatus" property="dtstatus" jdbcType="VARCHAR" />
+
+    <collection property="itemList" ofType="com.annotation.model.Item">
+      <id column="itid" jdbcType="INTEGER" property="itid" />
+      <result column="itemcontent" jdbcType="VARCHAR" property="itemcontent" />
+      <result column="itemindex" jdbcType="INTEGER" property="itemindex" />
+      <result column="instance_id" jdbcType="INTEGER" property="instanceId" />
+    </collection>
+    <collection property="alreadyDone" ofType="Map">
+      <result column="item_id" property="itemId" jdbcType="INTEGER" />
+      <result column="newindex" property="newindex" jdbcType="INTEGER" />
+    </collection>
+  </resultMap>
+
+  <select id="selectSorting" parameterType="Integer" resultMap="InstanceItemSortingByDocId">
+    select s.instid, s.instindex, s.document_id, s.labelnum,
+    it.itid, it.itemcontent, it.itemindex, it.instance_id, it.labelnum itemlabelnum
+    from instance s
+    left join item it on s.instid=it.instance_id
+    where s.document_id=#{docId}
+    ORDER BY s.instid
+  </select>
+
+
+  <select id="selectSortingInstanceItem" parameterType="Integer" resultMap="InstanceItemSortingByDocId">
+    select s.instid, s.instindex, s.document_id, s.labelnum,
+    it.itid, it.itemcontent, it.itemindex, it.instance_id, it.labelnum itemlabelnum,
+    di.dotime,di.comptime,di.dtstatus,
+    dts.item_id, dts.newindex
+    from instance s
+    left join item it on s.instid=it.instance_id
+    left join d_instance di on (di.dtask_id=#{dTaskId} and s.instid=di.instance_id)
+    left join dt_sorting dts on dts.dt_id =di.dtid
+    where s.document_id=#{docId}
+    ORDER BY s.instid
+  </select>
+
+
+  <select id="selectSortingWithStatus" parameterType="Map" resultMap="InstanceItemSortingByDocId">
+    select s.instid, s.instindex, s.document_id, s.labelnum,
+    it.itid, it.itemcontent, it.itemindex, it.instance_id, it.labelnum itemlabelnum,
+    di.dotime,di.comptime,di.dtstatus,
+    dts.item_id, dts.newindex
+    from instance s
+    left join item it on s.instid=it.instance_id
+    left join d_instance di on (di.dtask_id=#{dTaskId} and s.instid=di.instance_id)
+    left join dt_sorting dts on dts.dt_id =di.dtid
+     where s.document_id=#{docId} and (di.dtstatus =#{status} or di.dtstatus is null)
+    ORDER BY s.instid
+  </select>
+
+  <!--设置自增-->
+  <update id="alterDtSortingTable">
+    ALTER TABLE dt_sorting AUTO_INCREMENT =1
+  </update>
+
+
+  <insert id="insert" useGeneratedKeys="true" keyProperty="dtd_id" parameterType="com.annotation.model.DtSorting" >
+    replace into dt_sorting (dtd_id, dt_id, item_id,
+    newindex)
+    values (#{dtdId,jdbcType=INTEGER}, #{dtId,jdbcType=INTEGER}, #{itemId,jdbcType=INTEGER},
+    #{newindex,jdbcType=INTEGER})
+  </insert>
+
+
+
+    <update id="updateNewIndex" parameterType="com.annotation.model.DtSorting" >
+        update dt_sorting
+         set newindex = #{newindex,jdbcType=INTEGER}
+        where dtd_id = #{dtdId,jdbcType=INTEGER}
+    </update>
+
+
+
+  <delete id="deleteByDtId" parameterType="java.lang.Integer" >
+    delete from dt_sorting
+    where dt_id = #{dtId}
+  </delete>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from dt_sorting
+    where dtd_id = #{dtdId,jdbcType=INTEGER}
+  </delete>
+
+  <update id="updateByPrimaryKey" parameterType="com.annotation.model.DtSorting" >
+    update dt_sorting
+    set dt_id = #{dtId,jdbcType=INTEGER},
+      item_id = #{itemId,jdbcType=INTEGER},
+      newindex = #{newindex,jdbcType=INTEGER}
+    where dtd_id = #{dtdId,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select dtd_id, dt_id, item_id, newindex
+    from dt_sorting
+    where dtd_id = #{dtdId,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select dtd_id, dt_id, item_id, newindex
+    from dt_sorting
+  </select>
+
+
+
+  <!--排序类型标注数据导出-->
+  <resultMap id="SortingDataOut" type="com.annotation.model.entity.SortingData">
+    <result column="docId" jdbcType="INTEGER" property="docId" />
+    <result column="docName" property="docName" jdbcType="VARCHAR" />
+    <result column="instanceIndex" property="instanceIndex" jdbcType="INTEGER" />
+    <result column="itemContent" property="itemContent" jdbcType="VARCHAR" />
+     <result column="preIndex" property="preIndex" jdbcType="INTEGER" />
+      <result column="itemId" property="itemId" jdbcType="INTEGER" />
+      <collection property="sortingContent" ofType="Map">
+          <result column="newIndex" property="newIndex" jdbcType="INTEGER" />
+          <result column="newNum" property="newNum" jdbcType="INTEGER" />
+      </collection>
+
+
+  </resultMap>
+
+  <select id="getSortingDataOut" parameterType="Map" resultMap="SortingDataOut">
+        SELECT  dts.item_id itemId,dts.newindex newIndex,count(*) as newNum,
+        it.itemcontent itemContent,it.itemindex preIndex,
+        inst.instindex instanceIndex,
+        doc.filename docName,doc.did docId
+        FROM d_task dt
+        left join d_instance di on di.dtask_id=dt.tkid
+        left join dt_sorting dts on dts.dt_id=di.dtid
+        left join item it on it.itid=dts.item_id
+        left join instance inst on inst.instid=it.instance_id
+        left join document doc on doc.did=inst.document_id
+        where dt.task_id=#{tid}
+        group by dts.item_id,dts.newindex
+        order by doc.did,inst.instindex ;
+  </select>
+
+
+    <resultMap id="ResSortingData" type="com.annotation.model.entity.resHandle.ResSortingData">
+        <!--<result column="docId" jdbcType="INTEGER" property="docId" />-->
+        <!--<result column="docName" property="docName" jdbcType="VARCHAR" />-->
+        <!--<result column="instanceIndex" property="instanceIndex" jdbcType="INTEGER" />-->
+        <result column="itemContent" property="itemContent" jdbcType="VARCHAR" />
+        <result column="preIndex" property="preIndex" jdbcType="INTEGER" />
+        <!--<result column="itemId" property="itemId" jdbcType="INTEGER" />-->
+        <collection property="newSorting" ofType="Map">
+            <result column="newIndex" property="newIndex" jdbcType="INTEGER" />
+            <result column="newNum" property="newNum" jdbcType="INTEGER" />
+        </collection>
+
+    </resultMap>
+
+    <select id="getResSortingData" parameterType="Map" resultMap="ResSortingData">
+        SELECT  dts.item_id itemId,dts.newindex newIndex,count(*) as newNum,
+        it.itemcontent itemContent,it.itemindex preIndex,
+        inst.instindex instanceIndex,
+        doc.filename docName,doc.did docId
+        FROM d_task dt
+        left join d_instance di on di.dtask_id=dt.tkid
+        left join dt_sorting dts on dts.dt_id=di.dtid
+        left join item it on it.itid=dts.item_id
+        left join instance inst on inst.instid=it.instance_id
+        left join document doc on doc.did=inst.document_id
+        where dt.task_id=#{tid} and di.instance_id=#{instanceIndex} and di.document_id=#{docId}
+        group by dts.item_id,dts.newindex
+        order by inst.instindex ;
+    </select>
+
+    <resultMap id="sortingDataOut" type="com.annotation.model.entity.ExportSortingData">
+        <result column="docName" property="docName" jdbcType="VARCHAR"/>
+        <result column="instanceIndex" property="instanceIndex" jdbcType="INTEGER"/>
+        <result column="newIndex" property="newIndex" jdbcType="INTEGER"/>
+        <result column="itemContent" property="itemContent" jdbcType="VARCHAR"/>
+        <result column="newNum" property="newNum" jdbcType="INTEGER"/>
+    </resultMap>
+    <select id="getSortingDataOutAndroid" parameterType="Integer" resultMap="sortingDataOut">
+       SELECT doc.filename docName,inst.instindex instanceIndex,
+       dts.newindex newIndex,it.itemcontent itemContent,count(*)
+       as newNum FROM d_task dt
+       left join d_instance di on di.dtask_id=dt.tkid
+       left join dt_sorting dts on dts.dt_id=di.dtid
+       left join item it on it.itid=dts.item_id
+       left join instance inst on inst.instid=it.instance_id
+       left join document doc on doc.did=inst.document_id
+       where dt.task_id=#{tid}
+       group by dts.item_id,dts.newindex
+       order by doc.did,inst.instindex,dts.newindex;
+</select>
+
+</mapper>

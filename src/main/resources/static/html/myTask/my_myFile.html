@@ -1,0 +1,226 @@
+<!--<!DOCTYPE html>-->
+<!--<html>-->
+<!--<head>-->
+    <!--<meta charset="utf-8">-->
+    <!--<title>layui</title>-->
+    <!--<meta name="renderer" content="webkit">-->
+    <!--<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">-->
+    <!--<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">-->
+    <!--<link rel="stylesheet" href="/plugins/layui/css/layui.css" media="all">-->
+    <!--&lt;!&ndash; 注意：如果你直接复制所有代码到本地，上述css路径需要改成你本地的 &ndash;&gt;-->
+<!--</head>-->
+<!--<body>-->
+<!--<blockquote class="layui-elem-quote layui-text">-->
+    <!--查看我发布的文件-->
+<!--</blockquote>-->
+
+<!--<table class="layui-hide" id="test" lay-filter="test"></table>-->
+
+<!--<script src="/plugins/layui/layui.js" charset="utf-8"></script>-->
+<!--<script src="/plugins/js/jquery-2.1.4.min.js"></script>-->
+<!--<script type="text/javascript" src="/js/myTask/my_myFile.js"></script>-->
+
+<!--<script>-->
+    <!--layui.use('table', function(){-->
+        <!--var table = layui.table;-->
+
+        <!--table.render({-->
+            <!--elem: '#test',-->
+            <!--url: '/file/getDoclist',-->
+            <!--toolbar: true,-->
+            <!--title: '用户数据表',-->
+            <!--totalRow: true,-->
+            <!--cols: [[-->
+
+                <!--{field: 'dataindex',  title: '序号',fixed: 'left',type:'numbers'},-->
+                <!--{field: 'filename', title: '文件名', edit: 'text'},-->
+                <!--{field: 'filesize', title: '文件大小', edit: 'text'},-->
+                <!--{field: 'docuploadtime', title: '上传时间', edit: 'text'},-->
+                <!--{field: 'doccomptime', title: '完成时间', edit: 'text',sort: true},-->
+                <!--{field: 'docstatus', title: '完成状态', edit: 'text',sort: true},-->
+                <!--{field: 'option', title: '操作',sort: true,align:'center',toolbar:'#optionDemo'},-->
+            <!--]]-->
+            <!--, page: true-->
+            <!--, response: {-->
+                <!--statusName: 'code' //数据状态的字段名称，默认：code-->
+                <!--, statusCode: 0 //成功的状态码，默认：0 todo:重中之重-->
+                <!--, msgName: 'msg' //状态信息的字段名称，默认：msg-->
+                <!--, countName: 'count' //数据总数的字段名称，默认：count-->
+                <!--, dataName: 'data' //数据列表的字段名称，默认：data-->
+            <!--}-->
+        <!--});-->
+
+        <!--table.on('tool(test)', function(obj){-->
+            <!--var data = obj.data;-->
+           <!--// console.log(data);-->
+            <!--if(obj.event === 'detailcontent'){-->
+                <!--//layer.msg('ID：'+ data.id + ' 的查看操作');-->
+               <!--// console.log(data.did);-->
+                <!--layui.use(['jquery', 'layer'], function(){-->
+                    <!--var $ = layui.$ //重点处-->
+                        <!--,layer = layui.layer;-->
+
+                    <!--//后面就跟你平时使用jQuery一样-->
+                    <!--$(function(){-->
+
+                        <!--//console.log(data);-->
+                        <!--var docId=data.did;-->
+                        <!--var dataDocId={-->
+                            <!--docId: docId-->
+                        <!--};-->
+                        <!--$.ajax({-->
+                            <!--url: "content/getContent",-->
+                            <!--type: "get",-->
+                            <!--traditional: true,-->
+                            <!--contentType: "application/x-www-form-urlencoded; charset=UTF-8",-->
+                            <!--dataType: "json",-->
+                            <!--data:dataDocId,-->
+                            <!--success: function (resdata) {-->
+                                <!--//console.log(resdata.data[0]);-->
+
+                                <!--var strLength =resdata.data.length;-->
+
+                                <!--var strContent="" ;-->
+                                <!--for(var i=0;i<strLength;i++){-->
+                                    <!--//console.log(resdata.data[i]);-->
+                                   <!--strContent=strContent+"<p>"+"\xa0\xa0\xa0\xa0"+resdata.data[i].paracontent+"</p>";-->
+                                <!--}-->
+
+                                 <!--layui.use('layer',function(){-->
+                                     <!--var layer=layui.layer;-->
+                                     <!--layer.open({-->
+                                         <!--type:0,-->
+                                         <!--area: '600px',-->
+                                         <!--content:strContent-->
+                                     <!--})-->
+                                 <!--});-->
+
+                            <!--}, error: function (XMLHttpRequest, textStatus, errorThrown) {-->
+
+
+                            <!--},-->
+                        <!--});-->
+                    <!--});-->
+
+                <!--});-->
+
+            <!--}-->
+        <!--});-->
+    <!--});-->
+<!--</script>-->
+<!--<script type="text/html" id="optionDemo">-->
+<!--&lt;!&ndash;{{d.LAY_TABLE_INDEX+1}}&ndash;&gt;-->
+<!--<a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="detailcontent">查看文件内容</a>-->
+<!--</script>-->
+<!--</body>-->
+<!--</html>-->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>layui</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="/plugins/layui/css/layui.css"  media="all">
+    <!--<link rel="stylesheet" href="plugins/css/xadmin.css">-->
+
+    <script src="/plugins/js/jquery-2.1.4.min.js"></script>
+    <!-- 注意：如果你直接复制所有代码到本地，上述css路径需要改成你本地的 -->
+</head>
+<body>
+<center>
+    <fieldset class="layui-elem-field">
+
+        <form class="layui-form" action="/alipay/pay">
+            <input class="layui-input" type="text" placeholder="￥" name="money" id="money"/>
+            <input type="submit" value="支付" class="layui-btn layui-btn-mini" />
+        </form>
+    </fieldset>
+</center>
+
+<!--<button id="js-export" type="button" class="btn btn-primary">导出Excel</button>-->
+
+<!--<div class="container">-->
+<!--<header data-am-widget="header" class="am-header am-header-default my-header">-->
+<!--<div class="am-header-left am-header-nav am-dropdown"  data-am-dropdown>-->
+<!--<a href="index.html" class="">-->
+<!--<i class="am-header-icon am-icon-chevron-left"  style="color: #8a8a8a;font-size: 16px;"></i>-->
+<!--</a>-->
+<!--<div style="display:none">-->
+
+<!--</div>-->
+
+<!--</div>-->
+<!--<h1 class="am-header-title">-->
+<!--<a href="#title-link" class="" style="color: #8a8a8a;font-size: 16px;"   >服务详情</a>-->
+<!--</h1>-->
+<!--<div class="am-header-right am-header-nav">-->
+<!--<a href="#right-link" class="">-->
+<!--<i class="am-header-icon  am-icon-share-alt"></i>-->
+<!--</a>-->
+<!--</div>-->
+<!--</header>-->
+<!--&lt;!&ndash; banner &ndash;&gt;-->
+
+
+<!--<div class="gray-panel">-->
+
+
+
+<!--<div class="wrapper">-->
+<!--<div class="app">-->
+<!--<div class="container stopwatch">-->
+
+
+<!--<div class="clock inactive z-depth-1">-->
+<!--<span>0:00:00</span>-->
+
+<!--</div>-->
+
+<!--<form>-->
+<!--<button id="stopwatch-btn-start" >开始</button>-->
+
+<!--</form>-->
+
+<!--</div>-->
+<!--</div>-->
+<!--</div>-->
+
+
+
+<!--</div>-->
+
+<!--</div>-->
+
+<!--<div id="timer" style="color:red" mce_style="color:red"></div>-->
+<script type="text/javascript" src="/js/test/test.js"></script>
+<!--<script type="text/javascript">-->
+
+<!--var orign_time1 = new Date("2019-11-12 00:00:00");-->
+<!--var deadline = Date.parse(orign_time1)/1000;-->
+<!--var currentTime = Date.parse(new Date())/1000;//转化成秒-->
+<!--var spaceTime = deadline-currentTime;-->
+<!--console.log(deadline);-->
+<!--console.log(currentTime);-->
+<!--console.log(spaceTime);-->
+<!--// var maxTime =leftTime;-->
+<!--function startClock() {-->
+<!--if (spaceTime >=0) {-->
+<!--var hours = parseInt(spaceTime/60/60%24,10);-->
+<!--var minutes = parseInt(spaceTime/60%60,10);-->
+<!--var seconds = parseInt(spaceTime%60, 10);-->
+<!--var timeTxt = hours+":"+minutes+":"+seconds;-->
+<!--document.getElementById("timer").innerHTML = timeTxt;-->
+<!--&#45;&#45;spaceTime;-->
+<!--} else {-->
+<!--clearInterval(timer);-->
+<!--alert("时间到，结束!");-->
+<!--}-->
+<!--}-->
+<!--timer = setInterval("startClock()",1000);-->
+<!--</script>-->
+
+</body>
+</html>

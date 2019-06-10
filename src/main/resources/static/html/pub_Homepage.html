@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>发布标注任务</title>
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+
+    <link rel="stylesheet" href="/plugins/css/font.css">
+    <link rel="stylesheet" href="/plugins/css/xadmin.css">
+    <script type="text/javascript" src="/plugins/js/jquery-2.1.4.min.js"></script>
+    <script src="/plugins/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/plugins/js/publishTask_xdmin.js"></script>
+
+</head>
+<body>
+<!-- 顶部开始 -->
+<div class="container">
+
+    <div class="logo"><a href="./u_homepage.html"><i class="layui-icon">&#xe65c;</i> 返回主页</a></div>
+    <ul class="layui-nav left fast-add" lay-filter="">
+        <li class="layui-nav-item">
+            <a href="javascript:;">+其他功能区</a>
+            <dl class="layui-nav-child"> <!-- 二级菜单 -->
+                <dd><a href="/html/do_Homepage.html"><i class="iconfont">&#xe6b2;</i>做任务</a></dd>
+                <dd><a href="/html/my_Homepage.html"><i class="iconfont">&#xe705;</i>管理任务</a></dd>
+            </dl>
+        </li>
+        <!--<li class="layui-nav-item">-->
+            <!--<a id ="test" onclick="test(this.id)">+其他功能区</a>-->
+
+        <!--</li>-->
+    </ul>
+    <ul class="layui-nav right" lay-filter="">
+        <li class="layui-nav-item">
+            <a href="javascript:;"><div id="username"></div></a>
+            <dl class="layui-nav-child"> <!-- 二级菜单 -->
+                <dd><a href="index.html">个人信息</a></dd>
+                <dd><a onclick="x_admin_show('切换帐号','http://www.baidu.com')">切换帐号</a></dd>
+                <dd><a><div id="userlogout">退出登陆</div></a></dd>
+            </dl>
+        </li>
+        <!--<li class="layui-nav-item to-index"><a href="/">前台首页</a></li>-->
+    </ul>
+
+</div>
+
+<div class="page-content">
+
+    <iframe src='/html/pubTask/p_publishTask.html' frameborder="0" scrolling="yes" class="x-iframe" width="100%" height="100%"></iframe>
+    <!--<div class="layui-tab tab" lay-filter="xbs_tab" lay-allowclose="false">-->
+        <!--<ul class="layui-tab-title">-->
+            <!--<li class="home"><i class="layui-icon">&#xe68e;</i>发布任务</li>-->
+        <!--</ul>-->
+        <!--<div class="layui-tab-content">-->
+            <!--<div class="layui-tab-item layui-show">-->
+                <!--<iframe src='publishTask.html' frameborder="0" scrolling="yes" class="x-iframe" width="100%" height="100%"></iframe>-->
+            <!--</div>-->
+        <!--</div>-->
+
+    <!--</div>-->
+</div>
+<div class="page-content-bg"></div>
+<!-- 右侧主体结束 -->
+<!-- 中部结束 -->
+<!-- 底部开始 -->
+<div class="footer">
+    <div class="copyright">Copyright ©2019 文本标注系统 All Rights Reserved</div>
+</div>
+
+<script type="text/javascript" src="../js/nav.js"></script>
+
+<!--<script>-->
+    <!--function test(obj) {-->
+        <!--console.log(obj);-->
+        <!--$("#iframepub").hide();-->
+        <!--$("#iframedo").show();-->
+        <!--console.log("ha");-->
+    <!--}-->
+<!--</script>-->
+</body>
+</html>

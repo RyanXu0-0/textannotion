@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>文本关系类别标注</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="/plugins/css/font.css">
+
+    <link rel="stylesheet" href="/plugins/layui/css/layui.css">
+    <link rel="stylesheet" href="/plugins/bootstrap/bootstrap.min.css">
+    <script src="/plugins/js/jquery-2.1.4.min.js"></script>
+    <script src="/plugins/layui/layui.js"></script>
+    <script src="/plugins/bootstrap/bootstrap.min.js"></script>
+    <script src="/js/myTask/myPub/my_myPub_OneSorting.js" ></script>
+    <script src="/plugins/js/Sortable.js"></script>
+
+
+
+    <!--左边导航的样式-->
+    <style>
+        /* Custom Styles */
+        ul.nav-tabs{
+            width: 100px;
+            margin-top: 20px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.067);
+        }
+        ul.nav-tabs li{
+            margin: 0;
+            border-top: 1px solid #ddd;
+        }
+        ul.nav-tabs li:first-child{
+            border-top: none;
+        }
+        ul.nav-tabs li a{
+            margin: 0;
+            padding: 8px 16px;
+            border-radius: 0;
+        }
+        ul.nav-tabs li.active a, ul.nav-tabs li.active a:hover{
+            color: #fff;
+            background: #0088cc;
+            border: 1px solid #0088cc;
+        }
+        ul.nav-tabs li:first-child a{
+            border-radius: 4px 4px 0 0;
+        }
+        ul.nav-tabs li:last-child a{
+            border-radius: 0 0 4px 4px;
+        }
+        ul.nav-tabs.affix{
+            top: 30px; /* Set the top position of pinned element */
+        }
+    </style>
+    <style>
+        .layui-form-label{ width: 90px; }
+        .block__list_words li {
+            /*color: #fff;*/
+            float: left;
+            margin: 1px 6px 2px 0;
+            padding: 2px 2px;
+            min-width: 400px;
+            /*background-color: #5F9EDF;*/
+            font-size: 16px;
+
+        }
+
+        .block__list_words .sortable-ghost {
+            opacity: 0.4;
+            background-color: #F4E2C9;
+        }
+        .block__list {
+            padding: 20px 0;
+            margin-top: -8px;
+            margin-left: 5px;
+            background-color: #fff;
+        }
+
+        .drag-handle {
+            margin-right: 10px;
+            font: bold 20px Sans-Serif;
+            color: #5F9EDF;
+            display: inline-block;
+            cursor: move;
+            cursor: -webkit-grabbing;  /* overrides 'move' */
+        }
+
+    </style>
+
+
+</head>
+<body>
+
+<!--折叠面板-->
+<!--todo:样式好丑-->
+<div class="panel panel-success">
+    <div class="panel-heading">
+        <div class="layui-row">
+            <div class="layui-col-md11">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion"
+                       href="#taskInfoPanel">
+                        <img src="/images/open.png">
+                        任务相关信息
+                    </a>
+                </h4>
+            </div>
+
+
+        </div>
+
+    </div>
+    <div id="taskInfoPanel" class="panel-collapse collapse">
+        <div class="panel-body">
+            <div class="layui-row" id="taskDetailInfo">
+                <div class="layui-col-md6">
+                    <div class="layui-row">
+                        <div class="layui-col-md2">
+                            <h5 class="panel-title">任务标题:</h5>
+                        </div>
+                        <div class="layui-col-md10">
+                            <h6 class="panel-title"><p id="taskTitle"></p></h6>
+                        </div>
+                    </div>
+                    <div class="layui-row">
+                        <div class="layui-col-md2">
+                            <h5 class="panel-title">任务描述:</h5>
+                        </div>
+                        <div class="layui-col-md10">
+                            <h6 class="panel-title"><p id="taskDescription"></p></h6>
+                        </div>
+                    </div>
+                    <div class="layui-row">
+                        <div class="layui-col-md2">
+                            <h5 class="panel-title">其他备注:</h5>
+                        </div>
+                        <div class="layui-col-md10">
+                            <h6 class="panel-title"><p id="taskOtherInfo"></p></h6>
+                        </div>
+                    </div>
+                    <div class="layui-row">
+                        <div class="layui-col-md2">
+                            <h5 class="panel-title">文件列表:</h5>
+                        </div>
+                        <div class="layui-col-md10" id="taskFiles">
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layui-col-md6">
+                    <div class="layui-row">
+                        <div class="layui-col-md2">
+                            <h5 class="panel-title">创建时间:</h5>
+                        </div>
+                        <div class="layui-col-md10">
+                            <h6 class="panel-title"><p id="taskCreateTime"></p></h6>
+                        </div>
+                    </div>
+                    <div class="layui-row">
+                        <div class="layui-col-md2">
+                            <h5 class="panel-title">截止日期:</h5>
+                        </div>
+                        <div class="layui-col-md10">
+                            <h6 class="panel-title"><p id="taskDeadline"></p></h6>
+                        </div>
+                    </div>
+                    <div class="layui-row">
+                        <div class="layui-col-md2">
+                            <h5 class="panel-title"> 发布者:</h5>
+                        </div>
+                        <div class="layui-col-md10">
+                            <h6 class="panel-title"><p id="pubUserName"></p></h6>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="layui-row" id="div-doTask" >
+
+    <div class="layui-row">
+        <div class="layui-col-md1">
+            .
+        </div>
+        <div class="layui-col-md11">
+            <form class="layui-form">
+                <div class="layui-form-item" >
+                    <label class="layui-form-label">文件列表</label>
+                    <div class="layui-col-md4" id="doc-div">
+
+                    </div>
+
+                    <label class="layui-form-label">完成状态</label>
+                    <div class="layui-col-md2" id="status-div">
+                        <select name="status" id="status" lay-filter="selectStatus">
+                            <option value="1" selected>全部</option>
+                            <option value="2">进行中</option>
+                        </select>
+                    </div>
+
+                    <div class="layui-col-md1">
+                        <input type="button" class="layui-btn layui-btn-primary" value="查看" id="select-docStatus">
+                    </div>
+                </div>
+            </form>
+
+
+        </div>
+
+    </div>
+
+    <div class="layui-col-md1">
+        <ul class="nav nav-tabs nav-stacked" data-spy="affix" data-offset-top="200" id="ul-nav">
+
+        </ul>
+    </div>
+    <div class="layui-col-md11">
+        <div class="panel panel-success">
+
+            <div class="panel-body">
+                <div class="layui-row">
+
+                    <div class="layui-col-md12">
+                        <div class="layui-row layui-col-space10">
+                            <!--<div class="layui-col-md6">-->
+                            <div class="panel panel-default">
+                                <table class="table">
+                                    <tr><td>待排序部分</td></tr>
+                                </table>
+                                <div class="panel-body" style="min-height: 200px; max-height: 500px;overflow:auto"  >
+
+                                    <ul class="list-group block__list block__list_words" id="left-sorting">
+
+                                    </ul>
+                                </div>
+
+                            </div>
+                            <!--</div>-->
+                            <!--<div class="layui-col-md6">-->
+                            <!--<div class="panel panel-default">-->
+                            <!--<table class="table">-->
+
+                            <!--<tr>-->
+                            <!--<td>-->
+                            <!--<div class="layui-col-md10">-->
+                            <!--<h5>拖拽到这里:</h5>-->
+                            <!--</div>-->
+                            <!--<div class="layui-col-md2" >-->
+
+                            <!--</div>-->
+                            <!--</td>-->
+                            <!--</tr>-->
+
+                            <!--</table>-->
+                            <!--<div class="panel-body" style="min-height: 200px;max-height: 500px;overflow:auto" >-->
+
+                            <!--<ul class="list-group block__list block__list_words" id="right-sorting">-->
+
+                            <!--</ul>-->
+                            <!--</div>-->
+
+                            <!--</div>-->
+                            <!--</div>-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $(function () { $('#taskInfoPanel').collapse('show')});
+</script>
+
+<script>
+
+
+//    Sortable.create(document.getElementById('left-sorting'), {
+//        animation: 10, //动画参数
+//        group: 'shared',
+//        onAdd: function (evt){ //拖拽时候添加有新的节点的时候发生该事件
+//            console.log('onAdd.left-sorting:', [evt.item, evt.from]);
+//        },
+//        onUpdate: function (evt){ //拖拽更新节点位置发生该事件
+//            console.log('onUpdate.left-sorting:', [evt.item, evt.from]);
+//        },
+//        onRemove: function (evt){ //删除拖拽节点的时候促发该事件
+//            console.log('onRemove.left-sorting:', [evt.item, evt.from]);
+//        },
+//        onStart:function(evt){ //开始拖拽出发该函数
+//            console.log('onStart.left-sorting:', [evt.item, evt.from]);
+//        },
+//        onSort:function(evt){ //发生排序发生该事件
+//            console.log('onSort.left-sorting:', [evt.item, evt.from]);
+//        },
+//        onEnd: function(evt){ //拖拽完毕之后发生该事件
+//            console.log('onEnd.left-sorting:', [evt.item, evt.from]);
+////            console.log(evt);
+////            console.log(evt.item);
+////            console.log(evt.from);
+//            var id_arr=''
+//            for(var i=0, len=evt.from.children.length; i<len; i++){
+//                id_arr+=','+ evt.from.children[i].getAttribute('drag-id');
+//            }
+//            id_arr=id_arr.substr(1);
+//            //然后请求后台ajax 这样就完成了拖拽排序
+//            console.log(id_arr);
+//
+////
+////            var ultest=document.getElementById('left-sorting');
+////            console.log(ultest.children[0].getAttribute('drag-id'));
+//        }
+//    });
+
+    //    Sortable.create(document.getElementById('right-sorting'), {
+    //       animation: 10, //动画参数
+    //        group: 'shared',
+    //        onAdd: function (evt){ //拖拽时候添加有新的节点的时候发生该事件
+    //            console.log('onAdd.right-sorting:', [evt.item, evt.from]);
+    //        },
+    //        onUpdate: function (evt){ //拖拽更新节点位置发生该事件
+    //            console.log('onUpdate.right-sorting:', [evt.item, evt.from]);
+    //        },
+    //        onRemove: function (evt){ //删除拖拽节点的时候促发该事件
+    //            console.log('onRemove.right-sorting:', [evt.item, evt.from]);
+    //        },
+    //        onStart:function(evt){ //开始拖拽出发该函数
+    //            console.log('onStart.right-sorting:', [evt.item, evt.from]);
+    //        },
+    //        onSort:function(evt){ //发生排序发生该事件
+    //            console.log('onSort.right-sorting:', [evt.item, evt.from]);
+    //        },
+    //        onEnd: function(evt){ //拖拽完毕之后发生该事件
+    //            console.log('onEnd.right-sorting:', [evt.item, evt.from]);
+    //            var id_arr=''
+    //            for(var i=0, len=evt.from.children.length; i<len; i++){
+    //                id_arr+=','+ evt.from.children[i].getAttribute('drag-id');
+    //            }
+    //            id_arr=id_arr.substr(1);
+    //            //然后请求后台ajax 这样就完成了拖拽排序
+    //            console.log(id_arr);
+    //        }
+    //    });
+</script>
+</body>
+</html>

@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.annotation.dao.TaskMapper">
+
+    <!--BaseResultMap-->
+    <resultMap id="BaseResultMap" type="com.annotation.model.Task" >
+        <id column="tid" property="tid" jdbcType="INTEGER" />
+        <result column="title" property="title" jdbcType="VARCHAR" />
+        <result column="description" property="description" jdbcType="VARCHAR" />
+        <result column="type_name" property="typeName" jdbcType="VARCHAR" />
+        <result column="createtime" property="createtime" jdbcType="VARCHAR" />
+        <result column="deadline" property="deadline" jdbcType="VARCHAR" />
+        <result column="taskcompstatus" property="taskcompstatus" jdbcType="VARCHAR" />
+        <result column="otherinfo" property="otherinfo" jdbcType="VARCHAR" />
+        <result column="user_id" property="userId" jdbcType="INTEGER" />
+        <result column="viewnum" property="viewnum" jdbcType="INTEGER" />
+        <result column="attendnum" property="attendnum" jdbcType="INTEGER" />
+        <result column="pubUserName" property="pubUserName" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <!--插入任务-->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="tid" parameterType="com.annotation.model.Task" >
+        insert into task (tid, title, description,
+        type_name, createtime, deadline,
+        taskcompstatus, otherinfo, user_id,
+        viewnum, attendnum)
+        values (#{tid,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR},
+        #{typeName,jdbcType=VARCHAR}, #{createtime,jdbcType=VARCHAR}, #{deadline,jdbcType=TIMESTAMP},
+        #{taskcompstatus,jdbcType=VARCHAR}, #{otherinfo,jdbcType=VARCHAR}, #{userId,jdbcType=INTEGER},
+        #{viewnum,jdbcType=INTEGER}, #{attendnum,jdbcType=INTEGER})
+    </insert>
+
+    <!--设置数据库自增长-->
+    <update id="alterTaskTable">
+        ALTER TABLE task AUTO_INCREMENT =1
+    </update>
+
+    <!--查询所有未完成的任务-->
+    <select id="selectTotalTaskOfUndo" parameterType="map" resultMap="BaseResultMap">
+        select t.tid, t.title, t.description,t.type_name, t.createtime, t.deadline,
+        t.taskcompstatus, t.otherinfo, t.user_id,t.viewnum, t.attendnum,
+        u.username pubUserName
+        from task t
+        INNER JOIN user u on u.id=t.user_id
+        where taskcompstatus != "已完成"
+        order by t.tid
+        limit #{currIndex},#{pageSize}
+    </select>
+
+    <select id="countNumOfTaskUndo"  resultType="Integer">
+        select count(*) from task where taskcompstatus != "已完成"
+    </select>
+
+    <!--根据发布者ID查询所有发布的任务-->
+    <select id="selectMyPubTask" parameterType="map" resultMap="BaseResultMap">
+        select t.tid, t.title, t.description,t.type_name, t.createtime, t.deadline,
+        t.taskcompstatus, t.otherinfo, t.user_id,t.viewnum, t.attendnum,
+        u.username pubUserName
+        from task t
+        INNER JOIN user u on u.id=t.user_id where t.user_id = #{userId}
+        ORDER BY t.tid
+        limit #{currIndex},#{pageSize}
+
+    </select>
+
+    <select id="countNumOfMyPubTask" parameterType="Integer" resultType="Integer">
+        select count(*) from task where user_id = #{userId}
+    </select>
+
+    <select id="selectTaskById" parameterType="Integer" resultMap="BaseResultMap">
+        select t.tid, t.title, t.description,t.type_name, t.createtime, t.deadline,
+        t.taskcompstatus, t.otherinfo, t.user_id,t.viewnum, t.attendnum,
+        u.username pubUserName
+        from task t
+        INNER JOIN user u on u.id=t.user_id where tid = #{tid}
+    </select>
+
+
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete from task
+        where tid = #{tid,jdbcType=INTEGER}
+    </delete>
+
+
+
+
+
+
+
+    <!--查询为完成的任务总数-->
+    <!--<select id="countAllTaskNum"  resultType="Integer">-->
+        <!--select count(*) from task where taskcompstatus != "已完成"-->
+    <!--</select>-->
+
+
+
+
+
+
+
+    <update id="updateById" parameterType="com.annotation.model.Task">
+        UPDATE task
+        <trim prefix="set" suffixOverrides=",">
+            <if test="title!=null">title=#{title},</if>
+            <if test="description!=null">description=#{description},</if>
+            <if test="typeName!=null">type_name=#{typeName},</if>
+            <if test="createtime!=null">createtime=#{createtime},</if>
+            <if test="deadline!=null">deadline=#{deadline},</if>
+            <if test="taskcompstatus!=null">taskcompstatus=#{taskcompstatus},</if>
+            <if test="otherinfo!=null">otherinfo=#{otherinfo},</if>
+            <if test="userId!=null">user_id=#{userId},</if>
+            <if test="viewnum!=null">viewnum=#{viewnum},</if>
+            <if test="attendnum!=null">attendnum=#{attendnum},</if>
+        </trim>
+        WHERE tid = #{tid}
+    </update>
+
+
+
+
+
+
+
+
+
+
+    <select id="getAll" resultMap="BaseResultMap">
+        SELECT tid,title,taskcompstatus,createtime FROM task
+    </select>
+
+
+
+
+
+
+
+
+
+
+
+    <resultMap id="TaskInfoWithDocLabel" type="com.annotation.model.entity.TaskInfoEntity">
+        <id column="tid" property="tid" jdbcType="INTEGER" />
+        <result column="title" property="title" jdbcType="VARCHAR" />
+        <result column="description" property="description" jdbcType="VARCHAR" />
+        <result column="type_name" property="typeName" jdbcType="VARCHAR" />
+        <result column="createtime" property="createtime" jdbcType="VARCHAR" />
+        <result column="deadline" property="deadline" jdbcType="VARCHAR" />
+        <result column="taskcompstatus" property="taskcompstatus" jdbcType="VARCHAR" />
+        <result column="otherinfo" property="otherinfo" jdbcType="VARCHAR" />
+        <result column="user_id" property="userId" jdbcType="INTEGER" />
+        <result column="viewnum" property="viewnum" jdbcType="INTEGER" />
+        <result column="attendnum" property="attendnum" jdbcType="INTEGER" />
+        <result column="pubUserName" property="pubUserName" jdbcType="VARCHAR" />
+        <collection property="documentList" ofType="Map">
+            <id column="did" property="did"></id>
+            <result column="filename" property="filename"></result>
+            <result column="filetype" property="filetype"></result>
+            <result column="filesize" property="filesize"></result>
+            <result column="docuploadtime" property="docuploadtime"></result>
+            <result column="docstatus" property="docstatus"></result>
+        </collection>
+        <collection property="labelList" ofType="Map">
+            <id column="lid" property="lid"></id>
+            <result column="labelname" property="labelname"></result>
+            <result column="color" property="color"></result>
+        </collection>
+    </resultMap>
+
+    <select id="selectTaskInfoWithDocLabel" parameterType="Integer" resultMap="TaskInfoWithDocLabel">
+        select t.tid,t.title,t.description,t.type_name,t.createtime,t.deadline,
+              t.otherinfo,t.user_id,t.viewnum,t.attendnum,
+                u.username pubUserName,
+                d.did,d.filename,d.filetype,d.filesize,d.docuploadtime,
+                l.lid,l.labelname,tl.color
+                from task t,label l,document d,task_label tl,task_document td,user u
+                where t.tid=#{tid} AND t.tid=tl.task_id AND tl.label_id=l.lid
+                AND t.tid=td.task_id AND td.document_id= d.did AND u.id=t.user_id
+    </select>
+
+    <resultMap id="TaskInfoWithDocInstanceLabel" type="com.annotation.model.entity.TaskInfoEntity">
+        <id column="tid" property="tid" jdbcType="INTEGER" />
+        <result column="title" property="title" jdbcType="VARCHAR" />
+        <result column="description" property="description" jdbcType="VARCHAR" />
+        <result column="type_name" property="typeName" jdbcType="VARCHAR" />
+        <result column="createtime" property="createtime" jdbcType="VARCHAR" />
+        <result column="deadline" property="deadline" jdbcType="VARCHAR" />
+        <result column="taskcompstatus" property="taskcompstatus" jdbcType="VARCHAR" />
+        <result column="otherinfo" property="otherinfo" jdbcType="VARCHAR" />
+        <result column="user_id" property="userId" jdbcType="INTEGER" />
+        <result column="viewnum" property="viewnum" jdbcType="INTEGER" />
+        <result column="attendnum" property="attendnum" jdbcType="INTEGER" />
+        <result column="pubUserName" property="pubUserName" jdbcType="VARCHAR" />
+        <collection property="documentList" ofType="Map">
+            <id column="did" property="did"></id>
+            <result column="filename" property="filename"></result>
+            <result column="filetype" property="filetype"></result>
+            <result column="filesize" property="filesize"></result>
+            <result column="docuploadtime" property="docuploadtime"></result>
+            <result column="docstatus" property="docstatus"></result>
+        </collection>
+        <collection property="labelList" ofType="Map">
+            <id column="lid" property="lid"></id>
+            <result column="labelname" property="labelname"></result>
+            <result column="labeltype" property="labeltype"></result>
+        </collection>
+    </resultMap>
+
+    <select id="selectTaskInfoWithDocInstanceLabel" parameterType="Integer" resultMap="TaskInfoWithDocInstanceLabel">
+        select t.tid,t.title,t.description,t.type_name,t.createtime,t.deadline,
+        t.otherinfo,t.user_id,t.viewnum,t.attendnum,
+        u.username pubUserName,
+        d.did,d.filename,d.filetype,d.filesize,d.docuploadtime,
+        l.lid,l.labelname,tl.labeltype
+        from task t,label l,document d,instance_label tl,task_document td,user u
+        where t.tid=#{tid} AND t.tid=tl.task_id AND tl.label_id=l.lid
+        AND t.tid=td.task_id AND td.document_id= d.did AND u.id=t.user_id
+    </select>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <resultMap id="TaskInfoWithDoc" type="com.annotation.model.entity.TaskInfoEntity">
+        <id column="tid" property="tid" jdbcType="INTEGER" />
+        <result column="title" property="title" jdbcType="VARCHAR" />
+        <result column="description" property="description" jdbcType="VARCHAR" />
+        <result column="type_name" property="typeName" jdbcType="VARCHAR" />
+        <result column="createtime" property="createtime" jdbcType="VARCHAR" />
+        <result column="deadline" property="deadline" jdbcType="VARCHAR" />
+        <result column="taskcompstatus" property="taskcompstatus" jdbcType="VARCHAR" />
+        <result column="otherinfo" property="otherinfo" jdbcType="VARCHAR" />
+        <result column="user_id" property="userId" jdbcType="INTEGER" />
+        <result column="viewnum" property="viewnum" jdbcType="INTEGER" />
+        <result column="attendnum" property="attendnum" jdbcType="INTEGER" />
+        <result column="pubUserName" property="pubUserName" jdbcType="VARCHAR" />
+        <collection property="documentList" ofType="Map">
+            <id column="did" property="did"></id>
+            <result column="filename" property="filename"></result>
+            <result column="filetype" property="filetype"></result>
+            <result column="filesize" property="filesize"></result>
+            <result column="docuploadtime" property="docuploadtime"></result>
+            <result column="docstatus" property="docstatus"></result>
+        </collection>
+    </resultMap>
+
+    <select id="selectTaskInfoWithDoc" parameterType="Integer" resultMap="TaskInfoWithDoc">
+        select t.tid,t.title,t.description,t.type_name,t.createtime,t.deadline,
+                t.otherinfo,t.user_id,t.viewnum,t.attendnum,
+                u.username pubUserName,
+                d.did,d.filename,d.filetype,d.filesize,d.docuploadtime,
+                l.lid,l.labelname
+                from task t,label l,document d,task_document td,user u
+                where t.tid=#{tid} AND t.tid=td.task_id AND td.document_id= d.did AND u.id=t.user_id
+    </select>
+
+    <resultMap id="TaskInfoWithLabel" type="com.annotation.model.entity.TaskInfoEntity">
+        <id column="tid" property="tid"></id>
+        <collection property="labelList" ofType="Map">
+            <id column="lid" property="lid"></id>
+            <result column="labelname" property="labelname"></result>
+        </collection>
+    </resultMap>
+
+    <select id="selectTaskInfoWithLabel" parameterType="Integer" resultMap="TaskInfoWithLabel">
+         select t.tid,l.lid,l.labelname from task t,label l,task_label tl
+                where t.tid=#{tid} AND t.tid=tl.taskid AND tl.labelid=l.lid
+
+    </select>
+
+    <!--<select id="selectUserName" parameterType="Integer" resultType="String">-->
+        <!--select username from `user` u,task t WHERE t.tid=#{tid} AND t.userid=u.id-->
+    <!--</select>-->
+
+
+
+
+    <!--文本配对类型标注数据导出-->
+    <resultMap id="UserTaskEmail" type="com.annotation.model.entity.UserTaskEmail">
+        <result column="userId" jdbcType="INTEGER" property="userId" />
+        <result column="userName" property="userName" jdbcType="VARCHAR" />
+        <result column="userEmail" property="userEmail" jdbcType="VARCHAR" />
+        <collection property="taskInfo" ofType="Map">
+            <result column="taskType" property="taskType" jdbcType="INTEGER" />
+            <result column="title" property="title" jdbcType="INTEGER" />
+            <result column="deadline" property="deadline" jdbcType="VARCHAR" />
+        </collection>
+    </resultMap>
+
+    <select id="getUserTaskEmail" parameterType="Map" resultMap="UserTaskEmail">
+        select u.id userId,u.username userName,u.email userEmail,
+        t.type_name taskType,t.title,t.deadline
+        from user u
+        left join d_task dt on dt.user_id=u.id
+        left join task t on  t.tid=dt.task_id
+        where t.deadline > #{curDateTime}
+
+    </select>
+
+    <select id="selectTaskByType"  resultMap="BaseResultMap" parameterType="String">
+        select t.tid, t.title, t.description,t.type_name, t.createtime, t.deadline,
+        t.taskcompstatus, t.otherinfo, t.user_id,t.viewnum, t.attendnum
+        from task t
+        where t.type_name = #{tasktype}
+    </select>
+
+</mapper>

@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.annotation.dao.DtPairingMapper" >
+
+    <resultMap id="BaseResultMap" type="com.annotation.model.DtPairing" >
+        <id column="dtd_id" property="dtdId" jdbcType="INTEGER" />
+        <result column="dt_id" property="dtId" jdbcType="INTEGER" />
+        <result column="a_litemid" property="aLitemid" jdbcType="INTEGER" />
+        <result column="b_litemid" property="bLitemid" jdbcType="INTEGER" />
+    </resultMap>
+
+
+    <insert id="insertRelationListByOneToOne" useGeneratedKeys="true" keyProperty="dtd_id">
+        insert into dt_pairing (dt_id, a_litemid,b_litemid)
+        SELECT #{dtid}, #{aListItemId}, #{bListItemId} FROM DUAL
+        WHERE NOT EXISTS (SELECT dtd_id FROM dt_pairing WHERE dt_id = #{dtid} and
+        (a_litemid = #{aListItemId} OR b_litemid = #{bListItemId}))
+    </insert>
+
+
+    <insert id="insertRelationListByOneToMany" useGeneratedKeys="true" keyProperty="dtd_id">
+         insert into dt_pairing (dt_id, a_litemid,b_litemid)
+        SELECT #{dtid}, #{aListItemId}, #{bListItemId} FROM DUAL
+        WHERE NOT EXISTS (SELECT dtd_id FROM dt_pairing WHERE dt_id = #{dtid} and
+        b_litemid = #{bListItemId})
+    </insert>
+
+
+    <insert id="insertRelationListByManyToMany" useGeneratedKeys="true" keyProperty="dtd_id">
+        insert into dt_pairing (dt_id, a_litemid,b_litemid)
+        values (#{dtid}, #{aListItemId},#{bListItemId})
+    </insert>
+
+
+
+
+  <resultMap id="InstanceListitemByDocId" type="com.annotation.model.entity.InstanceListitemEntity">
+    <id column="instid" jdbcType="INTEGER" property="instid" />
+    <result column="instindex" jdbcType="INTEGER" property="instindex" />
+    <result column="document_id" jdbcType="INTEGER" property="documentId" />
+    <result column="dotime" property="dotime" jdbcType="VARCHAR" />
+    <result column="comptime" property="comptime" jdbcType="VARCHAR" />
+    <result column="dtstatus" property="dtstatus" jdbcType="VARCHAR" />
+
+    <collection property="listitems" ofType="com.annotation.model.Listitem">
+        <id column="ltid" property="ltid" jdbcType="INTEGER" />
+        <result column="litemcontent" property="litemcontent" jdbcType="VARCHAR" />
+        <result column="list_index" property="listIndex" jdbcType="INTEGER" />
+        <result column="litemindex" property="litemindex" jdbcType="INTEGER" />
+        <result column="instance_id" property="instanceId" jdbcType="INTEGER" />
+    </collection>
+    <collection property="alreadyDone" ofType="Map">
+        <result column="a_litemid" property="aLitemid" jdbcType="INTEGER" />
+        <result column="b_litemid" property="bLitemid" jdbcType="INTEGER" />
+    </collection>
+  </resultMap>
+
+
+    <select id="selectPairing" parameterType="Integer" resultMap="InstanceListitemByDocId">
+        select s.instid, s.instindex, s.document_id, s.labelnum,
+        lt.ltid, lt.litemcontent, lt.list_index, lt.litemindex
+        from instance s
+        left join listitem lt on s.instid=lt.instance_id
+         where s.document_id=#{docId}
+        ORDER BY s.instid,lt.ltid
+    </select>
+
+
+    <select id="selectInstanceListitem" parameterType="Integer" resultMap="InstanceListitemByDocId">
+        select s.instid, s.instindex, s.document_id, s.labelnum,
+        lt.ltid, lt.litemcontent, lt.list_index, lt.litemindex,
+        di.dotime,di.comptime,di.dtstatus,
+        dtp.a_litemid,dtp.b_litemid
+        from instance s
+        left join listitem lt on s.instid=lt.instance_id
+        left join d_instance di on (di.dtask_id=#{dTaskId} and s.instid=di.instance_id)
+        left join dt_pairing dtp on di.dtid =dtp.dt_id
+        where s.document_id=#{docId}
+        ORDER BY s.instid,lt.ltid
+    </select>
+
+    <select id="selectPairingWithStatus" parameterType="Map" resultMap="InstanceListitemByDocId">
+        select s.instid, s.instindex, s.document_id, s.labelnum,
+        lt.ltid, lt.litemcontent, lt.list_index, lt.litemindex,
+        di.dotime,di.comptime,di.dtstatus,
+        dtp.a_litemid,dtp.b_litemid
+        from instance s
+        left join listitem lt on s.instid=lt.instance_id
+        left join d_instance di on (s.instid=di.instance_id and di.dtask_id=#{dTaskId})
+        left join dt_pairing dtp on di.dtid =dtp.dt_id
+        where s.document_id=#{docId} and (di.dtstatus =#{status} or di.dtstatus is null)
+        ORDER BY s.instid,lt.ltid
+    </select>
+
+
+  <!--设置自增-->
+  <update id="alterDtPairingTable">
+    ALTER TABLE dt_pairing AUTO_INCREMENT =1
+  </update>
+
+
+
+
+
+
+    <!--文本配对类型标注数据导出-->
+    <resultMap id="PairingDataOut" type="com.annotation.model.entity.PairingData">
+        <result column="userId" jdbcType="INTEGER" property="userId" />
+        <result column="userName" property="userName" jdbcType="VARCHAR" />
+        <result column="docName" property="docName" jdbcType="VARCHAR" />
+        <result column="paraIndex" property="paraIndex" jdbcType="INTEGER" />
+        <collection property="pairingContent" ofType="Map">
+            <result column="a_litemid" property="a_litemid" jdbcType="INTEGER" />
+            <result column="b_litemid" property="b_litemid" jdbcType="INTEGER" />
+            <result column="a_litemcontent" property="a_litemcontent" jdbcType="VARCHAR" />
+            <result column="b_litemcontent" property="b_litemcontent" jdbcType="VARCHAR" />
+        </collection>
+    </resultMap>
+
+    <select id="getPairingDataOut" parameterType="Map" resultMap="PairingDataOut">
+        select dt.user_id userId,
+        u.username userName,
+        dc.filename docName,
+        ins.instindex paraIndex,
+        dtp.a_litemid,dtp.b_litemid,
+        lt1.litemcontent a_litemcontent,
+        lt2.litemcontent b_litemcontent
+        from d_task dt
+        left join user u on u.id=dt.user_id
+        left join d_instance di on  dt.tkid=di.dtask_id
+        left join document dc on dc.did=di.document_id
+        left join instance ins on ins.instid = di.instance_id
+        left join dt_pairing dtp on di.dtid =dtp.dt_id
+        left join listitem lt1 on lt1.ltid =dtp.a_litemid
+        left join listitem lt2 on lt2.ltid =dtp.b_litemid
+        where dt.task_id=#{tid}
+        ORDER by dt.user_id and dc.filename and ins.instindex
+    </select>
+
+
+
+
+    <resultMap id="ResPairingData" type="com.annotation.model.entity.resHandle.ResPairingData">
+
+        <result column="aContent" property="aContent" jdbcType="VARCHAR" />
+        <result column="bContent" property="bContent" jdbcType="VARCHAR" />
+        <result column="num" property="num" jdbcType="INTEGER" />
+
+    </resultMap>
+
+    <select id="getResPairingData" parameterType="Map" resultMap="ResPairingData">
+        select
+        dtp.a_litemid,dtp.b_litemid,
+        lt1.litemcontent aContent,
+        lt2.litemcontent bContent,
+        count(*) as num
+        from d_task dt
+        left join d_instance di on  dt.tkid=di.dtask_id
+        left join document dc on dc.did=di.document_id
+        left join instance ins on ins.instid = di.instance_id
+        left join dt_pairing dtp on di.dtid =dtp.dt_id
+        left join listitem lt1 on lt1.ltid =dtp.a_litemid
+        left join listitem lt2 on lt2.ltid =dtp.b_litemid
+        where dt.task_id=#{tid} and di.document_id=#{docId} and di.instance_id=#{instanceIndex}
+        group by a_litemid,b_litemid
+        ORDER by dtp.a_litemid
+    </select>
+
+
+
+    <delete id="deleteByDtId" parameterType="java.lang.Integer" >
+        delete from dt_pairing
+        where dt_id = #{dtId}
+    </delete>
+
+
+
+
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from dt_pairing
+    where dtd_id = #{dtdId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.annotation.model.DtPairing" >
+    insert into dt_pairing (dtd_id, dt_id, a_litemid, 
+      b_litemid)
+    values (#{dtdId,jdbcType=INTEGER}, #{dtId,jdbcType=INTEGER}, #{aLitemid,jdbcType=INTEGER}, 
+      #{bLitemid,jdbcType=INTEGER})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.annotation.model.DtPairing" >
+    update dt_pairing
+    set dt_id = #{dtId,jdbcType=INTEGER},
+      a_litemid = #{aLitemid,jdbcType=INTEGER},
+      b_litemid = #{bLitemid,jdbcType=INTEGER}
+    where dtd_id = #{dtdId,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select dtd_id, dt_id, a_litemid, b_litemid
+    from dt_pairing
+    where dtd_id = #{dtdId,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select dtd_id, dt_id, a_litemid, b_litemid
+    from dt_pairing
+  </select>
+</mapper>

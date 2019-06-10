@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.annotation.dao.DInstanceMapper" >
+
+  <!--BaseResultMap-->
+  <resultMap id="BaseResultMap" type="com.annotation.model.DInstance" >
+    <id column="dtid" property="dtid" jdbcType="INTEGER" />
+    <result column="document_id" property="documentId" jdbcType="INTEGER" />
+    <result column="instance_id" property="instanceId" jdbcType="INTEGER" />
+    <result column="dotime" property="dotime" jdbcType="VARCHAR" />
+    <result column="comptime" property="comptime" jdbcType="VARCHAR" />
+    <result column="dtstatus" property="dtstatus" jdbcType="VARCHAR" />
+    <result column="dtask_id" property="dtaskId" jdbcType="INTEGER" />
+  </resultMap>
+
+  <!--设置自增长-->
+  <update id="alterDtInstanceTable">
+    ALTER TABLE d_instance AUTO_INCREMENT =1
+  </update>
+
+  <insert id="insert" useGeneratedKeys="true" keyProperty="dtid" parameterType="com.annotation.model.DInstance" >
+    insert into d_instance (dtid, document_id, instance_id,
+    dotime, comptime, dtstatus,
+    dtask_id)
+    values (#{dtid,jdbcType=INTEGER}, #{documentId,jdbcType=INTEGER}, #{instanceId,jdbcType=INTEGER},
+    #{dotime,jdbcType=VARCHAR}, #{comptime,jdbcType=VARCHAR}, #{dtstatus,jdbcType=VARCHAR},
+    #{dtaskId,jdbcType=INTEGER})
+  </insert>
+
+  <select id="selectByDtaskIdAndInstId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select dtid, document_id, instance_id, dotime, comptime, dtstatus, dtask_id
+    from d_instance
+    where document_id = #{docId} AND instance_id=#{instId} AND dtask_id=#{dtaskId}
+  </select>
+
+
+  <select id="selectByDtaskIdAndDocId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select dtid, document_id, instance_id, dotime, comptime, dtstatus, dtask_id
+    from d_instance
+    where document_id = #{docId} AND dtask_id=#{dtaskId}
+  </select>
+
+    <!--设置数据库自增长为1-->
+    <update id="alterDInstanceTable">
+        ALTER TABLE d_instance AUTO_INCREMENT =1
+    </update>
+
+    <update id="updateStatusByPk" parameterType="com.annotation.model.DParagraph" >
+        update d_instance
+        set dtstatus = #{dtstatus,jdbcType=VARCHAR}
+        where dtid = #{dtid,jdbcType=INTEGER}
+    </update>
+
+  <select id="countDInstanceNum" parameterType="Integer" resultType="Integer">
+    select count(*) from d_instance where document_id=#{docId} AND dtask_id=#{dtaskId} AND dtstatus="进行中"
+  </select>
+
+
+  <select id="selectByDtaskId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select dtid, document_id, instance_id, dotime, comptime, dtstatus, dtask_id
+    from d_instance
+    where dtask_id = #{tkId}
+  </select>
+
+  <delete id="deleteByDtaskId" parameterType="java.lang.Integer" >
+    delete from d_instance
+    where dtask_id = #{dtaskId}
+  </delete>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from d_instance
+    where dtid = #{dtid,jdbcType=INTEGER}
+  </delete>
+
+  <update id="updateByPrimaryKey" parameterType="com.annotation.model.DInstance" >
+    update d_instance
+    set document_id = #{documentId,jdbcType=INTEGER},
+      instance_id = #{instanceId,jdbcType=INTEGER},
+      dotime = #{dotime,jdbcType=VARCHAR},
+      comptime = #{comptime,jdbcType=VARCHAR},
+      dtstatus = #{dtstatus,jdbcType=VARCHAR},
+      dtask_id = #{dtaskId,jdbcType=INTEGER}
+    where dtid = #{dtid,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select dtid, document_id, instance_id, dotime, comptime, dtstatus, dtask_id
+    from d_instance
+    where dtid = #{dtid,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select dtid, document_id, instance_id, dotime, comptime, dtstatus, dtask_id
+    from d_instance
+  </select>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <!--<resultMap id="BaseResultMap" type="com.annotation.model.DtInstance" >-->
+    <!--<id column="dt_instid" property="dtInstid" jdbcType="INTEGER" />-->
+    <!--<result column="user_id" property="userId" jdbcType="INTEGER" />-->
+    <!--<result column="task_id" property="taskId" jdbcType="INTEGER" />-->
+    <!--<result column="instance_id" property="instanceId" jdbcType="INTEGER" />-->
+    <!--<result column="doTime" property="dotime" jdbcType="VARCHAR" />-->
+    <!--<result column="comptime" property="comptime" jdbcType="VARCHAR" />-->
+    <!--<result column="dtstatus" property="dtstatus" jdbcType="VARCHAR" />-->
+  <!--</resultMap>-->
+  <!--<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >-->
+    <!--delete from dt_instance-->
+    <!--where dt_instid = #{dtInstid,jdbcType=INTEGER}-->
+  <!--</delete>-->
+  <!--<insert id="insert2" useGeneratedKeys="true" keyProperty="dtInstid" parameterType="com.annotation.model.DtInstance" >-->
+    <!--insert into dt_instance (user_id, task_id,-->
+    <!--instance_id, doTime, comptime,-->
+    <!--dtstatus)-->
+    <!--values (#{userId,jdbcType=INTEGER}, #{taskId,jdbcType=INTEGER},-->
+    <!--#{instanceId,jdbcType=INTEGER},#{dotime,jdbcType=VARCHAR}, #{comptime,jdbcType=VARCHAR},-->
+    <!--#{dtstatus,jdbcType=VARCHAR})-->
+  <!--</insert>-->
+  <!--<update id="updateByPrimaryKey" parameterType="com.annotation.model.DtInstance" >-->
+    <!--update dt_instance-->
+    <!--set user_id = #{userId,jdbcType=INTEGER},-->
+    <!--task_id = #{taskId,jdbcType=INTEGER},-->
+    <!--instance_id = #{instanceId,jdbcType=INTEGER}-->
+    <!--where dt_instid = #{dtInstid,jdbcType=INTEGER}-->
+  <!--</update>-->
+  <!--<select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >-->
+    <!--select dt_instid, user_id, task_id, instance_id-->
+    <!--from dt_instance-->
+    <!--where dt_instid = #{dtInstid,jdbcType=INTEGER}-->
+  <!--</select>-->
+  <!--<select id="selectAll" resultMap="BaseResultMap" >-->
+    <!--select dt_instid, user_id, task_id, instance_id-->
+    <!--from dt_instance-->
+  <!--</select>-->
+
+  <!--<select id="selectDtInstance" parameterType="Integer" resultMap="BaseResultMap">-->
+    <!--select * from dt_instance where user_id = #{userId} and task_id = #{taskId} and instance_id = #{instanceId}-->
+  <!--</select>-->
+
+  <!--<insert id="insert" useGeneratedKeys="true" keyProperty="dtInstid" parameterType="com.annotation.model.DtInstance" >-->
+    <!--insert into dt_instance-->
+    <!--<trim prefix="(" suffix=")" suffixOverrides="," >-->
+      <!--<if test="dtInstid != null" >-->
+        <!--dt_instid,-->
+      <!--</if>-->
+      <!--<if test="userId != null" >-->
+        <!--user_id,-->
+      <!--</if>-->
+      <!--<if test="taskId != null" >-->
+        <!--task_id,-->
+      <!--</if>-->
+      <!--<if test="instanceId != null" >-->
+        <!--instance_id,-->
+      <!--</if>-->
+      <!--<if test="dotime != null" >-->
+        <!--doTime,-->
+      <!--</if>-->
+      <!--<if test="comptime != null" >-->
+        <!--comptime,-->
+      <!--</if>-->
+      <!--<if test="dtstatus != null" >-->
+        <!--dtstatus,-->
+      <!--</if>-->
+    <!--</trim>-->
+    <!--<trim prefix="values (" suffix=")" suffixOverrides="," >-->
+      <!--<if test="dtInstid != null" >-->
+        <!--#{dtInstid,jdbcType=INTEGER},-->
+      <!--</if>-->
+      <!--<if test="userId != null" >-->
+        <!--#{userId,jdbcType=INTEGER},-->
+      <!--</if>-->
+      <!--<if test="taskId != null" >-->
+        <!--#{taskId,jdbcType=INTEGER},-->
+      <!--</if>-->
+      <!--<if test="instanceId != null" >-->
+        <!--#{instanceId,jdbcType=INTEGER},-->
+      <!--</if>-->
+      <!--<if test="dotime != null" >-->
+        <!--#{dotime,jdbcType=VARCHAR},-->
+      <!--</if>-->
+      <!--<if test="comptime != null" >-->
+        <!--#{comptime,jdbcType=VARCHAR},-->
+      <!--</if>-->
+      <!--<if test="dtstatus != null" >-->
+        <!--#{dtstatus,jdbcType=VARCHAR},-->
+      <!--</if>-->
+    <!--</trim>-->
+  <!--</insert>-->
+
+
+</mapper>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>layui</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="plugins/layui/css/layui.css"  media="all">
+    <!--<link rel="stylesheet" href="plugins/css/xadmin.css">-->
+
+    <script src="../../plugins/js/jquery-2.1.4.min.js"></script>
+    <!-- 注意：如果你直接复制所有代码到本地，上述css路径需要改成你本地的 -->
+</head>
+<body>
+<center>
+    <fieldset class="layui-elem-field">
+        <hr class="layui-bg-red"/>
+        <img src="img/itaem.jpg" height="100px">
+        <hr class="layui-bg-red"/>
+        <form class="layui-form" action="/alipay/pay">
+            <input type="text" placeholder="￥" name="money" id="money"/>
+            <input type="submit" value="赠送" class="layui-btn layui-btn-mini" />
+        </form>
+    </fieldset>
+</center>
+
+<!--<button id="js-export" type="button" class="btn btn-primary">导出Excel</button>-->
+
+<!--<div class="container">-->
+    <!--<header data-am-widget="header" class="am-header am-header-default my-header">-->
+        <!--<div class="am-header-left am-header-nav am-dropdown"  data-am-dropdown>-->
+            <!--<a href="index.html" class="">-->
+                <!--<i class="am-header-icon am-icon-chevron-left"  style="color: #8a8a8a;font-size: 16px;"></i>-->
+            <!--</a>-->
+            <!--<div style="display:none">-->
+
+            <!--</div>-->
+
+        <!--</div>-->
+        <!--<h1 class="am-header-title">-->
+            <!--<a href="#title-link" class="" style="color: #8a8a8a;font-size: 16px;"   >服务详情</a>-->
+        <!--</h1>-->
+        <!--<div class="am-header-right am-header-nav">-->
+            <!--<a href="#right-link" class="">-->
+                <!--<i class="am-header-icon  am-icon-share-alt"></i>-->
+            <!--</a>-->
+        <!--</div>-->
+    <!--</header>-->
+    <!--&lt;!&ndash; banner &ndash;&gt;-->
+
+
+    <!--<div class="gray-panel">-->
+
+
+
+        <!--<div class="wrapper">-->
+            <!--<div class="app">-->
+                <!--<div class="container stopwatch">-->
+
+
+                    <!--<div class="clock inactive z-depth-1">-->
+                        <!--<span>0:00:00</span>-->
+
+                    <!--</div>-->
+
+                    <!--<form>-->
+                        <!--<button id="stopwatch-btn-start" >开始</button>-->
+
+                    <!--</form>-->
+
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
+
+
+
+    <!--</div>-->
+
+<!--</div>-->
+
+<!--<div id="timer" style="color:red" mce_style="color:red"></div>-->
+<script type="text/javascript" src="/js/test/test.js"></script>
+<!--<script type="text/javascript">-->
+
+    <!--var orign_time1 = new Date("2019-11-12 00:00:00");-->
+    <!--var deadline = Date.parse(orign_time1)/1000;-->
+    <!--var currentTime = Date.parse(new Date())/1000;//转化成秒-->
+    <!--var spaceTime = deadline-currentTime;-->
+    <!--console.log(deadline);-->
+    <!--console.log(currentTime);-->
+    <!--console.log(spaceTime);-->
+   <!--// var maxTime =leftTime;-->
+    <!--function startClock() {-->
+        <!--if (spaceTime >=0) {-->
+            <!--var hours = parseInt(spaceTime/60/60%24,10);-->
+            <!--var minutes = parseInt(spaceTime/60%60,10);-->
+            <!--var seconds = parseInt(spaceTime%60, 10);-->
+            <!--var timeTxt = hours+":"+minutes+":"+seconds;-->
+            <!--document.getElementById("timer").innerHTML = timeTxt;-->
+            <!--&#45;&#45;spaceTime;-->
+        <!--} else {-->
+            <!--clearInterval(timer);-->
+            <!--alert("时间到，结束!");-->
+        <!--}-->
+    <!--}-->
+    <!--timer = setInterval("startClock()",1000);-->
+<!--</script>-->
+
+</body>
+</html>

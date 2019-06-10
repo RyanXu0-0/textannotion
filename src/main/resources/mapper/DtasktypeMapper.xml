@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.annotation.dao.DtasktypeMapper" >
+
+  <resultMap id="BaseResultMap" type="com.annotation.model.Dtasktype" >
+    <id column="dty_id" property="dtyId" jdbcType="INTEGER" />
+    <result column="tasktype" property="tasktype" jdbcType="INTEGER" />
+    <result column="typevalue" property="typevalue" jdbcType="INTEGER" />
+    <result column="u_id" property="uId" jdbcType="INTEGER" />
+  </resultMap>
+
+  <!--设置数据库自增长-->
+  <update id="alterDtasktypeTable">
+        ALTER TABLE dtasktype AUTO_INCREMENT =1
+  </update>
+
+  <insert id="insert" useGeneratedKeys="true" keyProperty="dty_id" parameterType="com.annotation.model.Dtasktype">
+    insert into dtasktype (dty_id, tasktype, typevalue, u_id)
+    values (#{dtyId,jdbcType=INTEGER}, #{tasktype,jdbcType=INTEGER}, #{typevalue,jdbcType=INTEGER}, #{uId,jdbcType=INTEGER})
+  </insert>
+
+  <select id="selectBytasktype" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select d.dty_id,d.tasktype,d.typevalue,d.u_id from dtasktype d
+    where d.u_id = #{userId,jdbcType=INTEGER} AND d.tasktype = #{typeId,jdbcType=INTEGER}
+  </select>
+
+  <update id="updateByPrimaryKey" parameterType="com.annotation.model.Dtasktype" >
+    update dtasktype
+    set typevalue = 1
+    where dty_id = #{dtyId,jdbcType=INTEGER}
+  </update>
+
+</mapper>

@@ -37,14 +37,24 @@
         .layui-form-label{ width: 90px; }
         /*.layui-input-block { margin-left: 90px; min-height: 36px }*/
 
+        #choiceRela,#choiceEntity{  display: none;  width: 600px; min-height: 470px;  max-height: 750px;  height:470px;  position: absolute;  top: 0;  left: 0;  bottom: 0;  right: 0;  margin: auto;  padding: 25px;  z-index: 130;  border-radius: 8px;  background-color: #fff;  box-shadow: 0 3px 18px rgba(100, 0, 0, .5);  }
+        .pop-top{  height:40px;  width:100%;  border-bottom: 2px #E5E5E5 solid;  }
+        .pop-top h4{  float: left;  display:black;}
+        .pop-top span{  float: right;  cursor: pointer;  font-weight: bold; display:black}
+        .pop-from,.pop-to{  height:40px;  width:100%;  border-bottom: 2px #E5E5E5 solid;  }
+        .pop-from div,.pop-to div{float:left; display:black}
+        .pop-from span,.pop-to span{float:left; font-weight: bold; display:black}
+/*line-height:50px;*/
+        .pop-foot{  height:50px;    width:100%;  border-top: 2px #E5E5E5 solid;  text-align: right;  }
+        .pop-cancel, .pop-ok {  padding:8px 15px;  margin:15px 5px;  border: none;  border-radius: 5px;  background-color: #337AB7;  color: #fff;  cursor:pointer;  }
+        .pop-cancel {  background-color: #FFF;  border:1px #CECECE solid;  color: #000;  }
+        .pop-content{  height: 260px;  }
+        .pop-content-left{  float: left;  }
+        .pop-content-right{  width:310px;  float: left;  padding-top:20px;  padding-left:20px;  font-size: 16px;  line-height:35px;  }
     </style>
 </head>
 <body>
 
-
-<div id="test">
-
-</div>
 <!--折叠面板-->
 <div class="panel panel-success">
     <div class="panel-heading">
@@ -146,7 +156,6 @@
 </div>
 
 <div class="layui-row layui-col-space10" id="row-div-dotask" style="display: none">
-
     <div class="layui-row">
         <div class="layui-col-md6 ">
             <form class="layui-form">
@@ -187,7 +196,7 @@
 
             </div>
             <div class="panel-body" style="max-height: 400px;overflow:auto" id="div-para">
-                <p id="p-para" style="font-size: 18px;letter-spacing: 2px;text-indent: 20px;">
+                <p id="p-para" style="font-size: 18px;letter-spacing: 2px;text-indent: 20px;" >
 
                 </p>
             </div>
@@ -200,7 +209,7 @@
     <div class="layui-col-md6" >
         <div class="panel panel-success">
             <div class="panel-heading">
-                <h3 class="panel-title"><span>标签:</span></h3>
+                <h3 class="panel-title"><span>实体:</span></h3>
             </div>
             <div class="panel-body" id="labellist-div-panel" style="max-height: 500px;overflow:auto">
 
@@ -208,10 +217,20 @@
         </div>
 
     </div>
+
+    <div class="layui-col-md6" style="float: right" >
+            <div class="panel panel-success">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><span>实体关系:</span></h3>
+                </div>
+                <div class="panel-body" id="relationlist-div-panel" style="max-height: 500px;overflow:auto">
+
+                </div>
+            </div>
+
+        </div>
 </div>
 
-
-</div>
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -235,6 +254,60 @@
             </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal -->
+</div>
+
+<!--关系弹窗-->
+<div id="choiceRela">
+    <div class="pop-top">
+        <h4>关系抽取</h4>
+        <span class="pop-close">Ｘ</span>
+    </div>
+	<div class="pop-from">
+        <div>From:</div>
+        <span id = "from"></span>
+    </div>
+	<div class="pop-to">
+        <div>To:</div>
+        <span id = "to"></span>
+    </div>
+
+    <div class="pop-content">
+	<div>Type</div>
+        <div class="pop-content-left"></div>
+        <div class="pop-content-right" id = "relation-pop">
+
+        </div>
+    </div>
+
+    <div class="pop-foot">
+        <input type="button" value="关闭" class="pop-cancel pop-close">
+        <input type="button" value="确定" class="pop-ok" id = "rela-ok">
+    </div>
+</div>
+
+
+<!----实体弹窗--->
+<div id="choiceEntity">
+    <div class="pop-top">
+        <h4>关系抽取</h4>
+        <span class="pop-close">Ｘ</span>
+    </div>
+	<div class="pop-from">
+        <div>Entity:</div>
+        <span id = "select-entity"></span>
+    </div>
+    <div class="pop-content">
+	<div>Type</div>
+        <div class="pop-content-left"></div>
+        <div class="pop-content-right" id = "label-pop">
+
+        </div>
+    </div>
+
+    <div class="pop-foot">
+        <input type="button" value="关闭" class="pop-cancel pop-close">
+        <input type="button" value="确定" class="pop-ok" id = "entity-ok">
+    </div>
 </div>
 
 

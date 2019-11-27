@@ -21,6 +21,7 @@ import java.util.Map;
 
 /**
  * Created by twinkleStar on 2019/2/2.
+ * 实体抽取和关系抽取
  */
 @RestController
 @RequestMapping("/extraction")
@@ -131,9 +132,5 @@ public class DtExtractionController {
         }
         return rs;
     }
-
-
-
-
 
 }

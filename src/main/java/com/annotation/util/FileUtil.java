@@ -117,7 +117,8 @@ public class FileUtil {
      */
     public int checkFileSize(MultipartFile multipartFile){
         long filesize = multipartFile.getSize();
-        if(filesize>=1048576){
+//        1048576=1M
+        if(filesize>=104857600){
             return -1;
         }else {
             return 0;

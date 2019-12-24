@@ -366,7 +366,7 @@ function imgDelClick(obj) {
         entity_done[curLabelIndex].splice(i,1);
         $("#"+currentLabelId).remove();
         var spantext = $("#"+spanid).text();
-        $(spanid).replaceWith(spantext);
+        $("#"+spanid).replaceWith(spantext);
     }
 };
 
@@ -1202,34 +1202,6 @@ function ajaxCompleteDoc(docId) {
     });
 };
 
-// function ajaxCompletePara(docId) {
-//     var docid={
-//         docId: docId,
-//         taskId:taskId,
-//         paraId:paraId[curParaIndex],
-//         userId:0
-//     };
-//     $.ajax({
-//         url: "/dpara/status",
-//         type: "post",
-//         traditional: true,
-//         contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-//         dataType: "json",
-//         data:docid,
-//         success: function (data) {
-//             if(data.status==0){
-//                 alert("该段已确认完成");
-//                 ajaxDocContent(docId);
-//             }else{
-//                 alert("该段还没有做！！");
-//             }
-//
-//         }, error: function (XMLHttpRequest, textStatus, errorThrown) {
-//
-//
-//         },
-//     });
-// };
 
 function ajaxCompletePara(taskData) {
     $.ajax({

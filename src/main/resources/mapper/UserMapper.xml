@@ -12,6 +12,7 @@
         <result column="regTime" property="regtime" jdbcType="VARCHAR" />
         <result column="lastLogInTime" property="lastlogintime" jdbcType="VARCHAR" />
         <result column="job" property="job" jdbcType="VARCHAR" />
+
     </resultMap>
 
     <!--插入用户-->

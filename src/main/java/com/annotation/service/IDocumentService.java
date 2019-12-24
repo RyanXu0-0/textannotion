@@ -23,6 +23,15 @@ public interface IDocumentService {
     @Transactional
     ResponseEntity checkAddDocParagraph(MultipartFile[] files, int userId) throws IllegalStateException;
 
+    /**
+     * 检查测试文件并插入数据
+     * @param files
+     * @param userId
+     * @return
+     * @throws IllegalStateException
+     */
+    @Transactional
+    ResponseEntity extractionParseTest(MultipartFile[] files,int taskId, int userId) throws IllegalStateException;
 
     /**
      * 插入document

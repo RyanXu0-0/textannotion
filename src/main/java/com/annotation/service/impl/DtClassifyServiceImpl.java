@@ -120,32 +120,6 @@ public class DtClassifyServiceImpl implements IDtClassifyService {
     }
 
 
-//    public int updateStatus(int userId,int docId,int taskId){
-//        DTask dTask=dTaskMapper.selectByTaskIdAndUserId(taskId,userId);
-//        if(dTask==null){
-//            return 4010;
-//        }else{
-//            int dTaskId=dTask.getTkid();
-//
-//            int[] pids=paragraphMapper.selectParaByDocId(docId);
-//            List<DParagraph> dParagraphList=dParagraphMapper.selectByDtaskIdAndDocId(dTaskId,docId);
-//            if(pids.length!=dParagraphList.size()){
-//                return 4011;
-//            }else {
-//
-//                for(DParagraph dParagraph:dParagraphList){
-//                    dParagraph.setDtstatus("已完成");
-//                    int dRes=dParagraphMapper.updateStatusByPk(dParagraph);
-//                    if(dRes<0){
-//                        return 4012;
-//                    }
-//                }
-//            }
-//        }
-//        return 0;
-//    }
-
-
    public DtClassify addComment(int dtdId,int cNum,int flag,int uId){
        DtClassify dtClassify=dtClassifyMapper.selectByPrimaryKey(dtdId);
         if(flag>0){

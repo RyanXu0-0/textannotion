@@ -1,7 +1,10 @@
 package com.annotation.util;
 
 import com.annotation.model.entity.ResponseEntity;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hwpf.extractor.WordExtractor;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +15,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by twinkleStar on 2019/1/13.
@@ -379,5 +386,54 @@ public class FileUtil {
         return responseEntity;
     }
 
+/*
+*   测试答案以 -answer为结尾
+*    判断文件命名是否符合要求
+ */
+    public ResponseEntity splitDataAndAnswer(MultipartFile[] files){
+        ResponseEntity responseEntity = new ResponseEntity();
+        List<MultipartFile> dataList = new ArrayList();
+        List<MultipartFile> answerList = new ArrayList();
+        Map<String,List<MultipartFile>> map = new HashMap();
+        for(MultipartFile file : files){
+            String filename = file.getOriginalFilename();
+            String fileType = filename.substring(filename.lastIndexOf("-"));
+            if("-answer.xls".equals(fileType) ||
+                    "-answer.xlsx".equals(fileType)){
+                answerList.add(file);
+            }else{
+                dataList.add(file);
+            }
+        }
+        if(dataList.isEmpty() || answerList.isEmpty()){
+            responseEntity=responseUtil.judgeResult(2017);
+            responseEntity.setMsg(responseEntity.getMsg());
+            return responseEntity;
+        }
+        map.put("dataFiles",dataList);
+        map.put("anwserFiles",answerList);
+        responseEntity.setData(map);
+        return responseEntity;
+    }
 
+    /**
+     * 判断文件格式
+     *
+     * @param inStr
+     * @param fileName
+     * @return
+     * @throws Exception
+     */
+    public Workbook getWorkbook(InputStream inStr, String fileName) throws Exception {
+        Workbook workbook = null;
+        String fileType = fileName.substring(fileName.lastIndexOf("."));
+        if (".xls".equals(fileType)) {
+            workbook = new HSSFWorkbook(inStr);
+        } else if (".xlsx".equals(fileType)) {
+            workbook = new XSSFWorkbook(inStr);
+        } else {
+            throw new Exception("请上传excel文件！");
+        }
+        return workbook;
+    }
 }

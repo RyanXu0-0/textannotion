@@ -6,6 +6,7 @@ import com.annotation.model.User;
 import com.annotation.model.entity.LabelCountEntity;
 import com.annotation.model.entity.ParagraphLabelEntity;
 import com.annotation.model.entity.ResponseEntity;
+import com.annotation.service.ICrowdsourcingService;
 import com.annotation.service.IDParagraphService;
 import com.annotation.service.IDtClassifyService;
 import com.annotation.util.ResponseUtil;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +35,8 @@ public class DtClassifyController {
     ResponseUtil responseUtil;
     @Autowired
     IDParagraphService idParagraphService;
+    @Autowired
+    ICrowdsourcingService crowdsourcingService;
 
     /**
      * 根据文件ID查询内容
@@ -50,8 +54,9 @@ public class DtClassifyController {
             userId = user.getId();
         }
 
-        List<ParagraphLabelEntity> paragraphLabelEntityList=iDtClassifyService.queryClassifyParaLabel(docId,userId,status,taskId);
-
+       // List<ParagraphLabelEntity> paragraphLabelEntityList=iDtClassifyService.queryClassifyParaLabel(docId,userId,status,taskId);
+        List<ParagraphLabelEntity> paragraphLabelEntityList = new ArrayList<>();
+        paragraphLabelEntityList.add(crowdsourcingService.extractionCrowdsourcing(userId,taskId));
         //List<Content> contentList = iContentService.selectContentByDocId(docId);
         JSONObject rs = new JSONObject();
         if(paragraphLabelEntityList != null){

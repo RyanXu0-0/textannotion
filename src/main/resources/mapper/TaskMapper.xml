@@ -16,18 +16,26 @@
         <result column="viewnum" property="viewnum" jdbcType="INTEGER" />
         <result column="attendnum" property="attendnum" jdbcType="INTEGER" />
         <result column="pubUserName" property="pubUserName" jdbcType="VARCHAR" />
+
+        <result column="startid" property="startid" jdbcType="INTEGER" />
+        <result column="currenttask" property="currenttask" jdbcType="INTEGER" />
+        <result column="frequence" property="frequence" jdbcType="INTEGER" />
+        <result column="totaltask" property="totaltask" jdbcType="INTEGER" />
+        <result column="iftest" property="iftest" jdbcType="VARCHAR" />
     </resultMap>
 
     <!--插入任务-->
     <insert id="insert" useGeneratedKeys="true" keyProperty="tid" parameterType="com.annotation.model.Task" >
         insert into task (tid, title, description,
         type_name, createtime, deadline,
-        taskcompstatus, otherinfo, user_id,
-        viewnum, attendnum)
+        taskcompstatus, otherinfo, user_id,viewnum, attendnum,
+        currenttask,frequence,totaltask,startid,iftest)
         values (#{tid,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR},
         #{typeName,jdbcType=VARCHAR}, #{createtime,jdbcType=VARCHAR}, #{deadline,jdbcType=TIMESTAMP},
         #{taskcompstatus,jdbcType=VARCHAR}, #{otherinfo,jdbcType=VARCHAR}, #{userId,jdbcType=INTEGER},
-        #{viewnum,jdbcType=INTEGER}, #{attendnum,jdbcType=INTEGER})
+        #{viewnum,jdbcType=INTEGER}, #{attendnum,jdbcType=INTEGER},
+        #{currenttask,jdbcType=INTEGER},#{frequence,jdbcType=INTEGER},
+        #{totaltask,jdbcType=INTEGER},#{startid,jdbcType=INTEGER},#{iftest,jdbcType=VARCHAR})
     </insert>
 
     <!--设置数据库自增长-->
@@ -39,6 +47,7 @@
     <select id="selectTotalTaskOfUndo" parameterType="map" resultMap="BaseResultMap">
         select t.tid, t.title, t.description,t.type_name, t.createtime, t.deadline,
         t.taskcompstatus, t.otherinfo, t.user_id,t.viewnum, t.attendnum,
+        t.totaltask,t.currenttask,t.frequence,
         u.username pubUserName
         from task t
         INNER JOIN user u on u.id=t.user_id
@@ -55,6 +64,7 @@
     <select id="selectMyPubTask" parameterType="map" resultMap="BaseResultMap">
         select t.tid, t.title, t.description,t.type_name, t.createtime, t.deadline,
         t.taskcompstatus, t.otherinfo, t.user_id,t.viewnum, t.attendnum,
+        t.totaltask,t.currenttask,t.frequence,
         u.username pubUserName
         from task t
         INNER JOIN user u on u.id=t.user_id where t.user_id = #{userId}
@@ -70,6 +80,7 @@
     <select id="selectTaskById" parameterType="Integer" resultMap="BaseResultMap">
         select t.tid, t.title, t.description,t.type_name, t.createtime, t.deadline,
         t.taskcompstatus, t.otherinfo, t.user_id,t.viewnum, t.attendnum,
+        t.totaltask,t.currenttask,t.frequence,t.startid,t.iftest,
         u.username pubUserName
         from task t
         INNER JOIN user u on u.id=t.user_id where tid = #{tid}
@@ -112,6 +123,12 @@
             <if test="userId!=null">user_id=#{userId},</if>
             <if test="viewnum!=null">viewnum=#{viewnum},</if>
             <if test="attendnum!=null">attendnum=#{attendnum},</if>
+
+            <if test="currenttask!=null">currenttask=#{currenttask},</if>
+            <if test="frequence!=null">frequence=#{frequence},</if>
+            <if test="totaltask!=null">totaltask=#{totaltask},</if>
+            <if test="startid!=null">startid=#{startid},</if>
+            <if test="iftest!=null">iftest=#{iftest}</if>
         </trim>
         WHERE tid = #{tid}
     </update>
@@ -152,6 +169,11 @@
         <result column="viewnum" property="viewnum" jdbcType="INTEGER" />
         <result column="attendnum" property="attendnum" jdbcType="INTEGER" />
         <result column="pubUserName" property="pubUserName" jdbcType="VARCHAR" />
+
+        <result column="currenttask" property="currenttask" jdbcType="INTEGER" />
+        <result column="frequence" property="frequence" jdbcType="INTEGER" />
+        <result column="totaltask" property="totaltask" jdbcType="INTEGER" />
+
         <collection property="documentList" ofType="Map">
             <id column="did" property="did"></id>
             <result column="filename" property="filename"></result>
@@ -191,6 +213,11 @@
         <result column="viewnum" property="viewnum" jdbcType="INTEGER" />
         <result column="attendnum" property="attendnum" jdbcType="INTEGER" />
         <result column="pubUserName" property="pubUserName" jdbcType="VARCHAR" />
+
+        <result column="currenttask" property="currenttask" jdbcType="INTEGER" />
+        <result column="frequence" property="frequence" jdbcType="INTEGER" />
+        <result column="totaltask" property="totaltask" jdbcType="INTEGER" />
+
         <collection property="documentList" ofType="Map">
             <id column="did" property="did"></id>
             <result column="filename" property="filename"></result>
@@ -209,6 +236,7 @@
     <select id="selectTaskInfoWithDocInstanceLabel" parameterType="Integer" resultMap="TaskInfoWithDocInstanceLabel">
         select t.tid,t.title,t.description,t.type_name,t.createtime,t.deadline,
         t.otherinfo,t.user_id,t.viewnum,t.attendnum,
+        t.totaltask,t.currenttask,t.frequence,
         u.username pubUserName,
         d.did,d.filename,d.filetype,d.filesize,d.docuploadtime,
         l.lid,l.labelname,tl.labeltype
@@ -247,6 +275,11 @@
         <result column="viewnum" property="viewnum" jdbcType="INTEGER" />
         <result column="attendnum" property="attendnum" jdbcType="INTEGER" />
         <result column="pubUserName" property="pubUserName" jdbcType="VARCHAR" />
+
+        <result column="currenttask" property="currenttask" jdbcType="INTEGER" />
+        <result column="frequence" property="frequence" jdbcType="INTEGER" />
+        <result column="totaltask" property="totaltask" jdbcType="INTEGER" />
+
         <collection property="documentList" ofType="Map">
             <id column="did" property="did"></id>
             <result column="filename" property="filename"></result>
@@ -260,6 +293,7 @@
     <select id="selectTaskInfoWithDoc" parameterType="Integer" resultMap="TaskInfoWithDoc">
         select t.tid,t.title,t.description,t.type_name,t.createtime,t.deadline,
                 t.otherinfo,t.user_id,t.viewnum,t.attendnum,
+                t.totaltask,t.currenttask,t.frequence,
                 u.username pubUserName,
                 d.did,d.filename,d.filetype,d.filesize,d.docuploadtime,
                 l.lid,l.labelname
@@ -312,7 +346,8 @@
 
     <select id="selectTaskByType"  resultMap="BaseResultMap" parameterType="String">
         select t.tid, t.title, t.description,t.type_name, t.createtime, t.deadline,
-        t.taskcompstatus, t.otherinfo, t.user_id,t.viewnum, t.attendnum
+        t.taskcompstatus, t.otherinfo, t.user_id,t.viewnum, t.attendnum,
+        t.totaltask,t.currenttask,t.frequence
         from task t
         where t.type_name = #{tasktype}
     </select>

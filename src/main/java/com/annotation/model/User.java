@@ -2,21 +2,13 @@ package com.annotation.model;
 
 public class User {
     private Integer id;
-
     private String username;
-
     private String email;
-
     private String password;
-
     private String sex;
-
     private String birthday;
-
     private String regtime;
-
     private String lastlogintime;
-
     private String job;
 
     public Integer getId() {

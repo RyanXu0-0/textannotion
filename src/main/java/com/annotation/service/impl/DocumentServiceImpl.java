@@ -6,12 +6,19 @@ import com.annotation.model.entity.ResponseEntity;
 import com.annotation.service.IDocumentService;
 import com.annotation.util.FileUtil;
 import com.annotation.util.ResponseUtil;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -37,6 +44,14 @@ public class DocumentServiceImpl implements IDocumentService {
     FileUtil fileUtil;
     @Autowired
     ResponseUtil responseUtil;
+    @Autowired
+    TestDocumentMapper testDocumentMapper;
+    @Autowired
+    TestExtractionDataMapper testExtractionDataMapper;
+    @Autowired
+    TestExtractionEntityMapper testExtractionEntityMapper;
+    @Autowired
+    TestExtractionRelMapper testExtractionRelMapper;
 
     /**
      * 检查并插入，形如doc->para
@@ -118,6 +133,7 @@ public class DocumentServiceImpl implements IDocumentService {
         responseEntity.setData(data);
         return responseEntity;
     }
+
 
 
     /**
@@ -702,277 +718,248 @@ public class DocumentServiceImpl implements IDocumentService {
     }
 
 
+    /**
+     * 检查测试文件并插入，形如doc->para
+     * @param files 多文件类别
+     * @param userId 用户Id
+     * @return
+     * @throws IllegalStateException
+     */
+    @Transactional
+    public ResponseEntity checkTestDocument (MultipartFile[] files, int userId) throws IllegalStateException{
+
+        ResponseEntity responseEntity = new ResponseEntity();
+        /**
+         * 检查是否上传文件
+         */
+        responseEntity = fileUtil.checkFilesLength(files);
+        if(responseEntity.getStatus() != 0){
+            return responseEntity;
+        }
+
+        /**
+         * 遍历文件列表进行检查
+         */
+        for (MultipartFile file : files) {
+            try {
+                responseEntity = fileUtil.checkFilecontent(file);
+                if(responseEntity.getStatus() != 0){
+                    return responseEntity;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+/**
+ * 检查文件名
+ */
+        responseEntity = fileUtil.splitDataAndAnswer(files);
+        if(responseEntity.getStatus() != 0){
+            return responseEntity;
+        }
+        Map<String,List<MultipartFile>> map = (Map) responseEntity.getData();
+        List<MultipartFile> dataFiles = map.get("dataFiles");
+        List<MultipartFile> anwserFiles = map.get("anwserFiles");
+        /**
+         * 检查全部符合要求
+         * doc-->para
+         */
+        List<Integer> docIds = new ArrayList<Integer>();
+        for (MultipartFile file : dataFiles) {
+            try {
+                String filename =file.getOriginalFilename();//文件名称
+                String docContent=fileUtil.parseDocContent(file);
+                String docType=fileUtil.parseDocType(filename);
+
+                Document document = new Document();
+                document.setFilename(filename);
+                document.setFiletype(docType);
+                document.setFilesize((int)file.getSize());
+                document.setUserId(userId);
+
+                //todo:建文件服务器后设置路径
+                document.setAbsolutepath("");
+                document.setRelativepath("");
+
+                //防止自增的ID不连续
+                documentMapper.alterDocumentTable();
+                int docRes=  addDocumentParagraph(document,docContent);
+
+                if(docRes==2006 || docRes==2007){
+                    responseEntity=responseUtil.judgeResult(docRes);
+                    responseEntity.setMsg(filename+responseEntity.getMsg());
+                    //插入数据库有错误时整体回滚
+                    TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                    return responseEntity;
+                }else{
+                    docIds.add(docRes);
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        responseEntity.setStatus(0);
+        responseEntity.setMsg("文件上传成功");
+        Map<String, Object> data = new HashMap<>();
+        data.put("docIds", docIds);//返回文件id，方便后续添加任务
+        responseEntity.setData(data);
+        return responseEntity;
+    }
+
+/*
+* 插入测试文件信息到document和test_document
+* */
+    @Transactional
+    public int insertTestDocInfo(MultipartFile file,int taskId,int userId){
+        ResponseEntity responseEntity = new ResponseEntity();
+        String filename =file.getOriginalFilename();//文件名称
+        String docType = filename.substring(filename.lastIndexOf("."));
+        Document document = new Document();
+        document.setFilename(filename);
+        document.setFiletype(docType);
+        document.setFilesize((int)file.getSize());
+
+        //todo:建文件服务器后设置路径
+        document.setAbsolutepath("");
+        document.setRelativepath("");
+
+        //设置时间
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
+        document.setDocuploadtime(df.format(new Date()));
+
+        //添加文件
+        //防止自增的ID不连续
+        documentMapper.alterDocumentTable();
+        document.setUserId(userId);
+        documentMapper.insert(document);
+
+        TestDocument testDocument = new TestDocument();
+        testDocumentMapper.alterTable();
+        testDocument.setDocumentId(document.getDid());
+        testDocument.setTaskId(taskId);
+        testDocumentMapper.insert(testDocument);
+        return testDocument.getDocumentId();
+    }
 
 
     /**
-     * 分页查询
-     * @param userid
-     * @param page 页数
-     * @param limit 每页数量
+     * 检查并插入，形如
+     * Transactional抛错数据回滚
+     * @param testfiles 多文件类别
+     * @param userId 用户Id
      * @return
+     * @throws IllegalStateException
      */
-//    public List<Document> queryDocByRelatedInfo(int userid, int page, int limit){
-//        int startNum =(page-1)*limit;
-//        Map<String,Object> data =new HashMap();
-//        data.put("currIndex",startNum);
-//        data.put("pageSize",limit);
-//        data.put("userid",userid);
-//        List<Document> task =documentMapper.selectDocumentByRelatedInfo(data);
-//        return task;
-//    }
+    @Transactional
+    public ResponseEntity extractionParseTest(MultipartFile[] testfiles,int taskId, int userId) throws IllegalStateException{
+        ResponseEntity responseEntity = new ResponseEntity();
+        List<MultipartFile> dataList = new ArrayList();//存放测试用例
+        List<MultipartFile> answerList = new ArrayList();//存放测试答案
+        Map<String,List<MultipartFile>> filemap = new HashMap();
+        /**
+         * 检查是否上传文件
+         */
+        responseEntity = fileUtil.checkFilesLength(testfiles);
+        if(responseEntity.getStatus() != 0){
+            return responseEntity;
+        }
 
-    /**
-     * 计算用户文件总数
-     * @param userId
-     * @return
-     */
-//    public int countNumByUserId(int userId){
-//        Integer numInt = documentMapper.countDocNumByUserId(userId);
-//        if(numInt == null){
-//            return 0;
-//        } else{
-//            return numInt.intValue();
-//        }
-//    }
+        responseEntity = fileUtil.splitDataAndAnswer(testfiles);
+        if(responseEntity.getStatus() != 0){
+            return responseEntity;
+        }
+        filemap = (Map<String, List<MultipartFile>>) responseEntity.getData();
+        dataList = filemap.get("dataFiles");
+        answerList = filemap.get("anwserFiles");
 
+        for (MultipartFile f: dataList) {
+            int tempdocId = insertTestDocInfo(f,taskId,userId);
+            parseExtractionTestData(f,taskId,tempdocId);
+        }
+        for (MultipartFile f: answerList) {
+            insertTestDocInfo(f,taskId,userId);
+            parseExtractionTestAnswer(f,taskId);
+        }
+        return responseEntity;
+    }
 
+    public void parseExtractionTestData(MultipartFile file,int taskId,int docmentId){
+        List<TestExtractionData> dataList = new ArrayList<>();
+        try {
+            //1、获取文件输入流
+            InputStream inputStream = file.getInputStream();
+            //2、获取Excel工作簿对象
+            HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
+            //3、得到Excel工作表对象
+            HSSFSheet sheetAt = workbook.getSheetAt(0);
+            //4、循环读取表格数据
+            for (Row row : sheetAt) {
+                //首行（即表头）不读取
+                if (row.getRowNum() == 0) {
+                    continue;
+                }
+                TestExtractionData tempData = new TestExtractionData();
+                //读取当前行中单元格数据，索引从0开始
+                tempData.setDocumentId(docmentId);
+                tempData.setTaskId(taskId);
+                row.getCell(0).setCellType(Cell.CELL_TYPE_STRING);
+                tempData.setSubtaskId(Integer.valueOf(row.getCell(0).getStringCellValue()));
+                row.getCell(1).setCellType(Cell.CELL_TYPE_STRING);
+                tempData.setContent(row.getCell(1).getStringCellValue());
+                dataList.add(tempData);
+            }
+            testExtractionDataMapper.insertAll(dataList);
+        }catch (IOException e){
+            e.printStackTrace();
+        }
 
+    }
 
+    public void parseExtractionTestAnswer(MultipartFile file,int taskId){
+        List<TestExtractionRel> relList = new ArrayList<>();
+        List<TestExtractionEntity> entityList = new ArrayList<>();
+        try {
+            //1、获取文件输入流
+            InputStream inputStream = file.getInputStream();
+            //2、获取Excel工作簿对象
+            HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
+            //3、得到Excel工作表对象
+            HSSFSheet sheetAt = workbook.getSheetAt(0);
+            //4、循环读取表格数据
+            for (Row row : sheetAt) {
+                //首行（即表头）不读取
+                if (row.getRowNum() == 0) {
+                    continue;
+                }
+                row.getCell(0).setCellType(Cell.CELL_TYPE_STRING);
+                int subtaskId = Integer.valueOf(row.getCell(0).getStringCellValue());
+                //designation标记是关系还是实体,T是实体，R是关系
+                String designation = row.getCell(1).getStringCellValue();
+                if ("T".equals(String.valueOf(designation.charAt(0)))) {
+                    String entityname = row.getCell(2).getStringCellValue();
+                    row.getCell(3).setCellType(Cell.CELL_TYPE_STRING);
+                    int startindex = Integer.valueOf(row.getCell(3).getStringCellValue());
+                    row.getCell(4).setCellType(Cell.CELL_TYPE_STRING);
+                    int endindex = Integer.valueOf(row.getCell(4).getStringCellValue());
+                    row.getCell(5).setCellType(Cell.CELL_TYPE_STRING);
+                    String entity = row.getCell(5).getStringCellValue();
+                    TestExtractionEntity tempEntity = new TestExtractionEntity(taskId,subtaskId,designation,entityname,startindex,endindex,entity);
+                    entityList.add(tempEntity);
+                }else{
+                    String relname = row.getCell(2).getStringCellValue();
+                    String headentity = row.getCell(3).getStringCellValue();
+                    String tailentity = row.getCell(4).getStringCellValue();
+                    TestExtractionRel tempRel = new TestExtractionRel(taskId,subtaskId,designation,relname,headentity,tailentity);
+                    relList.add(tempRel);
+                }
+            }
+            testExtractionEntityMapper.insertAll(entityList);
+            testExtractionRelMapper.insertAll(relList);
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+    }
 
-
-//    @Transactional
-//    public ResponseEntity addMultiFileOneSorting(MultipartFile[] files,User user,String taskType) throws IllegalStateException{
-//
-//        //boolean filetype = true;
-//       ResponseEntity responseEntity = new ResponseEntity();
-////        //遍历处理文件
-////        responseEntity = fileUtil.checkfile(files);
-////        if(responseEntity.getStatus()<0){
-////            return responseEntity;
-////        }
-////
-////        //然后检查文件内容是否符合要求
-////        for (MultipartFile file : files) {
-////            try {
-////                String filename = file.getOriginalFilename();//文件名称
-////                int content = fileUtil.checktwoitem(file);
-////                if(content==-2){
-////                    responseEntity.setStatus(-3);
-////                    responseEntity.setMsg(filename +"单个文件大小超过限制");
-////                    return responseEntity;
-////                }else if(content==-3){
-////                    responseEntity.setStatus(-4);
-////                    responseEntity.setMsg(filename +"每个instance中的item的个数不正确");
-////                    return responseEntity;
-////                }else if(content==-4){
-////                    responseEntity.setStatus(-5);
-////                    responseEntity.setMsg(filename+"文件中有的item为空");
-////                    return responseEntity;
-////                } else if(content==-5){
-////                    responseEntity.setStatus(-5);
-////                    responseEntity.setMsg(filename+"文件中有的item超过字数限制,文件分段内容长度太长，请重新用#分段");
-////                    return responseEntity;
-////                }
-////            } catch (Exception e) {
-////                e.printStackTrace();
-////            }
-////        }
-//
-//        //最后插入document和content
-//        List<Integer> docIds = new ArrayList<Integer>();
-//        for (MultipartFile file : files) {
-//            try {
-//                String filename =file.getOriginalFilename();//文件名称
-//                String docContent=FileUtil.parsefilecontent(file);
-//                String docType="";//文件类型
-//
-//                if (filename.endsWith(".doc")) {
-//                    docType=".doc";
-//                } else if (filename.endsWith("docx")) {
-//                    docType=".docx";
-//                } else if(filename.endsWith(".txt")){
-//                    docType=".txt";
-//                }
-//
-//                Document document = new Document();
-//                document.setFilename(filename);
-//                document.setFiletype(docType);
-//                document.setFilesize((int)file.getSize());
-//
-//                //todo:建文件服务器后设置路径
-//                document.setAbsolutepath("");
-//                document.setRelativepath("");
-//
-//                //设置时间
-//                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
-//                document.setDocuploadtime(df.format(new Date()));
-//                document.setDoccomptime("");
-//                document.setDocstatus("未完成");
-//
-//                //添加文件
-//                //防止自增的ID不连续
-//                alterDocumentTable();
-//                int docRes = addTwoInstances(document,user,docContent,taskType);
-//
-//                switch (docRes){
-//                    case -1:
-//                        responseEntity.setStatus(-6);
-//                        responseEntity.setMsg(filename+"添加文件失败，请检查");
-//                        //插入数据库有错误时整体回滚
-//                        TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-//                        break;
-//                    case -2:
-//                        responseEntity.setStatus(-7);
-//                        responseEntity.setMsg(filename+"instance插入失败");
-//                        //插入数据库有错误时整体回滚
-//                        TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-//                        break;
-//                    case -3:
-//                        responseEntity.setStatus(-8);
-//                        responseEntity.setMsg(filename+"item插入失败");
-//                        //插入数据库有错误时整体回滚
-//                        TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-//                        break;
-//                    default:
-//                        responseEntity.setStatus(0);
-//                        responseEntity.setMsg("文件上传成功");
-//                        Map<String, Object> data = new HashMap<>();
-//                        docIds.add(docRes);
-//                        data.put("docIds", docIds);//返回文件id，方便后续添加任务
-//                        responseEntity.setData(data);
-//                }
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        return responseEntity;
-//    }
-//
-//
-//    public int addTwoInstances(Document document,User user,String docContent,String taskType){
-//
-//        //读取的文件内容由#分隔
-//        //检查每段内容大小
-//        String[] instanceArr = docContent.split("#");
-//
-//        //开始插入文件相关信息
-//        document.setUserId(user.getId());
-//        int docInsertRes = documentMapper.insertDocument(document);//插入结果
-//
-//        //插入文件失败
-//        if(docInsertRes == -1){
-//            return docInsertRes;
-//        }else{
-//            //插入文件成功
-//            int docId=document.getDid();//插入成功的文件ID
-//            //防止自增的ID不连续
-//            instanceMapper.alterInstanceTable();
-//            //文件内容，用#分隔了
-//            int addContentRes =addTwoItems(docId,instanceArr,taskType);
-//            //instance插入失败
-//            if(addContentRes == -2){
-//                //todo:有内容插入失败的情况，要删除已经插入的文件以及文件内容
-//                return -2;
-//            }else{
-//                return docId;
-//            }
-//        }
-//    }
-
-
-
-//    public int addTwoItems(int docId,String[] instanceArr,String taskType){
-//
-//        for(int i=0;i<instanceArr.length;i++){
-//
-//            String[] itemArr = instanceArr[i].split("-------");
-//            Instance instance =new Instance();
-//
-//
-//            instance.setInsindex(String.valueOf(i+1));
-//            instance.setInsstatus("未完成");
-//            instance.setDocumentid(docId);
-//            instance.setLabelnum(0);
-//            int instanceRes =instanceMapper.insert(instance);
-//            //Instance插入失败则返回3
-//            if(instanceRes == -1){
-//                return -2;
-//            }else{
-//                //Instance插入成功
-//                int instId=instance.getInsid();//插入成功的文件ID
-//                //文件内容，用#分隔了
-//                itemMapper.alterItemTable();
-//                int addItemRes =addItems(instId,itemArr,taskType);
-//                //文件内容插入失败
-//                if(addItemRes == -3){
-//                    //todo:有内容插入失败的情况，要删除已经插入的文件以及文件内容
-//                    return -3;
-//                }
-//            }
-//        }
-//        return 0;
-//    }
-
-
-
-
-//    public int addItems(int instId,String[] itemArr,String taskType){
-//
-//        for(int i=0;i<itemArr.length;i++){
-//            Item item = new Item();
-//            item.setItemcontent(itemArr[i]);
-//            if(taskType.equals("文本排序")){
-//                item.setItemindex(String.valueOf(i+1));
-//            }else if(taskType.equals("文本类比排序")){
-//                item.setItemindex(String.valueOf(i));
-//            }
-//            item.setInstanceid(instId);
-//            item.setLabelnum(0);
-//            int itemRes = itemMapper.insert(item);
-//            //文件内容插入失败则返回3
-//            if(itemRes == -1){
-//                return -3;
-//            }
-//        }
-//        return 0;
-//    }
-
-
-//    public  String readContent(String path) throws IOException {
-//
-//        InputStream is = new FileInputStream(path);
-//        InputStreamReader inputFileReader =new InputStreamReader(is,"Unicode");
-//        BufferedReader in = new BufferedReader(inputFileReader);
-//        StringBuffer buffer = new StringBuffer();
-//        String line = "";
-//        while ((line = in.readLine()) != null){
-//            buffer.append(line);
-//        }
-//        return buffer.toString();
-//
-//    }
-
-//    public String getDocumentContent(String filename) throws IOException{
-//        String docContent = "";
-//        try {
-//            if (filename.endsWith(".doc")) {
-//
-//                InputStream is = new FileInputStream(new java.io.File(filename));
-//                WordExtractor ex = new WordExtractor(is);
-//                docContent = ex.getText();
-//            } else if (filename.endsWith("docx")) {
-//                FileInputStream fis = new FileInputStream(filename);
-//                XWPFDocument xdoc = new XWPFDocument(fis);
-//                XWPFWordExtractor extractor = new XWPFWordExtractor(xdoc);
-//                docContent= extractor.getText();
-//                fis.close();
-//            } else {
-//                docContent="此文件不是word文件！";
-//            }
-//        }catch (Exception e){
-//            e.printStackTrace();
-//        }
-//        return docContent;
-//
-//    }
 }

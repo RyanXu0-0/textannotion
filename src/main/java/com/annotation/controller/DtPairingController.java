@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -39,7 +40,9 @@ public class DtPairingController {
             userId = user.getId();
         }
 
-        List<InstanceListitemEntity> instanceItemEntityList = iDtPairingService.queryInstanceListitem(docId,userId,status,taskId);
+//        List<InstanceListitemEntity> instanceItemEntityList = iDtPairingService.queryInstanceListitem(docId,userId,status,taskId);
+        List<InstanceListitemEntity> instanceItemEntityList = new ArrayList<>();
+        instanceItemEntityList =  iDtPairingService.queryInstanceListitem(docId,userId,status,taskId);
         JSONObject rs = new JSONObject();
         if(instanceItemEntityList != null){
             rs.put("msg","查询文件内容成功");

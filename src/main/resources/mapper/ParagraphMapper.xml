@@ -40,6 +40,23 @@
     where td.task_id=#{tid} AND p.document_id =td.document_id
   </select>
 
+  <select id="countBydocid"  resultType="Integer" parameterType="List">
+        select count(p.pid) from paragraph p
+    where p.document_id in
+    <foreach collection="docIds" item="docId" open="(" close=")" separator=",">
+      #{docId}
+    </foreach>
+   </select>
+
+  <select id="selectStartpid"  resultType="Integer" parameterType="List">
+    select min(p.pid) from paragraph p
+    where p.document_id in
+    <foreach collection="docIds" item="docId" open="(" close=")" separator=",">
+      #{docId}
+    </foreach>
+  </select>
+
+
 
   <select id="countParaNum" parameterType="Integer" resultType="Integer">
     select count(*) from paragraph where document_id=#{docId}

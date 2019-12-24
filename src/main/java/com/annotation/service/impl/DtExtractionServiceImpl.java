@@ -46,6 +46,7 @@ public class DtExtractionServiceImpl implements IDtExtractionService {
 
 
         DTask dTask=dTaskMapper.selectByTaskIdAndUserId(taskId,userId);
+        System.out.println("docId"+docId);
         if(dTask!=null){
             if(status.equals("全部")){
                 List<ParagraphLabelEntity> contentLabelEntityList=dtExtractionMapper.selectExtractionParaLabel(docId,userId,dTask.getTkid(),taskId);

@@ -32,6 +32,10 @@ public interface ParagraphMapper {
 
     int countTotalPart(Integer tid);
 
+    int countBydocid(@Param("docIds")List<Integer> docIds);
+
+    int selectStartpid(@Param("docIds")List<Integer> docIds);
+
     int countParaNum(Integer docId);
 
     int deleteByPrimaryKey(Integer pid);
@@ -46,5 +50,5 @@ public interface ParagraphMapper {
 
     List<Paragraph> selectContentByDocId(Integer docId);
 
-
+    Paragraph selectByIndexAndDoc(Integer documentid,Integer index);
 }

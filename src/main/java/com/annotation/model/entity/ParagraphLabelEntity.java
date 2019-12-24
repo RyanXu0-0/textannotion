@@ -1,5 +1,7 @@
 package com.annotation.model.entity;
 
+import com.annotation.model.Paragraph;
+
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +20,14 @@ public class ParagraphLabelEntity {
 
     //已经做了的标签
     private List<Map<String,Object>> alreadyDone;
+
+    public ParagraphLabelEntity(){}
+    public ParagraphLabelEntity(Paragraph paragraph){
+        this.pid = paragraph.getPid();
+        this.paracontent = paragraph.getParacontent();
+        this.paraindex = paragraph.getParaindex();
+        this.documentId = paragraph.getDocumentId();
+    }
 
     public Integer getPid() {
         return pid;

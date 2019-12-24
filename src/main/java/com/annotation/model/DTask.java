@@ -10,6 +10,14 @@ public class DTask {
     private String dpercent;
     private Integer alreadypart;
     private Integer totalpart;
+    private Integer pid;
+
+    public Integer getPid() {
+        return pid;
+    }
+    public void setPid(Integer pid) {
+        this.pid = pid;
+    }
 
     public Integer getTkid() {
         return tkid;

@@ -6,6 +6,7 @@ import com.annotation.model.Dtasktype;
 import com.annotation.model.User;
 import com.annotation.model.entity.ParagraphLabelEntity;
 import com.annotation.model.entity.ResponseEntity;
+import com.annotation.service.ICrowdsourcingService;
 import com.annotation.service.IDParagraphService;
 import com.annotation.service.IDtExtractionService;
 import com.annotation.util.ResponseUtil;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +33,8 @@ public class DtExtractionController {
     IDtExtractionService iDtExtractionService;
     @Autowired
     ResponseUtil responseUtil;
-
+    @Autowired
+    ICrowdsourcingService crowdsourcingService;
     @Autowired
     DtasktypeMapper dtasktypeMapper;
 
@@ -63,10 +66,9 @@ public class DtExtractionController {
                 return rs;
             }
         }
-
-        List<ParagraphLabelEntity> paragraphLabelEntityList=iDtExtractionService.queryExtractionParaLabel(docId,userId,status,taskId);
-
-        //List<Content> contentList = iContentService.selectContentByDocId(docId);
+        List<ParagraphLabelEntity> paragraphLabelEntityList = new ArrayList<>();
+       // List<ParagraphLabelEntity> paragraphLabelEntityList=iDtExtractionService.queryExtractionParaLabel(docId,userId,status,taskId);
+        paragraphLabelEntityList.add(crowdsourcingService.extractionCrowdsourcing(userId,taskId));
         JSONObject rs = new JSONObject();
         if(paragraphLabelEntityList != null){
             rs.put("msg","查询文件内容成功");

@@ -4,27 +4,30 @@
 
   <!--BaseResultMap-->
   <resultMap id="BaseResultMap" type="com.annotation.model.DTask" >
-    <id column="tkid" property="tkid" jdbcType="INTEGER" />
-    <result column="user_id" property="userId" jdbcType="INTEGER" />
-    <result column="task_id" property="taskId" jdbcType="INTEGER" />
-    <result column="dotime" property="dotime" jdbcType="VARCHAR" />
-    <result column="dcomptime" property="dcomptime" jdbcType="VARCHAR" />
-    <result column="dstatus" property="dstatus" jdbcType="VARCHAR" />
-    <result column="dpercent" property="dpercent" jdbcType="VARCHAR" />
-    <result column="doUserName" property="doUserName" jdbcType="VARCHAR" />
-    <result column="type_name" property="typeName" jdbcType="VARCHAR" />
-    <result column="title" property="title" jdbcType="VARCHAR" />
-    <result column="description" property="description" jdbcType="VARCHAR" />
-    <result column="deadline" property="deadline" jdbcType="VARCHAR" />
-    <result column="otherinfo" property="otherinfo" jdbcType="VARCHAR" />
-    <result column="viewnum" property="viewnum" jdbcType="INTEGER" />
-    <result column="attendnum" property="attendnum" jdbcType="INTEGER" />
+      <id column="tkid" property="tkid" jdbcType="INTEGER" />
+      <result column="user_id" property="userId" jdbcType="INTEGER" />
+      <result column="task_id" property="taskId" jdbcType="INTEGER" />
+      <result column="dotime" property="dotime" jdbcType="VARCHAR" />
+      <result column="dcomptime" property="dcomptime" jdbcType="VARCHAR" />
+      <result column="dstatus" property="dstatus" jdbcType="VARCHAR" />
+      <result column="dpercent" property="dpercent" jdbcType="VARCHAR" />
+      <result column="doUserName" property="doUserName" jdbcType="VARCHAR" />
+      <result column="type_name" property="typeName" jdbcType="VARCHAR" />
+      <result column="title" property="title" jdbcType="VARCHAR" />
+      <result column="description" property="description" jdbcType="VARCHAR" />
+      <result column="deadline" property="deadline" jdbcType="VARCHAR" />
+      <result column="otherinfo" property="otherinfo" jdbcType="VARCHAR" />
+      <result column="viewnum" property="viewnum" jdbcType="INTEGER" />
+      <result column="attendnum" property="attendnum" jdbcType="INTEGER" />
       <result column="alreadypart" property="alreadypart" jdbcType="INTEGER" />
       <result column="totalpart" property="totalpart" jdbcType="INTEGER" />
+
+      <result column="pid" property="pid" jdbcType="INTEGER" />
+
   </resultMap>
 
   <select id="selectByTaskIdAndUserId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
-    select tkid, user_id, task_id, dotime, dcomptime, dstatus, dpercent,alreadypart,totalpart
+    select tkid, user_id, task_id, dotime, dcomptime, dstatus, dpercent,alreadypart,totalpart,pid
     from d_task
     where task_id = #{taskId} AND user_id=#{userId}
   </select>
@@ -32,10 +35,11 @@
   <insert id="insert" useGeneratedKeys="true" keyProperty="tkid" parameterType="com.annotation.model.DTask" >
     insert into d_task (tkid, user_id, task_id,
     dotime, dcomptime, dstatus,
-    dpercent,alreadypart,totalpart)
+    dpercent,alreadypart,totalpart,
+    pid)
     values (#{tkid,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{taskId,jdbcType=INTEGER},
     #{dotime,jdbcType=VARCHAR}, #{dcomptime,jdbcType=VARCHAR}, #{dstatus,jdbcType=VARCHAR},
-    #{dpercent,jdbcType=VARCHAR},#{alreadypart},#{totalpart})
+    #{dpercent,jdbcType=VARCHAR},#{alreadypart},#{totalpart},#{pid})
   </insert>
 
 
@@ -88,21 +92,22 @@
       dstatus = #{dstatus,jdbcType=VARCHAR},
       dpercent = #{dpercent,jdbcType=VARCHAR},
       alreadypart=#{alreadypart},
-      totalpart=#{totalpart}
+      totalpart=#{totalpart},
+      pid = #{pid}
     where tkid = #{tkid,jdbcType=INTEGER}
   </update>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
-    select tkid, user_id, task_id, dotime, dcomptime, dstatus, dpercent,alreadypart,totalpart
+    select tkid, user_id, task_id, dotime, dcomptime, dstatus, dpercent,alreadypart,totalpart,pid
     from d_task
     where tkid = #{tkid,jdbcType=INTEGER}
   </select>
   <select id="selectAll" resultMap="BaseResultMap" >
-    select tkid, user_id, task_id, dotime, dcomptime, dstatus, dpercent,alreadypart,totalpart
+    select tkid, user_id, task_id, dotime, dcomptime, dstatus, dpercent,alreadypart,totalpart,pid
     from d_task
   </select>
 
     <select id="selectByTaskId" resultMap="BaseResultMap" >
-        select tkid, user_id, task_id, dotime, dcomptime, dstatus, dpercent,alreadypart,totalpart
+        select tkid, user_id, task_id, dotime, dcomptime, dstatus, dpercent,alreadypart,totalpart,pid
         from d_task WHERE task_id=#{tid}
     </select>
 </mapper>

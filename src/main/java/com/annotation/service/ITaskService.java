@@ -21,7 +21,18 @@ public interface ITaskService {
     int addTaskDoc(int taskId,List<Integer> docIds);
 
     /**
-     * 信息抽取和分类
+     * 信息抽取
+     * @param task
+     * @param docIds
+     * @param labels
+     * @param colors
+     * @return
+     */
+    @Transactional
+    ResponseEntity addTaskOfExtration(Task task, List<Integer> docIds, String[] labels,String[] relalabels, String[] colors);
+
+    /**
+     * 分类
      * @param task
      * @param docIds
      * @param labels
@@ -30,7 +41,6 @@ public interface ITaskService {
      */
     @Transactional
     ResponseEntity addTaskOfDocPara(Task task, List<Integer> docIds, String[] labels, String[] colors);
-
 
     /**
      * 文本关系

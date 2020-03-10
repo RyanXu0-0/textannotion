@@ -15,9 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Random;
 
 /**
  * Created by twinkleStar on 2019/2/2.
@@ -67,7 +66,109 @@ public class DtClassifyController {
 
 
     /**
-     *
+     * todo
+     * 获取当前任务应做的段落
+     * @param httpSession
+     * @param docId
+     * @param taskId
+     * @param userId
+     * @return
+     */
+    @GetMapping
+    @RequestMapping("/getCurrentTaskParagraph")
+    public JSONObject getCurrentClassificationTask(HttpSession httpSession, int docId,int taskId,@RequestParam(defaultValue="0")int userId){
+
+        if(userId==0){
+            User user =(User)httpSession.getAttribute("currentUser");
+            userId = user.getId();
+        }
+
+        List<ParagraphLabelEntity> paragraphLabelEntityList=iDtClassifyService.queryClassifyParaLabel(docId,userId,"进行中",taskId);
+
+
+        JSONObject rs = new JSONObject();
+        Random r = new Random();
+        if(paragraphLabelEntityList != null){
+            rs.put("type","common_task");
+            rs.put("msg","query file successfully");
+            rs.put("code",0);
+            int random = r.nextInt(paragraphLabelEntityList.size());
+            rs.put("data",paragraphLabelEntityList.get(random));
+        }else{
+            rs.put("msg","query file fail");
+            rs.put("code",-1);
+        }
+        return rs;
+    }
+
+
+    /**
+     * todo
+     * 跳过当前任务应做的段落,并进入下一段
+     * @param httpSession
+     * @param docId
+     * @param taskId
+     * @param userId
+     * @return
+     */
+    @GetMapping
+    @RequestMapping("/passCurrentTaskParagraph")
+    public JSONObject passCurrentTaskParagraph(HttpSession httpSession,int docId,  int paraId , int taskId,@RequestParam(defaultValue="0")int userId){
+
+        if(userId==0){
+            User user =(User)httpSession.getAttribute("currentUser");
+            userId = user.getId();
+        }
+
+        List<ParagraphLabelEntity> paragraphLabelEntityList=iDtClassifyService.queryClassifyParaLabel(docId,userId,"进行中",taskId);
+
+        JSONObject rs = new JSONObject();
+        Random r = new Random();
+        if(paragraphLabelEntityList != null){
+            rs.put("type","test_task");
+            rs.put("msg","query file successfully");
+            rs.put("code",0);
+            int random = r.nextInt(paragraphLabelEntityList.size());
+            rs.put("data",paragraphLabelEntityList.get(random));
+        }else{
+            rs.put("msg","query file fail");
+            rs.put("code",-1);
+        }
+        return rs;
+
+    }
+
+
+    /**
+     * todo
+     * @param httpSession
+     * @param taskId
+     * @param docId
+     * @param paraId
+     * @param labelId
+     * @param userId
+     * @return
+     */
+
+    @PostMapping
+    @RequestMapping("/compareWithOtherAnnotation")
+    public String compareWithOtherAnnotation(HttpSession httpSession,int docId,int taskId,int paraId,int[] labelId,@RequestParam(defaultValue="0")int userId){
+
+        if(userId==0){
+            User user =(User)httpSession.getAttribute("currentUser");
+            userId = user.getId();
+        }
+
+        return "90.5% 相似度";
+    }
+
+
+
+
+
+
+    /**
+     * 提交段落标签
      * @param httpSession
      * @param taskId
      * @param docId
@@ -144,62 +245,6 @@ public class DtClassifyController {
 
 
 
-
-//    @PostMapping("/comment")
-//    public ResponseEntity doComment(HttpSession httpSession,
-//                                    int dtdId,int labelId,int commentNum) {
-//        User user =(User)httpSession.getAttribute("currentUser");
-//        int dtmRes = iDtClassifyService.addComment( user.getId(), dtdId, labelId,  commentNum);
-//        if(dtmRes==4016 || dtmRes==4017){
-//            ResponseEntity responseEntity = responseUtil.judgeResult(dtmRes);
-//            return responseEntity;
-//        }else{
-//            return responseUtil.judgeDoTaskController(dtmRes);
-//        }
-//    }
-
-
-
-//    @GetMapping("/comment")
-//    public JSONObject handleComment(HttpSession httpSession,
-//                                    int docId,String status,int taskId) {
-//        User user =(User)httpSession.getAttribute("currentUser");
-//        List<ParagraphLabelEntity> paraLabelEntityList=
-//                iDtClassifyService.calComment(docId,taskId);
-//        JSONObject rs = new JSONObject();
-//        if(paraLabelEntityList != null){
-//            rs.put("msg","获取预处理结果成功");
-//            rs.put("code",0);
-//            rs.put("data",paraLabelEntityList);
-//        }else{
-//            rs.put("msg","预处理失败");
-//            rs.put("code",-1); }
-//        return rs;
-//    }
-
-
-
-//    @PostMappi
-//
-//
-//
-// ng("/doc/status")
-//    public ResponseEntity updateStatus(HttpServletRequest httpServletRequest, HttpSession httpSession, HttpServletResponse httpServletResponse,
-//                                              int docId,int taskId) {
-//        User user =(User)httpSession.getAttribute("currentUser");
-//
-//        int upRes=idParagraphService.updateStatus(user.getId(),docId,taskId);
-//        if(upRes==4010|| upRes==4011|| upRes==4012){
-//            ResponseEntity responseEntity=responseUtil.judgeResult(upRes);
-//            return responseEntity;
-//        }else{
-//            ResponseEntity responseEntity=new ResponseEntity();
-//            responseEntity.setMsg("完成该文档");
-//            responseEntity.setStatus(0);
-//            return responseEntity;
-//        }
-//
-//    }
 
 
 

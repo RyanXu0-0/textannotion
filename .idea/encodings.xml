@@ -2,5 +2,23 @@
 <project version="4">
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/annotation/controller/DInstanceController.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/annotation/controller/DParagraphController.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/annotation/controller/DTaskController.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/annotation/controller/DocumentController.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/annotation/controller/DtClassifyController.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/annotation/controller/DtExtractionController.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/annotation/controller/DtPairingController.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/annotation/controller/DtRelationController.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/annotation/controller/DtSortingController.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/annotation/controller/DtasktypeController.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/annotation/controller/InstanceController.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/annotation/controller/LabelController.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/annotation/controller/ParagraphController.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/annotation/controller/PointController.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/annotation/controller/TaskController.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/annotation/controller/UserController.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/annotation/controller/pageController.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/sql/temp.sql" charset="GBK" />
   </component>
 </project>

@@ -6,7 +6,6 @@ import com.annotation.model.Dtasktype;
 import com.annotation.model.User;
 import com.annotation.model.entity.ParagraphLabelEntity;
 import com.annotation.model.entity.ResponseEntity;
-import com.annotation.service.IDParagraphService;
 import com.annotation.service.IDtExtractionService;
 import com.annotation.util.ResponseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Random;
 
 /**
  * Created by twinkleStar on 2019/2/2.
@@ -46,6 +44,8 @@ public class DtExtractionController {
     @GetMapping
     public JSONObject getExtractionPara(HttpServletRequest httpServletRequest, HttpSession httpSession, HttpServletResponse httpServletResponse,
                                         int docId,String status,int taskId,@RequestParam(defaultValue="0")int userId) {
+
+        System.out.println("userId:"+userId);
         if(userId==0){
             User user =(User)httpSession.getAttribute("currentUser");
             userId = user.getId();
@@ -77,6 +77,11 @@ public class DtExtractionController {
         }
         return rs;
     }
+
+
+
+
+
 
 
     /**
@@ -130,6 +135,102 @@ public class DtExtractionController {
             rs.put("code",-1);
         }
         return rs;
+    }
+
+
+    /**
+     * todo
+     * 获取当前任务应做的段落
+     * @param httpSession
+     * @param docId
+     * @param taskId
+     * @param userId
+     * @return
+     */
+    @GetMapping
+    @RequestMapping("/getCurrentTaskParagraph")
+    public JSONObject getCurrentClassificationTask(HttpSession httpSession, int docId,int taskId,@RequestParam(defaultValue="0")int userId){
+
+        if(userId==0){
+            User user =(User)httpSession.getAttribute("currentUser");
+            userId = user.getId();
+        }
+
+        List<ParagraphLabelEntity> paragraphLabelEntityList=iDtExtractionService.queryExtractionParaLabel(docId,userId,"全部",taskId);
+
+
+        JSONObject rs = new JSONObject();
+        Random r = new Random();
+        if(paragraphLabelEntityList != null){
+            rs.put("type","common_task");
+            rs.put("msg","query file successfully");
+            rs.put("code",0);
+            int random = r.nextInt(paragraphLabelEntityList.size());
+            rs.put("data",paragraphLabelEntityList.get(random));
+        }else{
+            rs.put("msg","query file fail");
+            rs.put("code",-1);
+        }
+        return rs;
+    }
+
+
+    /**
+     * todo
+     * 跳过当前任务应做的段落,并进入下一段
+     * @param httpSession
+     * @param docId
+     * @param taskId
+     * @param userId
+     * @return
+     */
+    @GetMapping
+    @RequestMapping("/passCurrentTaskParagraph")
+    public JSONObject passCurrentTaskParagraph(HttpSession httpSession,int docId,  int paraId , int taskId,@RequestParam(defaultValue="0")int userId){
+
+        if(userId==0){
+            User user =(User)httpSession.getAttribute("currentUser");
+            userId = user.getId();
+        }
+
+        List<ParagraphLabelEntity> paragraphLabelEntityList=iDtExtractionService.queryExtractionParaLabel(docId,userId,"全部",taskId);
+
+        JSONObject rs = new JSONObject();
+        Random r = new Random();
+        if(paragraphLabelEntityList != null){
+            rs.put("type","test_task");
+            rs.put("msg","query file successfully");
+            rs.put("code",0);
+            int random = r.nextInt(paragraphLabelEntityList.size());
+            rs.put("data",paragraphLabelEntityList.get(random));
+        }else{
+            rs.put("msg","query file fail");
+            rs.put("code",-1);
+        }
+        return rs;
+
+    }
+
+    /**
+     * todo
+     * @param httpSession
+     * @param taskId
+     * @param docId
+     * @param paraId
+     * @param userId
+     * @return
+     */
+
+    @PostMapping
+    @RequestMapping("/compareWithOtherAnnotation")
+    public String compareWithOtherAnnotation(HttpSession httpSession,int docId,int taskId,int paraId,@RequestParam(defaultValue="0")int userId){
+
+        if(userId==0){
+            User user =(User)httpSession.getAttribute("currentUser");
+            userId = user.getId();
+        }
+
+        return "90.5% 相似度";
     }
 
 

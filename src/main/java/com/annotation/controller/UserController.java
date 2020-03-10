@@ -6,7 +6,6 @@ import com.annotation.service.IDtasktypeService;
 import com.annotation.service.IPointService;
 import com.annotation.service.IUserService;
 import com.annotation.util.ResponseUtil;
-import org.apache.ibatis.annotations.Delete;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
@@ -15,8 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -130,8 +127,21 @@ public class UserController {
     @Transactional
     @PostMapping
     public ResponseEntity userRegister(HttpServletRequest request, HttpServletResponse httpServletResponse,
-                                      User user){
+                                       User user){
+       return register(user);
 
+    }
+
+    @Transactional
+    @PostMapping(value = "/registerInApp")
+    public ResponseEntity userRegisterInApp(HttpServletRequest request, HttpServletResponse httpServletResponse,
+                                      @RequestBody User user){
+        return register(user);
+
+    }
+
+
+    private ResponseEntity register(User user){
         User userInfo=iUserService.queryUserByEmail(user.getEmail());
         if(userInfo ==null){
 
@@ -139,21 +149,23 @@ public class UserController {
             if(res > 0){
                 ResponseEntity responseEntity = new ResponseEntity();
                 responseEntity.setStatus(200);
-                responseEntity.setMsg("注册成功，请重新登陆");
+                responseEntity.setMsg("register successfully");
 
                 int userId = user.getId();
                 int upRes = iDtasktypeService.insert(userId);
                 if(upRes<0){
                     TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                     ResponseEntity responseEntity2=new ResponseEntity();
-                    responseEntity2.setMsg("新建是否做任务表失败");
+                    //新建是否做任务表失败
+                    responseEntity2.setMsg("create new task table fail");
                     responseEntity2.setStatus(-1);
                     return responseEntity2;
                 }
                 int pointres = iPointService.insert(userId);
                 if(upRes<0){
                     ResponseEntity responseEntity3=new ResponseEntity();
-                    responseEntity3.setMsg("新建积分表失败");
+                    //新建积分表失败
+                    responseEntity3.setMsg("  create new table fail ");
                     responseEntity3.setStatus(-1);
                     return responseEntity3;
                 }
@@ -167,8 +179,9 @@ public class UserController {
             ResponseEntity responseEntity=responseUtil.judgeResult(1003);
             return responseEntity;
         }
-
     }
+
+
 
 
     /**

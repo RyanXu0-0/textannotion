@@ -1,7 +1,8 @@
 package com.annotation.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.annotation.model.*;
+import com.annotation.model.Task;
+import com.annotation.model.User;
 import com.annotation.model.entity.ResponseEntity;
 import com.annotation.model.entity.TaskInfoEntity;
 import com.annotation.service.IDocumentService;
@@ -18,7 +19,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by twinkleStar on 2018/12/9.
@@ -347,19 +350,49 @@ public class TaskController {
      */
     @GetMapping(value = "/tasktype")
     public JSONObject selectTaskByType(String tasktype) {
+       // System.out.println(tasktype);
         List<Task> taskList = iTaskService.selectTaskByType(tasktype);
         JSONObject jso =new JSONObject();
         if(taskList==null){
             jso.put("msg","查询失败");
             jso.put("code",-1);
         }else{
-            jso.put("msg","success");
+            jso.put("msg","查询成功");
             jso.put("code",0);
             jso.put("data",taskList);
         }
 
         return jso;
     }
+
+
+    /**
+     * todo
+     * 提交当前task错误
+     * @param httpSession
+     * @param paraId
+     * @param docId
+     * @param taskId
+     * @param userId
+     * @return
+     */
+
+    @GetMapping(value = "/commitError")
+    public JSONObject commitError (HttpSession httpSession,  int docId, int paraId,String msg,int taskId,@RequestParam(defaultValue="0")int userId) {
+
+        if(userId==0){
+            User user =(User)httpSession.getAttribute("currentUser");
+            userId = user.getId();
+        }
+
+        JSONObject rs = new JSONObject();
+        rs.put("code","0");
+        rs.put("msg","thanks");
+        return rs;
+
+    }
+
+
 
 
 

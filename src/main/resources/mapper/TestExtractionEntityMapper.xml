@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.annotation.dao.TestExtractionEntityMapper">
+
+    <!--BaseResultMap-->
+    <resultMap id="BaseResultMap" type="com.annotation.model.TestExtractionEntity" >
+        <result column="task_id" property="taskId" jdbcType="INTEGER" />
+        <result column="subtask_id" property="subtaskId" jdbcType="INTEGER" />
+        <result column="entity_id" property="entityId" jdbcType="VARCHAR" />
+        <result column="entity_name" property="entityName" jdbcType="VARCHAR" />
+        <result column="startindex" property="startIndex" jdbcType="INTEGER" />
+        <result column="endindex" property="endIndex" jdbcType="INTEGER" />
+        <result column="entity" property="entity" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <!--插入任务-文件关系表-->
+    <insert id="insert" useGeneratedKeys="true" parameterType="com.annotation.model.TestExtractionEntity" >
+        insert into test_extractionentity (task_id,subtask_id, entity_id,entity_name,startindex,endindex,entity)
+        values (#{taskId,jdbcType=INTEGER}, #{subtaskId,jdbcType=INTEGER},#{entityId,jdbcType=INTEGER},
+        #{entityName,jdbcType=INTEGER},
+        #{startIndex,jdbcType=INTEGER},#{endIndex,jdbcType=INTEGER},#{entity,jdbcType=VARCHAR})
+    </insert>
+
+
+
+    <select id="selectByTaskid" parameterType="Integer" resultMap="BaseResultMap">
+        select task_id,subtask_id, entity_id,entity_name,startindex,endindex,entity from test_extractionentity
+         where task_id = #{taskId}
+    </select>
+
+    <select id="selectByTaskidAndSubtaskid" parameterType="Integer" resultMap="BaseResultMap">
+        select task_id,subtask_id, entity_id,entity_name,startindex,endindex,entity from test_extractionentity
+         where task_id = #{taskId} and subtask_id = #{subtaskId}
+    </select>
+
+
+    <delete id="deleteByTaskid" parameterType="java.lang.Integer">
+        delete from test_extractionentity
+        where task_id = #{taskid,jdbcType=INTEGER}
+    </delete>
+
+    <update id="alterTable">
+        ALTER TABLE test_extractionentity AUTO_INCREMENT =1
+    </update>
+
+    <insert id="insertAll" useGeneratedKeys="true" parameterType="java.util.List" >
+        insert into test_extractionentity (task_id,subtask_id, entity_id,entity_name,startindex,endindex,entity)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.taskId,jdbcType=INTEGER}, #{item.subtaskId,jdbcType=INTEGER},
+            #{item.entityId,jdbcType=VARCHAR},#{item.entityName,jdbcType=VARCHAR},
+            #{item.startIndex,jdbcType=INTEGER},#{item.endIndex,jdbcType=INTEGER},#{item.entity,jdbcType=VARCHAR})
+        </foreach>
+    </insert>
+</mapper>

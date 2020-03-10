@@ -371,9 +371,6 @@ $(function(){
             mformData.append("labelnum1",$("#item1Num").val());
             mformData.append("labelnum2",$("#item2Num").val());
 
-            // console.log(tagStr);
-            // console.log(tagStr1);
-            // console.log(tagStr2);
 
             ajaxType3(mformData);
 
@@ -699,7 +696,7 @@ function myChange(obj) {
     //console.log('您选择的颜色是：'+this.value);
 }
 
-function seedetail(obj) {
+function seedocdetail(obj) {
 
     console.log(obj);
 
@@ -709,17 +706,96 @@ function seedetail(obj) {
 
         alert("请先选择标注类型");
     }else{
-        if(taskValue=="1" || taskValue=="2"){
-
-            img = "<img src='/images/notAns.png' />";
-
-
-        }else if(taskValue=="3"){
-
-            img = "<img src='/images/addSmall.png' />";
-
+        if(taskValue=="1"  ) {
+            img = "<img src='/images/doc-extraction.png' />";
+        }else if(taskValue=="2"){
+            img = "<img src='/images/doc-classify.png' />";
+        }else if(taskValue=="3") {
+        img = "<img src='/images/doc-relation.png' />";
         }else if(taskValue=="4"){
-            img = "<img src='/images/DOC.png' />";
+            img = "<img src='/images/doc-pair.png' />";
+        }else if(taskValue=="5"){
+            img = "<img src='/images/doc-sort.png' />";
+        } else if(taskValue=="6"){
+            img = "<img src='/images/doc-contrast.png' />";
+        }
+
+        layer.open({
+            type:1,
+            shift: 2,
+            area: ['500px', '300px'],
+            shade:0,
+            title:'查看样例',
+            shadeClose:true,
+            content:img
+        });
+    }
+
+
+
+};
+
+function seexlsdetail(obj) {
+
+    console.log(obj);
+
+    var img;
+
+    if(taskValue=="0"){
+
+        alert("请先选择标注类型");
+    }else{
+        if(taskValue=="1"  ) {
+            img = "<img src='/images/xls-extraction.png' />";
+        }else if(taskValue=="2"){
+            img = "<img src='/images/xls-classify.png' />";
+        }else if(taskValue=="3") {
+            img = "<img src='/images/xls-relation.png' />";
+        }else if(taskValue=="4"){
+            img = "<img src='/images/xls-pair.png' />";
+        }else if(taskValue=="5"){
+            img = "<img src='/images/xls-sort.png' />";
+        } else if(taskValue=="6"){
+            img = "<img src='/images/xls-contrast.png' />";
+        }
+
+        layer.open({
+            type:1,
+            shift: 2,
+            area: ['500px', '300px'],
+            shade:0,
+            title:'查看样例',
+            shadeClose:true,
+            content:img
+        });
+    }
+
+
+
+};
+
+function seetestdetail(obj) {
+
+    console.log(obj);
+
+    var img;
+
+    if(taskValue=="0"){
+
+        alert("请先选择标注类型");
+    }else{
+        if(taskValue=="1"  ) {
+            img = "<img src='/images/test1-extraction.png' />";
+        }else if(taskValue=="2"){
+            img = "<img src='/images/test-classify.png' />";
+        }else if(taskValue=="3") {
+            img = "<img src='/images/test1-relation.png' />";
+        }else if(taskValue=="4"){
+            img = "<img src='/images/test-pair.png' />";
+        }else if(taskValue=="5"){
+            img = "<img src='/images/test-sort.png' />";
+        } else if(taskValue=="6"){
+            img = "<img src='/images/test-contrast.png' />";
         }
 
         layer.open({

@@ -66,7 +66,6 @@ public class TaskController {
         }
 
         List<Integer> docids = new ArrayList<Integer>();
-
         //文件上传结果
         ResponseEntity docResponseEntity = IDocumentService.checkAddDocParagraph(multipartFiles,userId);
         if(docResponseEntity.getStatus()!=0){
@@ -79,7 +78,11 @@ public class TaskController {
         }
 
 
-
+        if(testFiles.length > 0){
+            task.setIftest("yes");
+        }else{
+            task.setIftest("no");
+        }
         task.setUserId(userId);
         ResponseEntity taskRes =iTaskService.addTaskOfExtration(task,docids,label,relalabel,color);//创建任务的结果
 
@@ -87,7 +90,7 @@ public class TaskController {
         iPointUnitService.insert(pointUnit,taskid);
 
         //处理测试集,最后处理，有标签需要插入
-        if(testFiles!=null){
+        if(testFiles.length > 0){
             ResponseEntity testDocResponseEntity = IDocumentService.extractionParseTest(testFiles,taskid,userId);
         }
         return responseUtil.judgeTaskController(taskRes,docids);
@@ -121,15 +124,12 @@ public class TaskController {
             userId = user.getId();
         }
 
-        if(testFiles!=null){
-            for(int i = 0;i < testFiles.length;i++){
-                System.out.println(testFiles[i].getOriginalFilename());
-            }
-        }
+
         List<Integer> docids = new ArrayList<Integer>();
 
         //文件上传结果
         ResponseEntity docResponseEntity = IDocumentService.checkAddDocParagraph(multipartFiles,userId);
+
         if(docResponseEntity.getStatus()!=0){
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return docResponseEntity;
@@ -140,18 +140,32 @@ public class TaskController {
         }
 
 
-
         task.setUserId(userId);
+        if(testFiles.length > 0){
+            task.setIftest("yes");
+            for (MultipartFile i: testFiles) {
+                System.out.println(i.getOriginalFilename());
+            }
+        }else{
+            task.setIftest("no");
+        }
+        System.out.println(task.getIftest()+testFiles.length);
         ResponseEntity taskRes =iTaskService.addTaskOfDocPara(task,docids,label,color);//创建任务的结果
 
         int taskid = (Integer)taskRes.getData();
         iPointUnitService.insert(pointUnit,taskid);
 
+
+
+        if(testFiles.length > 0){
+            IDocumentService.classifyParseTest(testFiles,taskid,userId);
+        }
+
         return responseUtil.judgeTaskController(taskRes,docids);
 
     }
 
-
+//文本关系
     @PostMapping(value = "/relation")
     @Transactional
     public ResponseEntity pubRelationTask(
@@ -166,16 +180,11 @@ public class TaskController {
             userId = user.getId();
         }
 
-        if(testFiles!=null){
-            for(int i = 0;i < testFiles.length;i++){
-                System.out.println(testFiles[i].getOriginalFilename());
-            }
-        }
-
         List<Integer> docids = new ArrayList<Integer>();
 
         //获取上传的文件数组
         ResponseEntity fileResponseEntity = IDocumentService.checkAddDocInstanceItem(multipartFiles,userId,labelnum,labelnum1,labelnum2);
+
         if(fileResponseEntity.getStatus()!=0){
             //插入数据库有错误时整体回滚
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
@@ -191,12 +200,21 @@ public class TaskController {
 //            }
         }
 
+        if(testFiles.length > 0){
+            task.setIftest("yes");
+        }else{
+            task.setIftest("no");
+        }
         task.setUserId(userId);
         ResponseEntity taskRes =iTaskService.addTaskOfRelation(task,docids,instLabel,item1Label,item2Label);//创建任务的结果
-
         int taskid = (Integer)taskRes.getData();
         iPointUnitService.insert(pointUnit,taskid);
 
+
+
+        if(testFiles.length > 0){
+            IDocumentService.relationParseTest(testFiles,taskid,userId);
+        }
         return responseUtil.judgeTaskController(taskRes,docids);
     }
 
@@ -212,11 +230,7 @@ public class TaskController {
             User user =(User)httpSession.getAttribute("currentUser");
             userId = user.getId();
         }
-        if(testFiles!=null){
-            for(int i = 0;i < testFiles.length;i++){
-                System.out.println(testFiles[i].getOriginalFilename());
-            }
-        }
+
         List<Integer> docids = new ArrayList<Integer>();
 
         //获取上传的文件数组
@@ -236,9 +250,19 @@ public class TaskController {
 //            }
         }
 
+        if(testFiles.length > 0){
+            task.setIftest("yes");
+        }else{
+            task.setIftest("no");
+        }
         task.setUserId(userId);
         ResponseEntity taskRes =iTaskService.addTaskOfPairingAndSorting(task,docids);//创建任务的结果
+        int taskid = (Integer)taskRes.getData();
 
+
+        if(testFiles.length > 0){
+            IDocumentService.pairParseTest(testFiles,taskid,userId);
+        }
         return responseUtil.judgeTaskController(taskRes,docids);
 
     }
@@ -266,11 +290,9 @@ public class TaskController {
         List<Integer> docids = new ArrayList<Integer>();
         //User user =(User)iUserService.queryUserByUsername("test");
 
-        if(testFiles!=null){
-            for(int i = 0;i < testFiles.length;i++){
-                System.out.println(testFiles[i].getOriginalFilename());
-            }
-        }
+
+
+
 
         //获取上传的文件数组
         ResponseEntity fileResponseEntity = IDocumentService.checkAddSortingDoc(multipartFiles,userId,typeId);
@@ -283,12 +305,23 @@ public class TaskController {
             docids = hashmap.get("docIds");
         }
 
+        if(testFiles.length > 0){
+            task.setIftest("yes");
+        }else{
+            task.setIftest("no");
+        }
         task.setUserId(userId);
         ResponseEntity taskRes = iTaskService.addTaskOfPairingAndSorting(task,docids);//创建任务的结果
 
         int taskid = (Integer)taskRes.getData();
         iPointUnitService.insert(pointUnit,taskid);
 
+
+        if(testFiles.length > 0 && typeId == 5){
+            IDocumentService.sortParseTest(testFiles,taskid,userId);
+        }else{
+            IDocumentService.contrastSortParseTest(testFiles,taskid,userId);
+        }
         return responseUtil.judgeTaskController(taskRes,docids);
     }
 

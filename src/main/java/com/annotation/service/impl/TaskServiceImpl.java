@@ -298,6 +298,14 @@ public class TaskServiceImpl implements ITaskService{
         ResponseEntity responseEntity = new ResponseEntity();
 
         taskMapper.alterTaskTable();
+
+        int totalTask=instanceMapper.countTotalTask(docIds);
+        int startpid = instanceMapper.selectStartpid(docIds);
+        task.setFrequence(0);
+        task.setCurrenttask(0);
+        task.setTotaltask(totalTask);
+        task.setStartid(startpid);
+
         int taskRes=taskMapper.insert(task);//插入任务
 
         //插入任务表失败返回-1
@@ -579,12 +587,21 @@ public class TaskServiceImpl implements ITaskService{
         saveTask(task);
 
         /**
-         * 信息抽取和分类
+         * 信息抽取
          * task.getTypeName().equals("信息抽取")
          */
-        if (typeId==1 || typeId==2 ){
-            taskInfoEntity =taskMapper.selectTaskInfoWithDocLabel(tid);
-
+        if (typeId==1 ) {
+            taskInfoEntity = taskMapper.selectTaskInfoWithEntityRelLabel(tid);
+            List list = taskInfoEntity.getRelationList();
+            for (Object i:list) {
+                System.out.println(i.toString());
+            }
+        }else if(typeId==2 ){
+            /**
+             * 分类
+             * task.getTypeName().equals("信息抽取")
+             */
+            taskInfoEntity = taskMapper.selectTaskInfoWithDocLabel(tid);
         /**
          * 文本关系类别标注
          */

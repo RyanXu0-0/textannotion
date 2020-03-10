@@ -71,13 +71,13 @@ $(function () {
         ajaxDocContent(docId);
     });
 
-    $("#complete-doc").click(function(){
-        ajaxCompleteDoc(docId);
-    });
-
-    $("#complete-para").click(function(){
-        ajaxCompletePara(docId);
-    });
+    // $("#complete-doc").click(function(){
+    //     ajaxCompleteDoc(docId);
+    // });
+    //
+    // $("#complete-para").click(function(){
+    //     ajaxCompletePara(docId);
+    // });
 
 
     /**
@@ -515,27 +515,14 @@ function labelHtml(labelList) {
 function ajaxdoTaskInfo(doTaskData) {
 
     $.ajax({
-        url: "/classify",
+        url: "/classify/submit",
         type: "post",
         traditional: true,
         contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-        dataType: "json",
+        dataType: "text",
         data:doTaskData,
         success: function (data) {
-            console.log(data);
-            if(data.status==0){
-                alert("提交成功");
-                ajaxDocContent(docId);
-            }else{
-                alert("提交失败");
-            }
-
-
-            // if(data.status=="0"){
-            //     ajaxTag=ajaxTag+0;
-            // }else{
-            //     ajaxTag=-1;
-            // }
+            top.location.href ="/html/u_homepage.html";
 
         }, error: function (XMLHttpRequest, textStatus, errorThrown) {
 

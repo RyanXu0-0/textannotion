@@ -40,7 +40,7 @@ public interface DtRelationMapper {
     /**
      * 批量插入labelid
      * 做任务表
-     * @param dtInstId
+     *
      * @param labeltype
      * @param itemLabels
      * @return

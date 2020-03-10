@@ -11,10 +11,11 @@ var taskInfo;//任务相关信息
 // 0:{color: "#ff8080", lid: 44, labelname: "时间"}
 // 1:{color: "#ffff80", lid: 45, labelname: "地点"}
 // 2:{color: "#80ff80", lid: 46, labelname: "其他"}
-var labelList;//label的列表
-var relaList = new Array({lid: 1, relationname: "关系1"},
-{lid: 2, relationname: "关系2"}
-,{lid: 3, relationname: "关系3"});
+var labelList = new Array;//label的列表
+// var relaList = new Array({lid: 1, relation: "关系1"},
+// {lid: 2, relation: "关系2"}
+// ,{lid: 3, relation: "关系3"});
+var relaList= new Array;
 var documentList = new Array;//文件列表
 var curLabelIndex = 0;//当前被选中的label
 var curRelaIndex = 0;//当前被选中的实体
@@ -82,6 +83,7 @@ $(function () {
      * 任务列表跳转时获得参数，形如http://localhost:8080/doTask3.html?taskid=7
      * @type {string}
      */
+
     var loc = location.href; //console.log("loc===="+loc);
     var taskidArr=loc.split("=");
     taskId = taskidArr[1];
@@ -123,11 +125,8 @@ $(function () {
         ajaxDocContent(docId);
     });
 
-    $("#complete-doc").click(function(){
-        ajaxCompleteDoc(docId);
-    });
-
-    $("#complete-para").click(function(){
+    //下一个任务
+    $("#nexttask").click(function(){
         var taskData={
             taskId :taskId,
             docId:docId,
@@ -136,7 +135,51 @@ $(function () {
             entities:entity_done,
             relations:rela_done
         };
-        ajaxCompletePara(taskData);
+        ajaxNextTask(taskData);
+    });
+//提交当前任务
+    $("#submit-task").click(function(){
+        if(entity_done == null){
+            window.alert("任务未标注！");
+        }else {
+            //整理数据格式,将label-ans-li的id换成对应的实体和关系
+            var entities = new Array();
+            var relations = new Array();
+            for (var i = 0; i < entity_done.length; i++) {
+                for (var j = 0; j < entity_done[i].length; j++) {
+                    var id = entity_done[i][j].spanId.substring(17);
+                    var tempentity = {
+                        entityId: id,
+                        entityName: labelList[i].labelname,
+                        entity: entity_done[i][j].entity,
+                        startIndex: entity_done[i][j].start,
+                        endIndex: entity_done[i][j].end
+                    };
+                    entities.push(tempentity);
+                }
+            }
+
+            for (var i = 0; i < rela_done.length; i++) {
+                for (var j = 0; j < rela_done[i].length; j++) {
+                    var temprelation = {
+                        relationId: rela_done[i][j].relaId.substring(12),
+                        relation: relaList[i].relation,
+                        headEntity: rela_done[i][j].fromId.substring(17),
+                        tailEntity: rela_done[i][j].toId.substring(17)
+                    };
+                    relations.push(temprelation);
+                }
+            }
+            var taskData = {
+                taskId: taskId,
+                userId: 0,
+                entities: JSON.stringify(entities),
+                relations: JSON.stringify(relations)
+            };
+            // console.log(JSON.stringify(entities));
+            // console.log(JSON.stringify(relations));
+            ajaxSubmitTask(taskData);
+        }
     });
 
     /**
@@ -146,28 +189,11 @@ $(function () {
         //getSelection()方法可以返回一个Selection对象，用于表示用户选择的文本范围或插入符的当前位置。
 
         var selection = window.getSelection?window.getSelection():document.selection.createRange();
-
         var txt = selection.toString();
         if(txt != ""){
             $("#select-entity").text(txt);
             $("#choiceEntity").slideDown(300);
         }
-
-        //var as =window.getSelection().anchorOffset;console.log(as);
-        //var fs =window.getSelection().focusOffset-1;console.log(fs);
-        //label_ul_li_start[curLabelIndex][curLiDiv]=as;
-        //label_ul_li_end[curLabelIndex][curLiDiv]=fs;
-
-        // var parentP = window.getSelection().baseNode.parentNode;
-        // var parentP2 = window.getSelection().focusNode.childNodes;
-
-        // console.log(parentP);
-        // console.log(parentP2[1].innerHTML);
-        // var firstIndex = parentP.innerText.indexOf(tarStr);
-        // var lastIndex = parentP.innerText.indexOf(tarStr) + tarStr.length;
-        // console.log(firstIndex);
-        // console.log(lastIndex);
-
     });
 
     //关闭关系弹窗
@@ -327,7 +353,7 @@ function imgOkClick(obj) {
             indexEnd:label_ul_li_end[curLabelIndex][addLiNum],
         };
         // console.log("doTaskData："+doTaskData.text);
-        // entity_done.append(doTaskData);
+
         /**
          * 调用上传任务接口
          */
@@ -428,10 +454,11 @@ function ajaxTaskInfo(taskId) {
         data:taskid,
         success: function (data) {
 
-            console.log(data);
+            console.log("data"+JSON.stringify(data));
 
             taskInfo=data.data; //console.log(taskInfo);
             labelList=data.data.labelList;//console.log(labelList);
+            relaList=data.data.relationList;console.log("relaList"+JSON.stringify(relaList));
             documentList =data.data.documentList;//console.log(documentList);
             docId=documentList[0].did;//console.log(docId);
             deadline=data.data.deadline;
@@ -582,25 +609,25 @@ function ajaxDocContent(docId){
                 //如果文档已经完成的话
                 if(sflag==paraIndex){
 
-                    if(!($("#complete-doc").hasClass("disabled"))){
-                        $("#complete-doc").addClass("disabled");
-                        $("#complete-doc").attr("disabled","true");
+                    if(!($("#nexttask").hasClass("disabled"))){
+                        $("#nexttask").addClass("disabled");
+                        $("#nexttask").attr("disabled","true");
                     }
 
-                    if(!($("#complete-para").hasClass("disabled"))){
-                        $("#complete-para").addClass("disabled");
-                        $("#complete-para").attr("disabled","true");
+                    if(!($("#submit-task").hasClass("disabled"))){
+                        $("#submit-task").addClass("disabled");
+                        $("#submit-task").attr("disabled","true");
                     }
 
                 }else{
-                    if($("#complete-doc").hasClass("disabled")){
-                        $("#complete-doc").removeClass("disabled");
-                        $("#complete-doc").removeAttr("disabled");
+                    if($("#nexttask").hasClass("disabled")){
+                        $("#nexttask").removeClass("disabled");
+                        $("#nexttask").removeAttr("disabled");
 
                     }
-                    if($("#complete-para").hasClass("disabled")){
-                        $("#complete-para").removeClass("disabled");
-                        $("#complete-para").removeAttr("disabled");
+                    if($("#submit-task").hasClass("disabled")){
+                        $("#submit-task").removeClass("disabled");
+                        $("#submit-task").removeAttr("disabled");
                     }
                 }
 
@@ -636,9 +663,9 @@ function ajaxDocContent(docId){
 
                         }
                         //todo:设置提交按钮不可以被提交
-                        if(!($("#complete-para").hasClass("disabled"))){
-                            $("#complete-para").addClass("disabled");
-                            $("#complete-para").attr("disabled","true");
+                        if(!($("#submit-task").hasClass("disabled"))){
+                            $("#submit-task").addClass("disabled");
+                            $("#submit-task").attr("disabled","true");
                         }
 
                     }else{
@@ -657,9 +684,9 @@ function ajaxDocContent(docId){
 
                             }
                         }
-                        if($("#complete-para").hasClass("disabled")){
-                            $("#complete-para").removeClass("disabled");
-                            $("#complete-para").removeAttr("disabled");
+                        if($("#submit-task").hasClass("disabled")){
+                            $("#submit-task").removeClass("disabled");
+                            $("#submit-task").removeAttr("disabled");
 
                         }
                     }
@@ -723,15 +750,15 @@ function ajaxDocContent(docId){
 
                             }
                             //todo:设置提交按钮不可以被提交
-                            if(!($("#complete-para").hasClass("disabled"))){
-                                $("#complete-para").addClass("disabled");
-                                $("#complete-para").attr("disabled","true");
+                            if(!($("#submit-task").hasClass("disabled"))){
+                                $("#submit-task").addClass("disabled");
+                                $("#submit-task").attr("disabled","true");
                             }
 
                         }else{
-                            if($("#complete-para").hasClass("disabled")){
-                                $("#complete-para").removeClass("disabled");
-                                $("#complete-para").removeAttr("disabled");
+                            if($("#submit-task").hasClass("disabled")){
+                                $("#submit-task").removeClass("disabled");
+                                $("#submit-task").removeAttr("disabled");
                             }
 
                             for(var i=0;i<labelList.length;i++){
@@ -881,7 +908,7 @@ function relationHtml(relationList){
             +'<h4 class="panel-title">'
             +'<a data-toggle="collapse" data-parent="#accordion" href="#'+relation_ans_div[i]+'" id="a_tog_'+i+'">'
             +'<img class="notAns" src="/images/notAns.png" id="rela-list-img-'+i+'" onclick="relaimgClick(this.id)">'
-            +'</a>'+relationList[i].relationname
+            +'</a>'+relationList[i].relation
             +'</h4>'
             +'</div>'
             +'<div id="rela-ans-div-'+i+'" class="panel-collapse collapse">'
@@ -920,12 +947,12 @@ function relaPopHtml(relationList){
         if(i == 0){
             var list_html ='<div>' +
                 '<input type="radio" name="relation" value="'+i+'" checked="checked" checked />' +
-                relationList[i].relationname +
+                relationList[i].relation +
                 '</div>';
         }else{
             var list_html ='<div>' +
                 '<input type="radio" name="relation" value="'+i+'"/>' +
-                relationList[i].relationname +
+                relationList[i].relation +
                 '</div>';
         }
 
@@ -1019,7 +1046,7 @@ function getParaStartEnd(paraStr,paraLabelId,testNum,strLen,addLiNum){
 
     var num1=paraStr.indexOf("<");//console.log("num1="+num1);
     var num2=paraStr.indexOf(">");//console.log("num2="+num2);
-    var str1=paraStr.substring(num1,num2+1);//console.log("str1="+str1);
+    var str1=paraStr.substring(window.getSelection(),num2+1);//console.log("str1="+str1);
     var str2=paraStr.substring(0,num1)+paraStr.substring(num2+1);//console.log("str2="+str2);
 
     if(num1<0 || num2<0){
@@ -1043,9 +1070,33 @@ function getParaStartEnd(paraStr,paraLabelId,testNum,strLen,addLiNum){
     }else{
         return getParaStartEnd(str2,paraLabelId,testNum,strLen,addLiNum);
     }
+}
 
+//获取实体的开始和结束位置
+function getEntityStartEnd(){
+    var textarea = document.getElementById("p-para");
+    var selection = window.getSelection();
+    var txt = window.getSelection().toString();
 
+    var selectAnchorNode = selection.anchorNode;
+    var nodebegin = selection.anchorOffset;
 
+    var begin = 0;
+    var nodelist = textarea.childNodes;
+    for (var i = 0;i < nodelist.length;i++){
+        var templength = nodelist[i].textContent.length;
+        if(nodelist[i].contains(selectAnchorNode) ){
+            var nodeindex = nodelist[i].textContent.indexOf(selectAnchorNode.textContent);
+            begin = begin + nodeindex + nodebegin;
+            // console.log("-----");
+            // console.log(begin);
+            break;
+        }
+        begin += templength;
+    }
+    var end = begin+txt.length;
+    var startend = {start:begin,end:end}
+    return startend;
 }
 
 /**
@@ -1174,26 +1225,15 @@ function paintAlreadyDone2() {
 
 }
 
-function ajaxCompleteDoc(docId) {
-    var docid={
-        docId: docId,
-        taskId:taskId,
-        userId:0
-    };
+function ajaxNextTask(taskData) {
     $.ajax({
-        url: "/dpara/doc/status",
+        url: "/extraction/nexttask",
         type: "post",
         traditional: true,
         contentType: "application/x-www-form-urlencoded; charset=UTF-8",
         dataType: "json",
-        data:docid,
+        data:taskData,
         success: function (data) {
-            if(data.status==0){
-                alert("该文档已确认完成");
-                ajaxDocContent(docId);
-            }else{
-                alert("该文档还有段落没有做！");
-            }
 
         }, error: function (XMLHttpRequest, textStatus, errorThrown) {
 
@@ -1202,26 +1242,21 @@ function ajaxCompleteDoc(docId) {
     });
 };
 
-
-function ajaxCompletePara(taskData) {
+//url: "/dpara/status",
+function ajaxSubmitTask(taskData) {
     $.ajax({
-        url: "/dpara/status",
+        url: "/extraction/submit",
         type: "post",
         traditional: true,
+        //application/x-www-form-urlencoded; charset=UTF-8
         contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-        dataType: "json",
+        dataType: "text",
         data:taskData,
         success: function (data) {
-            if(data.status==0){
-                alert("该段已确认完成");
-                ajaxDocContent(docId);
-            }else{
-                alert("该段还没有做！！");
-            }
-
+            top.location.href ="/html/u_homepage.html";
+            //window.location.href ="do_Homepage.html";直接下一个任务了
         }, error: function (XMLHttpRequest, textStatus, errorThrown) {
-
-
+            console.log("跳转了error");
         },
     });
 };
@@ -1251,7 +1286,7 @@ function relaPopClick(fromentity,toentity,rela) {
     //隐藏当前label的添加和删除
     var addLiNum = rela_done[rela].length;
 
-    $("#rela-ans-div-"+rela+"-"+addLiNum).text(fromentity.text+"-"+toentity.text+":"+relaList[rela].relationname);
+    $("#rela-ans-div-"+rela+"-"+addLiNum).text(fromentity.text+"-"+toentity.text+":"+relaList[rela].relation);
     // $("#rela-img-ok-"+rela+"-"+addLiNum).attr("src","/images/blank.PNG");
     $("#rela-img-ok-"+rela+"-"+addLiNum).attr("src","/images/labelsuccess.png");
     $("#rela-img-ok-"+rela+"-"+addLiNum).removeAttr("onclick");
@@ -1341,7 +1376,8 @@ function entityPopClick(entity,label) {
     //将数据存入数组
     var spanId = "label-ul-li-span-"+label+"-"+(addLiNum);
     var labelId="label-ans-li-"+label+'-'+addLiNum;
-    entity_done[label].push({spanId:spanId,labelId:labelId,entity:entity});
+    var startend = getEntityStartEnd();
+    entity_done[label].push({spanId:spanId,labelId:labelId,entity:entity,start:startend.start,end:startend.end});
 };
 
 

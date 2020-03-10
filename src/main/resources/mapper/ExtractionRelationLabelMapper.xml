@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.annotation.dao.ExtrationRelationLabelMapper">
+
+    <!--BaseResultMap-->
+    <resultMap id="BaseResultMap" type="com.annotation.model.ExtrationRelationLabel" >
+        <id column="rela_id" property="relaId" jdbcType="INTEGER" />
+        <result column="task_id" property="taskId" jdbcType="INTEGER" />
+        <result column="relation" property="relation" jdbcType="VARCHAR" />
+        <result column="head_entity" property="headEntity" jdbcType="VARCHAR" />
+        <result column="tail_entity" property="tailEntity" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <!--根据标签名称选择标签-->
+    <select id="selectByTaskid" resultMap="BaseResultMap">
+        SELECT * FROM extraction_relationlabel WHERE task_id = #{taskId}
+    </select>
+
+    <!--插入标签-->
+    <insert id="insert" useGeneratedKeys="true" parameterType="com.annotation.model.ExtrationRelationLabel" >
+        insert into extraction_relationlabel (rela_id,task_id,relation,head_entity,tail_entity) values (
+        #{relaId,jdbcType=INTEGER},
+        #{taskId,jdbcType=INTEGER},#{relation,jdbcType=VARCHAR},
+        #{headEntity,jdbcType=VARCHAR},#{tailEntity,jdbcType=VARCHAR})
+    </insert>
+
+    <delete id="deleteByTaskId" parameterType="Integer">
+
+    </delete>
+    <!--设置数据库自增长-->
+    <update id="alterRelationLabelTable">
+        ALTER TABLE extraction_relationlabel AUTO_INCREMENT =1
+    </update>
+
+</mapper>

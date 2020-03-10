@@ -77,6 +77,10 @@ public class FileUtil {
             docType=".docx";
         } else if(filename.endsWith(".txt")){
             docType=".txt";
+        } else if(filename.endsWith(".xls")){
+            docType=".xls";
+        }else if(filename.endsWith(".xlsx")){
+            docType=".xlsx";
         }
         return docType;
     }
@@ -107,7 +111,8 @@ public class FileUtil {
     public int checkFiletype(MultipartFile multipartFile){
 
         String filename=multipartFile.getOriginalFilename();
-        if (filename.endsWith(".doc") ||filename.endsWith(".docx") ||filename.endsWith(".txt")) {
+        if (filename.endsWith(".doc") ||filename.endsWith(".docx") ||filename.endsWith(".txt")
+        || filename.endsWith(".xls")|| filename.endsWith(".xlsx")) {
             return 0;
         }else{
             return -1;
@@ -228,6 +233,10 @@ public class FileUtil {
         String[] contentArr = docContent.split("#");
         for (int i = 0; i < contentArr.length; i++) {
             String[] itemArr = contentArr[i].split("-------");
+            for (String o:itemArr) {
+                System.out.println(i+"  "+itemArr.length);
+                System.out.println(o);
+            }
             if(itemArr.length!=2){
                 ResponseEntity responseEntity=responseUtil.judgeResult(2008);
                 responseEntity.setMsg(filename+responseEntity.getMsg());

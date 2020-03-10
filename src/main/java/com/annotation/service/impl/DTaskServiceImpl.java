@@ -9,8 +9,11 @@ import com.annotation.model.Task;
 import com.annotation.service.IDTaskService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -89,9 +92,10 @@ public class DTaskServiceImpl implements IDTaskService {
         return dTaskId;
     }
 
-    public int addDTask(int userId,int taskId,int pid){
+    public int addDTask(int userId,int taskId,String currentStatus,int subtaskId){
         int dTaskId;
         DTask dTaskSelect=dTaskMapper.selectByTaskIdAndUserId(taskId,userId);
+        System.out.println("dTaskSelect:"+dTaskSelect);
         if(dTaskSelect != null){
             dTaskId=dTaskSelect.getTkid();
         }else{
@@ -105,7 +109,8 @@ public class DTaskServiceImpl implements IDTaskService {
             int totalPart=paragraphMapper.countTotalPart(taskId);
             dTask.setTotalpart(totalPart);
             dTask.setAlreadypart(0);
-            dTask.setPid(pid);
+            dTask.setPid(subtaskId);
+            dTask.setDstatus(currentStatus);
             int dTaskRes=dTaskMapper.insert(dTask);
             if(dTaskRes<0){
                 return 4001;

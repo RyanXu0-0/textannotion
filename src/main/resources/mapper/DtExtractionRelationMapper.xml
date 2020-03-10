@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.annotation.dao.DtExtractionRelationMapper" >
+  <resultMap id="BaseResultMap" type="com.annotation.model.DtExtractionRelation" >
+    <id column="dt_erid" property="dterId" jdbcType="INTEGER" />
+    <result column="task_id" property="taskId" jdbcType="INTEGER" />
+    <result column="subtask_id" property="subtaskId" jdbcType="INTEGER" />
+    <result column="userid" property="userId" jdbcType="INTEGER" />
+    <result column="relation_id" property="relationId" jdbcType="VARCHAR" />
+    <result column="relation" property="relation" jdbcType="VARCHAR" />
+    <result column="headentity" property="headEntity" jdbcType="VARCHAR" />
+    <result column="tailentity" property="tailEntity" jdbcType="VARCHAR" />
+  </resultMap>
+
+    <!--
+  dt_erid,task_id,subtask_id,userid,relation_id,relation,headentity,tailentity
+  #{dterId,jdbcType=INTEGER}, #{taskId,jdbcType=INTEGER}, #{subtaskId,jdbcType=INTEGER},
+  #{userId,jdbcType=INTEGER}, #{relationId,jdbcType=VARCHAR},#{relation,jdbcType=VARCHAR},
+  #{headentity,jdbcType=VARCHAR},#{tailentity,jdbcType=VARCHAR}
+  -->
+
+  <!--设置数据库自增长-->
+  <update id="alterDtExtractionRelationTable">
+    ALTER TABLE dt_extraction_relation AUTO_INCREMENT =1
+  </update>
+
+
+
+  <insert id="insert" parameterType="com.annotation.model.DtExtractionRelation" >
+    insert into dt_extraction_relation (dt_erid,task_id,subtask_id,userid,relation_id,relation,headentity,tailentity)
+    values (#{dterId,jdbcType=INTEGER}, #{taskId,jdbcType=INTEGER}, #{subtaskId,jdbcType=INTEGER},
+  #{userId,jdbcType=INTEGER}, #{relationId,jdbcType=VARCHAR},#{relation,jdbcType=VARCHAR},
+  #{headEntity,jdbcType=VARCHAR},#{tailEntity,jdbcType=VARCHAR})
+  </insert>
+
+
+</mapper>

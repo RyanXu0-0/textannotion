@@ -352,4 +352,54 @@
         where t.type_name = #{tasktype}
     </select>
 
+
+
+    <resultMap id="TaskInfoWithEntityRelLabel" type="com.annotation.model.entity.TaskInfoEntity">
+        <id column="tid" property="tid" jdbcType="INTEGER" />
+        <result column="title" property="title" jdbcType="VARCHAR" />
+        <result column="description" property="description" jdbcType="VARCHAR" />
+        <result column="type_name" property="typeName" jdbcType="VARCHAR" />
+        <result column="createtime" property="createtime" jdbcType="VARCHAR" />
+        <result column="deadline" property="deadline" jdbcType="VARCHAR" />
+        <result column="taskcompstatus" property="taskcompstatus" jdbcType="VARCHAR" />
+        <result column="otherinfo" property="otherinfo" jdbcType="VARCHAR" />
+        <result column="user_id" property="userId" jdbcType="INTEGER" />
+        <result column="viewnum" property="viewnum" jdbcType="INTEGER" />
+        <result column="attendnum" property="attendnum" jdbcType="INTEGER" />
+        <result column="pubUserName" property="pubUserName" jdbcType="VARCHAR" />
+
+        <result column="currenttask" property="currenttask" jdbcType="INTEGER" />
+        <result column="frequence" property="frequence" jdbcType="INTEGER" />
+        <result column="totaltask" property="totaltask" jdbcType="INTEGER" />
+
+        <collection property="documentList" ofType="Map">
+            <id column="did" property="did"></id>
+            <result column="filename" property="filename"></result>
+            <result column="filetype" property="filetype"></result>
+            <result column="filesize" property="filesize"></result>
+            <result column="docuploadtime" property="docuploadtime"></result>
+            <result column="docstatus" property="docstatus"></result>
+        </collection>
+        <collection property="labelList" ofType="Map">
+            <id column="lid" property="lid"></id>
+            <result column="labelname" property="labelname"></result>
+            <result column="color" property="color"></result>
+        </collection>
+        <collection property="relaList" ofType="Map">
+            <id column="rela_id" property="relaid"></id>
+            <result column="relation" property="relation"></result>
+        </collection>
+    </resultMap>
+
+
+    <select id="selectTaskInfoWithEntityRelLabel" parameterType="Integer" resultMap="TaskInfoWithEntityRelLabel">
+        select t.tid,t.title,t.description,t.type_name,t.createtime,t.deadline,
+              t.otherinfo,t.user_id,t.viewnum,t.attendnum,
+                u.username pubUserName,
+                d.did,d.filename,d.filetype,d.filesize,d.docuploadtime,
+                l.lid,l.labelname,tl.color,rl.rela_id,rl.relation
+                from task t,label l,document d,task_label tl,task_document td,user u,extraction_relationlabel rl
+                where t.tid=#{tid} AND t.tid=tl.task_id AND tl.label_id=l.lid
+                AND t.tid=td.task_id AND td.document_id= d.did AND u.id=t.user_id and t.tid = tl.task_id
+    </select>
 </mapper>

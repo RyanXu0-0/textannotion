@@ -24,5 +24,5 @@ public interface IDTaskService {
 
     int addDTaskOfInstance(int userId,int TaskId);
 
-    int addDTask(int userId,int TaskId,int pid);
+    int addDTask(int userId,int TaskId,String currentStatus,int subtaskId);
 }

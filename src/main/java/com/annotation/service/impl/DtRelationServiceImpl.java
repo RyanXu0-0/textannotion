@@ -4,11 +4,9 @@ import com.annotation.dao.DInstanceMapper;
 import com.annotation.dao.DTaskMapper;
 import com.annotation.dao.DtRelationMapper;
 import com.annotation.dao.TaskMapper;
-import com.annotation.model.DInstance;
-import com.annotation.model.DParagraph;
-import com.annotation.model.DTask;
-import com.annotation.model.Task;
+import com.annotation.model.*;
 import com.annotation.model.entity.InstanceItemEntity;
+import com.annotation.model.entity.ParagraphLabelEntity;
 import com.annotation.model.entity.RelationData;
 import com.annotation.service.IDTaskService;
 import com.annotation.service.IDtRelationService;
@@ -36,6 +34,8 @@ public class DtRelationServiceImpl implements IDtRelationService {
     DInstanceMapper dInstanceMapper;
     @Autowired
     IDTaskService idTaskService;
+    @Autowired
+    TaskMapper taskMapper;
 
     /**
      * 根据文件的ID查询instance+Item
@@ -156,4 +156,60 @@ public class DtRelationServiceImpl implements IDtRelationService {
         List<RelationData> relationDataList=dtRelationMapper.getRelationDataOut(tid);
         return relationDataList;
     }
+
+
+//
+//    public InstanceItemEntity classifyGetTask(int userId, int taskId) {
+//        ParagraphLabelEntity data = new ParagraphLabelEntity();
+//        DTask dTask=dTaskMapper.selectByTaskIdAndUserId(taskId,userId);
+//        int pid;
+//        idTaskService.addDTask(userId,38,"test",10);
+//        Task task = taskMapper.selectTaskById(taskId);
+//        int currenttask = task.getCurrenttask();
+//        int curfrequence = task.getFrequence();
+//        int totaltask = task.getTotaltask();
+//        int startpid = task.getStartid();
+//        //判断任务是否分配完了
+//        if(currenttask == totaltask || curfrequence >= 4){return null;}
+//        //先看之前有没有领取过任务，有就则继续派发，再看领取的任务完成与否
+//        if (dTask!=null) {
+//            if(dTask.getPid() != null){
+//                //已经领取了任务，但未完成
+//                if("notest".equals(dTask.getCurrentStatus()) || dTask.getCurrentStatus() == null){
+//                    pid = dTask.getPid();
+//                    Paragraph paragraph = paragraphMapper.selectByPrimaryKey(pid);
+//                    data = new ParagraphLabelEntity(paragraph);
+//                }else{
+//                    TestExtractionData tempData = testExtractionDataMapper.selectDataId(dTask.getPid());
+//                    data.setParacontent(tempData.getContent());
+//                }
+//                return data;
+//            }else{
+//                //查找任务
+//                Paragraph paragraph = paragraphMapper.selectByPrimaryKey(currenttask+startpid);
+//                data = new ParagraphLabelEntity(paragraph);
+//                //更新用户当前申请的任务
+//                dTask.setPid(currenttask+startpid);
+//                dTaskMapper.updateByPrimaryKey(dTask);
+//                //更新task信息 currenttask{0-31},curfrequence={0123}
+//                if(currenttask == totaltask-1 && curfrequence < 4){
+//                    currenttask = 0;
+//                    curfrequence++;
+//                }else{currenttask++;}
+//                if(currenttask == totaltask-1 || curfrequence > 4){
+//                    task.setTaskcompstatus("已分配完");
+//                }
+//                task.setCurrenttask(currenttask);
+//                task.setFrequence(curfrequence);
+//                taskMapper.updateById(task);
+//                return data;
+//            }
+//        } else {
+//            data = this.extractionFirsttask(task,userId);
+//            return data;
+//        }
+//    }
+
+
+
 }

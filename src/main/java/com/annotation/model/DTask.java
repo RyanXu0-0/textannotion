@@ -10,7 +10,61 @@ public class DTask {
     private String dpercent;
     private Integer alreadypart;
     private Integer totalpart;
+    private String currentStatus;
     private Integer pid;
+    private String accuracy;
+    private Integer totaltest;
+
+    @Override
+    public String toString() {
+        return "DTask{" +
+                "tkid=" + tkid +
+                ", userId=" + userId +
+                ", taskId=" + taskId +
+                ", dotime='" + dotime + '\'' +
+                ", dcomptime='" + dcomptime + '\'' +
+                ", dstatus='" + dstatus + '\'' +
+                ", dpercent='" + dpercent + '\'' +
+                ", alreadypart=" + alreadypart +
+                ", totalpart=" + totalpart +
+                ", currentStatus='" + currentStatus + '\'' +
+                ", pid=" + pid +
+                ", accuracy='" + accuracy + '\'' +
+                ", totaltest=" + totaltest +
+                ", doUserName='" + doUserName + '\'' +
+                ", typeName='" + typeName + '\'' +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", deadline='" + deadline + '\'' +
+                ", otherinfo='" + otherinfo + '\'' +
+                ", viewnum=" + viewnum +
+                ", attendnum=" + attendnum +
+                '}';
+    }
+
+    public Integer getTotaltest() {
+        return totaltest;
+    }
+
+    public void setTotaltest(Integer totaltest) {
+        this.totaltest = totaltest;
+    }
+
+    public String getAccuracy() {
+        return accuracy;
+    }
+
+    public void setAccuracy(String accuracy) {
+        this.accuracy = accuracy;
+    }
+
+    public String getCurrentStatus() {
+        return currentStatus;
+    }
+
+    public void setCurrentStatus(String currentStatus) {
+        this.currentStatus = currentStatus;
+    }
 
     public Integer getPid() {
         return pid;

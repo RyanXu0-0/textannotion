@@ -56,7 +56,7 @@ public class DtClassifyController {
 
        // List<ParagraphLabelEntity> paragraphLabelEntityList=iDtClassifyService.queryClassifyParaLabel(docId,userId,status,taskId);
         List<ParagraphLabelEntity> paragraphLabelEntityList = new ArrayList<>();
-        paragraphLabelEntityList.add(crowdsourcingService.extractionCrowdsourcing(userId,taskId));
+        paragraphLabelEntityList.add(iDtClassifyService.getClassTask(userId,taskId));
         //List<Content> contentList = iContentService.selectContentByDocId(docId);
         JSONObject rs = new JSONObject();
         if(paragraphLabelEntityList != null){
@@ -145,7 +145,11 @@ public class DtClassifyController {
     }
 
 
+    @PostMapping("/submit")
+    public String submitData() {
 
+        return "u_homepage";
+    }
 
 
 

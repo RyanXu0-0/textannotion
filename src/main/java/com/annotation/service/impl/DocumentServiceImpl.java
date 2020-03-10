@@ -52,7 +52,12 @@ public class DocumentServiceImpl implements IDocumentService {
     TestExtractionEntityMapper testExtractionEntityMapper;
     @Autowired
     TestExtractionRelMapper testExtractionRelMapper;
-
+    @Autowired
+    TestRelationMapper testRelationMapper;
+    @Autowired
+    TestPairingMapper testPairingMapper;
+    @Autowired
+    TestSortMapper testSortMapper;
     /**
      * 检查并插入，形如doc->para
      * @param files 多文件类别
@@ -77,10 +82,10 @@ public class DocumentServiceImpl implements IDocumentService {
          */
         for (MultipartFile file : files) {
             try {
-                responseEntity = fileUtil.checkFilecontent(file);
-                if(responseEntity.getStatus() != 0){
-                    return responseEntity;
-                }
+//                responseEntity = fileUtil.checkFilecontent(file);
+//                if(responseEntity.getStatus() != 0){
+//                    return responseEntity;
+//                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -94,7 +99,6 @@ public class DocumentServiceImpl implements IDocumentService {
         for (MultipartFile file : files) {
             try {
                 String filename =file.getOriginalFilename();//文件名称
-                String docContent=fileUtil.parseDocContent(file);
                 String docType=fileUtil.parseDocType(filename);
 
                 Document document = new Document();
@@ -109,7 +113,15 @@ public class DocumentServiceImpl implements IDocumentService {
 
                 //防止自增的ID不连续
                 documentMapper.alterDocumentTable();
-                int docRes=  addDocumentParagraph(document,docContent);
+
+                int docRes;
+                if(docType.equals(".doc") || docType.equals(".docx")){
+                    String docContent=fileUtil.parseDocContent(file);
+                    docRes=  addDocumentParagraph(document,docContent);
+
+                }else{
+                    docRes=  addXlsParagraph(document,file);
+                }
 
                 if(docRes==2006 || docRes==2007){
                     responseEntity=responseUtil.judgeResult(docRes);
@@ -134,6 +146,57 @@ public class DocumentServiceImpl implements IDocumentService {
         return responseEntity;
     }
 
+
+    /**
+     * 插入document
+     * 调用addParagraph插入para
+     * do:信息抽取和分类
+     * @param document 文件相关信息
+     * @param file 文件
+     * @return
+     */
+    @Transactional
+    public int addXlsParagraph(Document document, MultipartFile file){
+
+
+        int docInsertRes = documentMapper.insert(document);//插入结果
+        //插入document失败
+        if(docInsertRes < 0){
+            return 2006;
+        }else{
+            int docId=document.getDid();//插入成功的文件ID
+            paragraphMapper.alterParagraphTable();
+            int addParagraphRes ;
+            try {
+                //1、获取文件输入流
+                InputStream inputStream = file.getInputStream();
+                //2、获取Excel工作簿对象
+                HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
+                //3、得到Excel工作表对象
+                HSSFSheet sheetAt = workbook.getSheetAt(0);
+                //4、循环读取表格数据
+                for (Row row : sheetAt) {
+                    //首行（即表头）不读取
+                    if (row.getRowNum() == 0) {
+                        continue;
+                    }
+                    int instid;
+                    Paragraph paragraph =new Paragraph();
+                    row.getCell(0).setCellType(Cell.CELL_TYPE_STRING);
+                    paragraph.setParaindex(Integer.valueOf(row.getCell(0).getStringCellValue()));
+                    paragraph.setParacontent(row.getCell(1).getStringCellValue());
+                    paragraph.setDocumentId(docId);
+                    paragraphMapper.insert(paragraph);
+                }
+
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+
+            return docId;
+        }
+
+    }
 
 
     /**
@@ -216,10 +279,10 @@ public class DocumentServiceImpl implements IDocumentService {
         //然后检查文件内容是否符合要求
         for (MultipartFile file : files) {
             try {
-                responseEntity = fileUtil.checkInstanceItem(file);
-                if(responseEntity.getStatus()!=0){
-                    return responseEntity;
-                }
+//                responseEntity = fileUtil.checkInstanceItem(file);
+//                if(responseEntity.getStatus()!=0){
+//                    return responseEntity;
+//                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -230,7 +293,6 @@ public class DocumentServiceImpl implements IDocumentService {
         for (MultipartFile file : files) {
             try {
                 String filename =file.getOriginalFilename();//文件名称
-                String docContent=fileUtil.parseDocContent(file);
                 String docType=fileUtil.parseDocType(filename);
 
                 Document document = new Document();
@@ -249,7 +311,13 @@ public class DocumentServiceImpl implements IDocumentService {
                 //添加文件
                 //防止自增的ID不连续
                 documentMapper.alterDocumentTable();
-                int docRes = addDocumentInstanceItem(document,userId,docContent,num0,num1,num2);
+                int docRes;
+                if(docType.equals(".doc") || docType.equals(".docx")){
+                    String docContent=fileUtil.parseDocContent(file);
+                    docRes = addDocumentInstanceItem(document,userId,docContent,num0,num1,num2);
+                }else{
+                    docRes = addDocumentAndItem(document,userId,file,num0,num1,num2);
+                }
 
                 if(docRes==2006 || docRes==2011 || docRes==2012){
                     responseEntity=responseUtil.judgeResult(docRes);
@@ -273,6 +341,87 @@ public class DocumentServiceImpl implements IDocumentService {
         responseEntity.setData(data);
         return responseEntity;
     }
+
+
+    /**
+     * 文本关系
+     * 插入document
+     * 调用 插入-->instanceItem
+     * @param document
+     * @param userId
+     * @param file
+     * @param labelnum
+     * @param labelitem1
+     * @param labelitem2
+     * @return
+     */
+    public int addDocumentAndItem(Document document,int userId,MultipartFile file,int labelnum,int labelitem1,int labelitem2){
+
+        //开始插入文件相关信息
+        document.setUserId(userId);
+        int docInsertRes = documentMapper.insert(document);//插入结果
+
+        //插入文件失败
+        if(docInsertRes<0){
+            return 2006;
+        }else{
+            //插入文件成功
+            int docId=document.getDid();//插入成功的文件ID
+            //防止自增的ID不连续
+            instanceMapper.alterInstanceTable();
+            try {
+                //1、获取文件输入流
+                InputStream inputStream = file.getInputStream();
+                //2、获取Excel工作簿对象
+                HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
+                //3、得到Excel工作表对象
+                HSSFSheet sheetAt = workbook.getSheetAt(0);
+                //4、循环读取表格数据
+                for (Row row : sheetAt) {
+                    //首行（即表头）不读取
+                    if (row.getRowNum() == 0) {
+                        continue;
+                    }
+
+                    Instance instance =new Instance();
+                    row.getCell(0).setCellType(Cell.CELL_TYPE_STRING);
+
+                    instance.setInstindex(Integer.valueOf(row.getCell(0).getStringCellValue()));
+                    instance.setDocumentId(docId);
+                    instance.setLabelnum(labelnum);
+                    int instanceRes =instanceMapper.insert(instance);
+                    if(instanceRes <0){
+                        return -1;
+                    }
+
+                    Item itema = new Item();
+                    itema.setItemcontent(row.getCell(1).getStringCellValue());
+                    itema.setItemindex(1);
+                    itema.setInstanceId(instance.getInstid());
+                    itema.setLabelnum(labelitem1);
+
+                    Item itemb = new Item();
+                    itemb.setItemcontent(row.getCell(2).getStringCellValue());
+                    itemb.setItemindex(2);
+                    itemb.setInstanceId(instance.getInstid());
+                    itemb.setLabelnum(labelitem2);
+
+                    int itemRes = itemMapper.insert(itema);
+                    itemMapper.insert(itemb);
+                    //文件内容插入失败
+                    if(itemRes <0){
+                        return -1;
+                    }
+
+                }
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+            return docId;
+
+        }
+    }
+
 
 
     /**
@@ -400,10 +549,10 @@ public class DocumentServiceImpl implements IDocumentService {
         //然后检查文件内容是否符合要求
         for (MultipartFile file : files) {
             try {
-                responseEntity = fileUtil.checkInstanceListItem(file);
-                if(responseEntity.getStatus()!=0){
-                    return responseEntity;
-                }
+//                responseEntity = fileUtil.checkInstanceListItem(file);
+//                if(responseEntity.getStatus()!=0){
+//                    return responseEntity;
+//                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -414,7 +563,6 @@ public class DocumentServiceImpl implements IDocumentService {
         for (MultipartFile file : files) {
             try {
                 String filename =file.getOriginalFilename();//文件名称
-                String docContent=fileUtil.parseDocContent(file);
                 String docType=fileUtil.parseDocType(filename);
 
                 Document document = new Document();
@@ -433,7 +581,14 @@ public class DocumentServiceImpl implements IDocumentService {
                 //添加文件
                 //防止自增的ID不连续
                 documentMapper.alterDocumentTable();
-                int docRes = addDocInstanceListItem(document,userId,docContent);
+                int docRes;
+                if(docType.equals(".doc") || docType.equals(".docx")){
+                    String docContent=fileUtil.parseDocContent(file);
+                    docRes = addDocInstanceListItem(document,userId,docContent);
+                }else{
+                    docRes = addXlsInstanceListItem(document,userId,file);
+                }
+
                 if(docRes==2006 || docRes==2011 || docRes==2016){
                     responseEntity=responseUtil.judgeResult(docRes);
                     responseEntity.setMsg(filename+responseEntity.getMsg());
@@ -452,10 +607,86 @@ public class DocumentServiceImpl implements IDocumentService {
         responseEntity.setMsg("文件上传成功");
         Map<String, Object> data = new HashMap<>();
         data.put("docIds", docids);//返回文件id，方便后续添加任务
+        for (int i: docids) {
+            System.out.println("docids"+i);
+        }
         responseEntity.setData(data);
         return responseEntity;
     }
 
+
+    /**
+     * 文本匹配
+     * @param document 文件相关信息
+     * @param userId
+     * @param file 文件
+     * @return
+     */
+    public int addXlsInstanceListItem(Document document,int userId,MultipartFile file){
+
+        document.setUserId(userId);
+        int docInsertRes = documentMapper.insert(document);//插入结果
+
+        //插入失败
+        if(docInsertRes <0){
+            return 2006;
+        }else{
+            int docId=document.getDid();//插入成功的文件ID
+            //防止自增ID的不连续
+            instanceMapper.alterInstanceTable();
+            //调用插入instance
+
+            try {
+                //1、获取文件输入流
+                InputStream inputStream = file.getInputStream();
+                //2、获取Excel工作簿对象
+                HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
+                //3、得到Excel工作表对象
+                HSSFSheet sheetAt = workbook.getSheetAt(0);
+                //4、循环读取表格数据
+                for (Row row : sheetAt) {
+                    //首行（即表头）不读取
+                    if (row.getRowNum() == 0) {
+                        continue;
+                    }
+                    int instid;
+                    Instance instance =new Instance();
+                    row.getCell(0).setCellType(Cell.CELL_TYPE_STRING);
+                    instance.setInstindex(Integer.valueOf(row.getCell(0).getStringCellValue()));
+                    instance.setDocumentId(docId);
+                    Instance instindex = instanceMapper.selectInstance(instance);
+                    if(instindex == null){
+                        instanceMapper.insert(instance);
+                        instid=instance.getInstid();
+                    }else{
+                        instid = instindex.getInstid();
+                    }
+
+                    Listitem listitema = new Listitem();
+                    listitema.setListIndex(1);
+                    row.getCell(1).setCellType(Cell.CELL_TYPE_STRING);
+                    listitema.setLitemindex(Integer.valueOf(row.getCell(1).getStringCellValue()));
+                    listitema.setLitemcontent(row.getCell(2).getStringCellValue());
+                    listitema.setInstanceId(instid);
+                    listitemMapper.insert(listitema);
+
+                    Listitem listitemb = new Listitem();
+                    listitemb.setListIndex(2);
+                    row.getCell(1).setCellType(Cell.CELL_TYPE_STRING);
+                    listitemb.setLitemindex(Integer.valueOf(row.getCell(1).getStringCellValue()));
+                    listitemb.setLitemcontent(row.getCell(3).getStringCellValue());
+                    listitemb.setInstanceId(instid);
+                    listitemMapper.insert(listitemb);
+                }
+
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+            System.out.println(docId);
+            return docId;
+
+        }
+    }
 
     /**
      * 文本匹配
@@ -569,10 +800,10 @@ public class DocumentServiceImpl implements IDocumentService {
         //然后检查文件内容是否符合要求
         for (MultipartFile file : files) {
             try {
-                responseEntity = fileUtil.checkSortingInstanceItem(file,typeId);
-                if(responseEntity.getStatus()!=0){
-                    return responseEntity;
-                }
+//                responseEntity = fileUtil.checkSortingInstanceItem(file,typeId);
+//                if(responseEntity.getStatus()!=0){
+//                    return responseEntity;
+//                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -583,7 +814,6 @@ public class DocumentServiceImpl implements IDocumentService {
         for (MultipartFile file : files) {
             try {
                 String filename =file.getOriginalFilename();//文件名称
-                String docContent=fileUtil.parseDocContent(file);
                 String docType=fileUtil.parseDocType(filename);
 
                 Document document = new Document();
@@ -603,7 +833,14 @@ public class DocumentServiceImpl implements IDocumentService {
                 //防止自增的ID不连续
                 documentMapper.alterDocumentTable();
                 document.setUserId(userId);
-                int docRes = addDocOfSorting(document,docContent,typeId);
+
+                int docRes;
+                if(docType.equals(".doc") || docType.equals(".docx")){
+                    String docContent=fileUtil.parseDocContent(file);
+                    docRes = addDocOfSorting(document,docContent,typeId);
+                }else{
+                    docRes = addXlsOfSorting( document,file);
+                }
 
                 if(docRes==2006 || docRes==2011 || docRes==2012){
                     responseEntity=responseUtil.judgeResult(docRes);
@@ -660,8 +897,80 @@ public class DocumentServiceImpl implements IDocumentService {
         }
     }
 
+
     /**
      * 文本排序
+     * @param document
+     * @param file
+
+     * @return
+     */
+    public int addXlsOfSorting(Document document,MultipartFile file){
+
+        //String[] instanceArr = docContent.split("#");
+
+        //开始插入文件相关信息
+        int docInsertRes = documentMapper.insert(document);//插入结果
+        //插入文件失败
+        if(docInsertRes <0){
+            return 2006;
+        }else{
+            //插入文件成功
+            int docId=document.getDid();//插入成功的文件ID
+            //防止自增的ID不连续
+            instanceMapper.alterInstanceTable();
+            //文件内容，用#分隔了
+            int addContentRes=0;
+
+            try {
+                //1、获取文件输入流
+                InputStream inputStream = file.getInputStream();
+                //2、获取Excel工作簿对象
+                HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
+                //3、得到Excel工作表对象
+                HSSFSheet sheetAt = workbook.getSheetAt(0);
+                //4、循环读取表格数据
+                for (Row row : sheetAt) {
+                    //首行（即表头）不读取
+                    if (row.getRowNum() == 0) {
+                        continue;
+                    }
+                    int instid;
+                    Instance instance =new Instance();
+                    row.getCell(0).setCellType(Cell.CELL_TYPE_STRING);
+                    instance.setInstindex(Integer.valueOf(row.getCell(0).getStringCellValue()));
+                    instance.setDocumentId(docId);
+                    Instance instindex = instanceMapper.selectInstance(instance);
+                    if(instindex == null){
+                        instanceMapper.insert(instance);
+                        instindex = instanceMapper.selectInstance(instance);
+                    }
+                    instid = instindex.getInstid();
+
+                    Item item = new Item();
+                    row.getCell(1).setCellType(Cell.CELL_TYPE_STRING);
+                    item.setItemindex(Integer.valueOf(row.getCell(1).getStringCellValue()));
+                    item.setItemcontent(row.getCell(2).getStringCellValue());
+                    item.setInstanceId(instid);
+                    int itemRes = itemMapper.insert(item);
+                    row.getCell(0).setCellType(Cell.CELL_TYPE_STRING);
+                }
+
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+            //instance插入失败
+            if(addContentRes!=0){
+                return addContentRes;
+            }else{
+                return docId;
+            }
+        }
+    }
+
+
+    /**
+     * 文本排序和类比排序
      * @param docId
      * @param instanceArr
      * @param typeId
@@ -694,11 +1003,16 @@ public class DocumentServiceImpl implements IDocumentService {
 
     /**
      * 文本排序
+     * 类比排序插入为01234
+     * 文本排序插入为1234
+     *
      * @param instId
      * @param itemArr
      * @param typeId
      * @return
      */
+
+
     public int addItemOfSorting(int instId,String[] itemArr,int typeId){
         for(int i=0;i<itemArr.length;i++){
             Item item = new Item();
@@ -962,4 +1276,302 @@ public class DocumentServiceImpl implements IDocumentService {
         }
     }
 
+
+    @Transactional
+    public ResponseEntity classifyParseTest(MultipartFile[] testfiles,int taskId, int userId) throws IllegalStateException{
+        ResponseEntity responseEntity = new ResponseEntity();
+        List<MultipartFile> dataList = new ArrayList();//存放文件
+        List<TestExtractionData>  classifyList = new ArrayList<>();
+        for(MultipartFile f:testfiles){
+            dataList.add(f);
+        }
+        /**
+         * 检查是否上传文件
+         */
+        responseEntity = fileUtil.checkFilesLength(testfiles);
+        if(responseEntity.getStatus() != 0){
+            return responseEntity;
+        }
+
+        for (MultipartFile file: dataList) {
+            int tempdocId = insertTestDocInfo(file, taskId, userId);
+            try {
+                //1、获取文件输入流
+                InputStream inputStream = file.getInputStream();
+                //2、获取Excel工作簿对象
+                HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
+                //3、得到Excel工作表对象
+                HSSFSheet sheetAt = workbook.getSheetAt(0);
+                //4、循环读取表格数据
+                for (Row row : sheetAt) {
+                    //首行（即表头）不读取
+                    if (row.getRowNum() == 0) {
+                        continue;
+                    }
+                    TestExtractionData tempdata = new TestExtractionData();
+                    tempdata.setTaskId(taskId);
+                    row.getCell(0).setCellType(Cell.CELL_TYPE_STRING);
+                    tempdata.setSubtaskId(Integer.valueOf(row.getCell(0).getStringCellValue()));
+                    tempdata.setContent(row.getCell(1).getStringCellValue());
+                    tempdata.setLabel(row.getCell(2).getStringCellValue());
+                    tempdata.setDocumentId(tempdocId);
+                    classifyList.add(tempdata);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        testExtractionDataMapper.insertAllClassify(classifyList);
+        return responseEntity;
+    }
+
+    @Transactional
+    public ResponseEntity relationParseTest(MultipartFile[] testfiles,int taskId, int userId) throws IllegalStateException {
+        ResponseEntity responseEntity = new ResponseEntity();
+        List<MultipartFile> dataList = new ArrayList();//存放测试用例
+        List<MultipartFile> answerList = new ArrayList();//存放测试答案
+        Map<String,List<MultipartFile>> filemap = new HashMap();
+        /**
+         * 检查是否上传文件
+         */
+        responseEntity = fileUtil.checkFilesLength(testfiles);
+        if(responseEntity.getStatus() != 0){
+            return responseEntity;
+        }
+
+        responseEntity = fileUtil.splitDataAndAnswer(testfiles);
+        if(responseEntity.getStatus() != 0){
+            return responseEntity;
+        }
+        filemap = (Map<String, List<MultipartFile>>) responseEntity.getData();
+        dataList = filemap.get("dataFiles");
+        answerList = filemap.get("anwserFiles");
+
+        for (MultipartFile f: dataList) {
+            System.out.println(f.getOriginalFilename());
+            int tempdocId = insertTestDocInfo(f,taskId,userId);
+            parseRelationTestData(f,taskId,tempdocId);
+        }
+        for (MultipartFile f: answerList) {
+            System.out.println(f.getOriginalFilename());
+            insertTestDocInfo(f,taskId,userId);
+            parseRelationTestAnswer(f,taskId);
+        }
+        return responseEntity;
+    }
+
+    public void parseRelationTestData(MultipartFile file,int taskId,int docId){
+        List<TestExtractionData> dataList = new ArrayList<>();
+        try {
+            //1、获取文件输入流
+            InputStream inputStream = file.getInputStream();
+            //2、获取Excel工作簿对象
+            HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
+            //3、得到Excel工作表对象
+            HSSFSheet sheetAt = workbook.getSheetAt(0);
+            //4、循环读取表格数据
+            for (Row row : sheetAt) {
+                //首行（即表头）不读取
+                if (row.getRowNum() == 0) {
+                    continue;
+                }
+                TestExtractionData tempdata = new TestExtractionData();
+                tempdata.setTaskId(taskId);
+                row.getCell(0).setCellType(Cell.CELL_TYPE_STRING);
+                tempdata.setSubtaskId(Integer.valueOf(row.getCell(0).getStringCellValue()));
+                tempdata.setContent(row.getCell(1).getStringCellValue());
+                tempdata.setLabel(row.getCell(2).getStringCellValue());
+                tempdata.setDocumentId(docId);
+                dataList.add(tempdata);
+            }
+            testRelationMapper.insertAllRelationData(dataList);
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    public void parseRelationTestAnswer(MultipartFile file,int taskId){
+        List<TestRelation> dataList = new ArrayList<>();
+        try {
+            //1、获取文件输入流
+            InputStream inputStream = file.getInputStream();
+            //2、获取Excel工作簿对象
+            HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
+            //3、得到Excel工作表对象
+            HSSFSheet sheetAt = workbook.getSheetAt(0);
+            //4、循环读取表格数据
+            for (Row row : sheetAt) {
+                //首行（即表头）不读取
+                if (row.getRowNum() == 0) {
+                    continue;
+                }
+                System.out.println(row.getRowNum()+row.toString());
+                TestRelation tempdata = new TestRelation();
+                tempdata.setTaskId(taskId);
+                row.getCell(0).setCellType(Cell.CELL_TYPE_STRING);
+                tempdata.setSubtaskId(Integer.valueOf(row.getCell(0).getStringCellValue()));
+                tempdata.setLabeltype(row.getCell(1).getStringCellValue());
+                tempdata.setLabel(row.getCell(2).getStringCellValue());
+                dataList.add(tempdata);
+            }
+            testRelationMapper.insertAllRelationAnswer(dataList);
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    @Transactional
+    public ResponseEntity pairParseTest(MultipartFile[] testfiles,int taskId, int userId) throws IllegalStateException {
+        ResponseEntity responseEntity = new ResponseEntity();
+        List<MultipartFile> dataList = new ArrayList();//存放文件
+        List<TestPairing>  pairingList = new ArrayList<>();
+        for(MultipartFile f:testfiles){
+            dataList.add(f);
+        }
+        /**
+         * 检查是否上传文件
+         */
+        responseEntity = fileUtil.checkFilesLength(testfiles);
+        if(responseEntity.getStatus() != 0){
+            return responseEntity;
+        }
+
+        for (MultipartFile file: dataList) {
+            int tempdocId = insertTestDocInfo(file, taskId, userId);
+            try {
+                //1、获取文件输入流
+                InputStream inputStream = file.getInputStream();
+                //2、获取Excel工作簿对象
+                HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
+                //3、得到Excel工作表对象
+                HSSFSheet sheetAt = workbook.getSheetAt(0);
+                //4、循环读取表格数据
+                for (Row row : sheetAt) {
+                    //首行（即表头）不读取
+                    if (row.getRowNum() == 0) {
+                        continue;
+                    }
+                    System.out.println(row.getRowNum());
+                    TestPairing tempdata = new TestPairing();
+                    tempdata.setTaskId(taskId);
+                    row.getCell(0).setCellType(Cell.CELL_TYPE_STRING);
+                    tempdata.setSubtaskId(Integer.valueOf(row.getCell(0).getStringCellValue()));
+                    row.getCell(1).setCellType(Cell.CELL_TYPE_STRING);
+                    tempdata.setItemId(Integer.valueOf(row.getCell(1).getStringCellValue()));
+                    tempdata.setItemType(row.getCell(2).getStringCellValue());
+                    tempdata.setItemContent(row.getCell(3).getStringCellValue());
+                    row.getCell(4).setCellType(Cell.CELL_TYPE_STRING);
+                    tempdata.setCorItemId(Integer.valueOf(row.getCell(4).getStringCellValue()));
+                    pairingList.add(tempdata);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        testPairingMapper.insertAll(pairingList);
+        return responseEntity;
+    }
+
+
+    @Transactional
+    public ResponseEntity sortParseTest(MultipartFile[] testfiles,int taskId, int userId) throws IllegalStateException {
+        ResponseEntity responseEntity = new ResponseEntity();
+        List<MultipartFile> dataList = new ArrayList();//存放文件
+        List<TestSort>  sortList = new ArrayList<>();
+        for(MultipartFile f:testfiles){
+            dataList.add(f);
+        }
+        /**
+         * 检查是否上传文件
+         */
+        responseEntity = fileUtil.checkFilesLength(testfiles);
+        if(responseEntity.getStatus() != 0){
+            return responseEntity;
+        }
+
+        for (MultipartFile file: dataList) {
+            int tempdocId = insertTestDocInfo(file, taskId, userId);
+            try {
+                //1、获取文件输入流
+                InputStream inputStream = file.getInputStream();
+                //2、获取Excel工作簿对象
+                HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
+                //3、得到Excel工作表对象
+                HSSFSheet sheetAt = workbook.getSheetAt(0);
+                //4、循环读取表格数据
+                for (Row row : sheetAt) {
+                    //首行（即表头）不读取
+                    if (row.getRowNum() == 0) {
+                        continue;
+                    }
+                    TestSort tempdata = new TestSort();
+                    tempdata.setTaskId(taskId);
+                    row.getCell(0).setCellType(Cell.CELL_TYPE_STRING);
+                    tempdata.setSubtaskId(Integer.valueOf(row.getCell(0).getStringCellValue()));
+                    row.getCell(1).setCellType(Cell.CELL_TYPE_STRING);
+                    tempdata.setItemId(Integer.valueOf(row.getCell(1).getStringCellValue()));
+                    tempdata.setContent(row.getCell(2).getStringCellValue());
+                    row.getCell(3).setCellType(Cell.CELL_TYPE_STRING);
+                    tempdata.setSortId(Integer.valueOf(row.getCell(3).getStringCellValue()));
+                    sortList.add(tempdata);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        testSortMapper.insertAllSort(sortList);
+        return responseEntity;
+    }
+
+
+    @Transactional
+    public ResponseEntity contrastSortParseTest(MultipartFile[] testfiles,int taskId, int userId) throws IllegalStateException {
+        ResponseEntity responseEntity = new ResponseEntity();
+        List<MultipartFile> dataList = new ArrayList();//存放文件
+        List<TestSort>  sortList = new ArrayList<>();
+        for(MultipartFile f:testfiles){
+            dataList.add(f);
+        }
+        /**
+         * 检查是否上传文件
+         */
+        responseEntity = fileUtil.checkFilesLength(testfiles);
+        if(responseEntity.getStatus() != 0){
+            return responseEntity;
+        }
+
+        for (MultipartFile file: dataList) {
+            int tempdocId = insertTestDocInfo(file, taskId, userId);
+            try {
+                //1、获取文件输入流
+                InputStream inputStream = file.getInputStream();
+                //2、获取Excel工作簿对象
+                HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
+                //3、得到Excel工作表对象
+                HSSFSheet sheetAt = workbook.getSheetAt(0);
+                //4、循环读取表格数据
+                for (Row row : sheetAt) {
+                    //首行（即表头）不读取
+                    if (row.getRowNum() == 0) {
+                        continue;
+                    }
+                    TestSort tempdata = new TestSort();
+                    tempdata.setTaskId(taskId);
+                    row.getCell(0).setCellType(Cell.CELL_TYPE_STRING);
+                    tempdata.setSubtaskId(Integer.valueOf(row.getCell(0).getStringCellValue()));
+                    row.getCell(1).setCellType(Cell.CELL_TYPE_STRING);
+                    tempdata.setItemId(Integer.valueOf(row.getCell(1).getStringCellValue()));
+                    tempdata.setContrastContent(row.getCell(2).getStringCellValue());
+                    tempdata.setContent(row.getCell(3).getStringCellValue());
+                    row.getCell(4).setCellType(Cell.CELL_TYPE_STRING);
+                    tempdata.setSortId(Integer.valueOf(row.getCell(4).getStringCellValue()));
+                    sortList.add(tempdata);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        testSortMapper.insertAllSort(sortList);
+        return responseEntity;
+    }
 }

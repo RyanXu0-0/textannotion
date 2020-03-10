@@ -27,6 +27,8 @@ public interface InstanceMapper {
      */
     int insert(Instance record);
 
+    Instance selectInstance(Instance record);
+
     int[] selectInstanceByDocId(Integer docId);
 
     int deleteByDocId(Integer docId);
@@ -38,8 +40,8 @@ public interface InstanceMapper {
 
     int countInstanceNum(Integer countParaNum);
 
+    int countTotalTask(@Param("docIds") List<Integer> docIds);
 
-
-
+    int selectStartpid (@Param("docIds")List<Integer> docIds);
 
 }

@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>index</title>
 
     <link type="text/css" href="../plugins/css/style.css" rel="stylesheet" />
@@ -80,6 +80,7 @@
         return new Promise(res => setTimeout(res, time));
     }
 
+    <![CDATA[
     function hoverSlide(index) {
         index in slideChildren &&
         slideChildren[index].classList.add('hover');
@@ -89,8 +90,8 @@
         index in slideChildren &&
         slideChildren[index].classList.remove('hover');
     }
-
-    async function demo() {
+]]>
+    function demo() {
         if(currentlyDemoing) {
             return;
         }
@@ -123,9 +124,10 @@
         unhoverSlide(slideSeq[2]);
         currentlyDemoing = false;
     }
-
+<![CDATA[
     next.forEach(n => n.addEventListener('click', () => !currentlyDemoing && goToPage(currentPage + 1)));
     prev.forEach(n => n.addEventListener('click', () => !currentlyDemoing && goToPage(currentPage - 1)));
+   ]]>
     menu.addEventListener('click', demo);
 
     sleep(100).then(demo);

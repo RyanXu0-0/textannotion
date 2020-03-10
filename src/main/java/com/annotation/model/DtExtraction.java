@@ -1,53 +1,101 @@
 package com.annotation.model;
 
 public class DtExtraction {
-    private Integer dtdId;
+    private Integer dteId;
+    private Integer taskId;
+    private Integer subtaskId;
+    private Integer userId;
+    private String entityId;
+    private String entityName;
+    private Integer startIndex;
+    private Integer endIndex;
+    private String entity;
 
-    private Integer dtId;
 
-    private Integer labelId;
-
-    private Integer indexBegin;
-
-    private Integer indexEnd;
-
-    public Integer getDtdId() {
-        return dtdId;
+    @Override
+    public String toString() {
+        return "DtExtraction{" +
+                "dteId=" + dteId +
+                ", taskId=" + taskId +
+                ", subtaskId=" + subtaskId +
+                ", userId=" + userId +
+                ", entityId=" + entityId +
+                ", entityName='" + entityName + '\'' +
+                ", startIndex=" + startIndex +
+                ", endIndex=" + endIndex +
+                ", entity='" + entity + '\'' +
+                '}';
     }
 
-    public void setDtdId(Integer dtdId) {
-        this.dtdId = dtdId;
+    public Integer getDteId() {
+        return dteId;
     }
 
-    public Integer getDtId() {
-        return dtId;
+    public void setDteId(Integer dteId) {
+        this.dteId = dteId;
     }
 
-    public void setDtId(Integer dtId) {
-        this.dtId = dtId;
+    public Integer getTaskId() {
+        return taskId;
     }
 
-    public Integer getLabelId() {
-        return labelId;
+    public void setTaskId(Integer taskId) {
+        this.taskId = taskId;
     }
 
-    public void setLabelId(Integer labelId) {
-        this.labelId = labelId;
+    public Integer getSubtaskId() {
+        return subtaskId;
     }
 
-    public Integer getIndexBegin() {
-        return indexBegin;
+    public void setSubtaskId(Integer subtaskId) {
+        this.subtaskId = subtaskId;
     }
 
-    public void setIndexBegin(Integer indexBegin) {
-        this.indexBegin = indexBegin;
+    public Integer getUserId() {
+        return userId;
     }
 
-    public Integer getIndexEnd() {
-        return indexEnd;
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
-    public void setIndexEnd(Integer indexEnd) {
-        this.indexEnd = indexEnd;
+    public String getEntityId() {
+        return entityId;
+    }
+
+    public void setEntityId(String entityId) {
+        this.entityId = entityId;
+    }
+
+    public String getEntityName() {
+        return entityName;
+    }
+
+    public void setEntityName(String entityName) {
+        this.entityName = entityName;
+    }
+
+    public Integer getStartIndex() {
+        return startIndex;
+    }
+
+    public void setStartIndex(Integer startIndex) {
+        this.startIndex = startIndex;
+    }
+
+    public Integer getEndIndex() {
+        return endIndex;
+    }
+
+    public void setEndIndex(Integer endIndex) {
+        this.endIndex = endIndex;
+    }
+
+    public String getEntity() {
+        return entity;
+    }
+
+    public void setEntity(String entity) {
+        this.entity = entity;
     }
 }

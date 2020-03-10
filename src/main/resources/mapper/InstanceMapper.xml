@@ -24,6 +24,9 @@
     </insert>
 
 
+    <select id="selectInstance"  parameterType="com.annotation.model.Instance" resultType="com.annotation.model.Instance">
+        select * from instance where document_id = #{documentId} and instindex = #{instindex}
+    </select>
 
     <select id="selectInstanceByDocId" parameterType="Integer" resultType="Integer">
         select instid from instance where document_id = #{docId} ORDER BY instid
@@ -47,6 +50,24 @@
 
     <select id="countInstanceNum" parameterType="Integer" resultType="Integer">
         select count(*) from instance where document_id=#{docId}
+    </select>
+
+
+    <select id="countTotalTask" parameterType="List" resultType="Integer">
+        select count(instid) from instance where document_id in
+        <foreach collection="docIds" item="docId" open="(" close=")" separator=",">
+            #{docId}
+        </foreach>
+    </select>
+
+
+
+    <select id="selectStartpid"  resultType="Integer" parameterType="List">
+        select min(instid) from instance
+        where document_id in
+        <foreach collection="docIds" item="docId" open="(" close=")" separator=",">
+            #{docId}
+        </foreach>
     </select>
 
 

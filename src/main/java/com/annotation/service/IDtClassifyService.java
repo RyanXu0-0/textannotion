@@ -38,10 +38,8 @@ public interface IDtClassifyService {
 
     List<LabelCountEntity> queryAlreadyLabel(int tid);
 
-    //int updateStatus(int userId,int docId,int taskId);
-
-
     List<ClassifyData> queryClassifyData(int tid);
 
     HSSFWorkbook getClassifyExcel(List<ClassifyData> classifyDataList);
+    ParagraphLabelEntity getClassTask(int userId,int taskId);
 }

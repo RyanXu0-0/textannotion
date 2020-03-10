@@ -21,7 +21,6 @@ public interface IDtPairingService {
 
     /**
      * 做任务---文本配对关系
-     * @param dtInstance
      * @param userId
      * @param aListItemId
      * @param bListItemId

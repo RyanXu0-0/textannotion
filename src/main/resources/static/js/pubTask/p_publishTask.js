@@ -11,6 +11,7 @@ var taskType = "";//文件的类型
 var taskType4 = "";//文件的类型
 var tagNum=new Array;//0,1,2,3四种的数量
 var tagContent;
+var relatagContent;
 var tagInstanceContent;//标签内容
 var tagItem1Content;//标签内容
 var tagItem2Content;//标签内容
@@ -72,16 +73,54 @@ $(function(){
     function selectChangeOp(taskValue) {
         console.log(taskValue);
 
-        if(taskValue=="1" || taskValue=="2"){
+        if(taskValue=="1"){
+            type12ColorNum=0;
+            type12ColorId=new Array;
+            publishColor=new Array;
+
+            $("#type4-relation-div").hide();
+
+            var infoHtml='<p>提示：文本分类类型的标注任务适用于情感分析，垃圾邮件识别等领域。</p>' +
+                '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' +
+                '&nbsp;&nbsp;&nbsp;&nbsp;上传文件格式仅支持doc,docx,txt；文档模板样例请查看示例图片。</p>';
+            // var infoHtml='<p>提示：上传文件格式仅支持doc,docx,txt；文件内容段落之间请用“#”进行分隔，示例：</p>' +
+            //     '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' +
+            //     '&nbsp;&nbsp;&nbsp;&nbsp;这是一个测试段落1#这是一个测试段落2#</p>';
+            $("#info-alert").html(infoHtml);
+
+            var tagHtml=' <div class="layui-row" id="type12-div">' +
+                '<div class="layui-col-md2">' +
+                '<label class="layui-form-label">添加实体标签</label>' +
+                '</div>' +
+                '<div class="layui-col-md8">' +
+                '<input type="text" id="tagValue">' +
+                '</div>' +
+                '</div>'+
+
+                '<div class="layui-row" id="relatype-div">' +
+                '<div class="layui-col-md2">' +
+                '<label class="layui-form-label">添加关系标签</label>' +
+                '</div>' +
+                '<div class="layui-col-md8">' +
+                '<input type="text" id="relatagValue">' +
+                '</div>' +
+                '</div>';
 
 
-            // var te= window.parent.document.getElementById("iframepub");
-            // console.log(te);
-            // te.style.display="none";
-            // var te2= window.parent.document.getElementById("iframedo");
-            // te2.style.display="inline  ";
-
-
+            $("#tag-div").html(tagHtml);
+            /**
+             * 初始化tag
+             * @type {Tag}
+             */
+            var tag = new Tag("tagValue");
+            var relatag = new Tag("relatagValue");
+            tag.initView();
+            relatag.initView();
+            tagNum[0] = 0;//添加的标签数量
+            tagNum[4] = 0;
+            tagContent = new Array;//标签内容数组，#分隔，比如"a#b#c"
+            relatagContent = new Array;
+        }else if(taskValue=="2"){
             type12ColorNum=0;
 
             type12ColorId=new Array;
@@ -117,8 +156,8 @@ $(function(){
 
             tagNum[0] = 0;//添加的标签数量
             tagContent = new Array;//标签内容数组，#分隔，比如"a#b#c"
-
-        }else if(taskValue=="3"){
+        }
+        else if(taskValue=="3"){
             $("#type4-relation-div").hide();
 
             var infoHtml='<p>提示：上传文件格式仅支持doc,docx,txt；文件内容段落instance之间请用“#”进行分隔，' +
@@ -198,29 +237,8 @@ $(function(){
                 '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' +
                 '&nbsp;&nbsp;&nbsp;&nbsp;请选择一对一、一对多或多对多类型</p>';
 
-            // var infoHtml='<p>提示：支持多文件上传，上传文件格式仅支持doc,docx,txt；文件内容段落instance之间请用“#”进行分隔，' +
-            //     '每段之间的item请用“----”分隔，示例：</p>' +
-            //     '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' +
-            //     '&nbsp;&nbsp;&nbsp;&nbsp;这是段落1的测试item1&&&这是段落1的测试item1-----这是段落1的测试item2&&&这是段落1的测试item1#' +
-            //     '这是段落2的测试item1&&&这是段落1的测试item1-----这是段落2的测试item2&&&这是段落1的测试item1#</p>';
             $("#info-alert").html(infoHtml);
             $("#tag-div").html("");
-
-
-
-            // var relationHtml=' <div id="type4-relation-div"> ' +
-            //     '<label class="layui-form-label">请选择关系</label>' +
-            //     ' <div class="layui-col-md3"> ' +
-            //     '<select name="relation" id="relation" lay-filter="selectRelation"> ' +
-            //     '<option value="" selected>请选择关系类型：</option> ' +
-            //     '<option value="1">一对一</option> ' +
-            //     '<option value="2">一对多</option> ' +
-            //     '<option value="3">多对对</option>' +
-            //     ' </select> ' +
-            //     '</div> ' +
-            //     '</div>';
-
-            // $("#type4-relation-div").html(relationHtml);
             $("#type4-relation-div").show();
 
         }else if(taskValue=="5" ||taskValue=="6" ){
@@ -253,8 +271,6 @@ $(function(){
     //     }
     // });
 
-
-
     /**
      * 多文件上传的监听事件
      */
@@ -274,6 +290,25 @@ $(function(){
     });
 
 
+    /**
+     * 测试文件文件上传的监听事件
+     */
+    $('input[id=mtf]').change(function() {
+        var mfile = document.getElementById("mtf").files;
+
+        // console.log(mfile);
+        var mfilename_html="";
+        for(var i=0;i<mfile.length;i++){
+            var mfilename="<div class='layui-col-md6'><p><img src='/images/DOCX.png'>"+mfile[i].name+"</p></div>";
+            mfilename_html=mfilename_html+mfilename;
+            // mfilename=mfilename+mfile[i].name+";;";
+        }
+
+        $("#testfile-ul").html(mfilename_html);
+        //$('#mfileCover').val(mfilename);
+    });
+
+
 
     /**
      * 提交任务
@@ -282,8 +317,13 @@ $(function(){
 
         var mformData = new FormData();
         var mfileup = document.getElementById("mf").files;
+        var testfile = document.getElementById("mtf").files;
         for(var i=0;i<mfileup.length;i++){
             mformData.append("files[]", $("#mf")[0].files[i]);
+        }
+        for(var i=0;i<testfile.length;i++){
+            mformData.append("testfiles[]", $("#mtf")[0].files[i]);
+            console.log("testfile:"+$("#mtf")[0].files[i]);
         }
         var deadtime =$("#date").val();
         var currenttime =getNowFormatDate();
@@ -299,56 +339,25 @@ $(function(){
         mformData.append("userId","");
         mformData.append("viewnum",0);
         mformData.append("attendnum",0);
-        // var tagStr0 ="";
-        // var tagStr1 ="";
-        // var tagStr2 ="";
-        // var tagStr3 ="";
         if(taskValue=="1"){
 
             mformData.append("typeName",taskType);
-            // var tagStr="";
-            // for(var i=0;i<tagNum[0]-1;i++){
-            //     tagStr=tagStr+tagContent[i]+"#";
-            // }
-            // tagStr=tagStr+tagContent[tagNum[0]-1];
             mformData.append("label",tagContent);
-            console.log(mformData.get("label"));
-
-            // var colorStr="";
-            // for(var i=0;i<type12ColorNum-1;i++){
-            //     colorStr=colorStr+publishColor[i]+"@";
-            // }
-            // colorStr=colorStr+publishColor[type12ColorNum-1];
+            mformData.append("relalabel",relatagContent);
+            console.log("label"+mformData.get("label"));
+            console.log("relalabel"+mformData.get("relalabel"));
             mformData.append("color",publishColor);
             //console.log(colorStr);
 
-            ajaxType12(mformData);
+            ajaxType1(mformData);
 
         }else if(taskValue=="2"){
             mformData.append("typeName",taskType);
             mformData.append("label",tagContent);
             console.log(mformData.get("label"));
 
-            ajaxType12(mformData);
+            ajaxType2(mformData);
         }else if(taskValue=="3"){
-
-            // var tagStr="";
-            // for(var i=0;i<tagNum[1]-1;i++){
-            //     tagStr=tagStr+tagInstanceContent[i]+"#";
-            // }
-            // tagStr=tagStr+tagInstanceContent[tagNum[1]-1];
-            //
-            // var tagStr1="";
-            // for(var i=0;i<tagNum[2]-1;i++){
-            //     tagStr1=tagStr1+tagItem1Content[i]+"#";
-            // }
-            // tagStr1=tagStr1+tagItem1Content[tagNum[2]-1];
-            //
-            // var tagStr2="";
-            // for(var i=0;i<tagNum[3]-1;i++){
-            //     tagStr2=tagStr2+tagItem2Content[i]+"#";
-            // }
-            // tagStr2=tagStr2+tagItem2Content[tagNum[3]-1];
 
             mformData.append("typeName",taskType);
 
@@ -362,9 +371,6 @@ $(function(){
             mformData.append("labelnum1",$("#item1Num").val());
             mformData.append("labelnum2",$("#item2Num").val());
 
-            // console.log(tagStr);
-            // console.log(tagStr1);
-            // console.log(tagStr2);
 
             ajaxType3(mformData);
 
@@ -444,9 +450,6 @@ $(function(){
                 appendStr+='<div class="tagList"></div><input type="text" class="tagInput"/>';
                 appendStr+='</div>';
             }
-            // appendStr+='<div class="tagsContaine" id="'+inputId+'_tagcontaine">';
-            // appendStr+='<div class="layui-row"><div class="layui-col-md12"><input type="text" class="tagInput"/></div> </div> <div class="tagList"></div>';
-            // appendStr+='</div>';
             inputObj.after(appendStr);
             var tagInput = $("#"+inputId+"_tagcontaine .tagInput");
             if(!this.isDisable){
@@ -509,11 +512,6 @@ $(function(){
         return obj;
     };
 
-    // $("#"+type12ColorId[type12ColorNum-1]).change(function () {
-    //
-    //     publishColor[type12ColorNum-1]=this.value;
-    //     console.log('您选择的颜色是：'+this.value);
-    // });
     /**
      *Tag标签相关参数
      * @type{{
@@ -536,15 +534,9 @@ $(function(){
                 if(valueItem!=""){
                     var appendListItem = tagTake.getTagItemModel(valueItem,inputId);
                     tagListContaine.append(appendListItem);
-
-
                     // document.getElementById(type12ColorId[type12ColorNum-1]).onchange = function(){
                     //     alert('您选择的颜色是：'+this.value);
                     // };
-
-
-
-
                 }
             }
             tagTake.resetTagValue(inputId);
@@ -616,7 +608,6 @@ $(function(){
         },
         "getTagItemModel":function(valueStr,inputId){
             //添加tag标签
-
             if(inputId=="tagValue"){
                 tagContent[tagNum[0]]=valueStr;
                 tagNum[0]++;
@@ -629,35 +620,35 @@ $(function(){
             }else if(inputId=="tagValueItem2"){
                 tagItem2Content[tagNum[3]]=valueStr;
                 tagNum[3]++;
+            }else if(inputId=="relatagValue"){
+                relatagContent[tagNum[4]]=valueStr;
+                tagNum[4]++;
             }
 
-            if(taskValue=="1"){
+            if(taskValue=="1" && inputId=="tagValue"){
 
                 var tmphtml='<div class="tagItem"><span>'+valueStr+'</span>' +
                     '<input type="color" id="color-'+type12ColorNum+'" class="color" onchange="myChange(this.id)"><div class="delete"></div></div>';
 
                 type12ColorId[type12ColorNum]="color-"+type12ColorNum;
-
                 publishColor[type12ColorNum]="#FF0000";
-
                 type12ColorNum++;
                 console.log(type12ColorNum);
-
-
 
                 return tmphtml;
 
-            }else if(taskValue=="2"){
+            }else if(taskValue=="1" && inputId=="relatagContent"){
+
                 var tmphtml='<div class="tagItem"><span>'+valueStr+'</span>' +
                     '<div class="delete"></div></div>';
-
+                return tmphtml;
+            } else if(taskValue=="2"){
+                var tmphtml='<div class="tagItem"><span>'+valueStr+'</span>' +
+                    '<div class="delete"></div></div>';
                 type12ColorId[type12ColorNum]="color-"+type12ColorNum;
-
                 publishColor[type12ColorNum]="#FF0000";
-
                 type12ColorNum++;
                 console.log(type12ColorNum);
-                
                 return tmphtml;
             } else{
                 return '<div class="tagItem"><span>'+valueStr+'</span><div class="delete"></div></div>';
@@ -705,7 +696,7 @@ function myChange(obj) {
     //console.log('您选择的颜色是：'+this.value);
 }
 
-function seedetail(obj) {
+function seedocdetail(obj) {
 
     console.log(obj);
 
@@ -715,17 +706,18 @@ function seedetail(obj) {
 
         alert("请先选择标注类型");
     }else{
-        if(taskValue=="1" || taskValue=="2"){
-
-            img = "<img src='/images/notAns.png' />";
-
-
-        }else if(taskValue=="3"){
-
-            img = "<img src='/images/addSmall.png' />";
-
+        if(taskValue=="1"  ) {
+            img = "<img src='/images/doc-extraction.png' />";
+        }else if(taskValue=="2"){
+            img = "<img src='/images/doc-classify.png' />";
+        }else if(taskValue=="3") {
+        img = "<img src='/images/doc-relation.png' />";
         }else if(taskValue=="4"){
-            img = "<img src='/images/DOC.png' />";
+            img = "<img src='/images/doc-pair.png' />";
+        }else if(taskValue=="5"){
+            img = "<img src='/images/doc-sort.png' />";
+        } else if(taskValue=="6"){
+            img = "<img src='/images/doc-contrast.png' />";
         }
 
         layer.open({
@@ -743,8 +735,85 @@ function seedetail(obj) {
 
 };
 
-function ajaxType12(mformData) {
+function seexlsdetail(obj) {
 
+    console.log(obj);
+
+    var img;
+
+    if(taskValue=="0"){
+
+        alert("请先选择标注类型");
+    }else{
+        if(taskValue=="1"  ) {
+            img = "<img src='/images/xls-extraction.png' />";
+        }else if(taskValue=="2"){
+            img = "<img src='/images/xls-classify.png' />";
+        }else if(taskValue=="3") {
+            img = "<img src='/images/xls-relation.png' />";
+        }else if(taskValue=="4"){
+            img = "<img src='/images/xls-pair.png' />";
+        }else if(taskValue=="5"){
+            img = "<img src='/images/xls-sort.png' />";
+        } else if(taskValue=="6"){
+            img = "<img src='/images/xls-contrast.png' />";
+        }
+
+        layer.open({
+            type:1,
+            shift: 2,
+            area: ['500px', '300px'],
+            shade:0,
+            title:'查看样例',
+            shadeClose:true,
+            content:img
+        });
+    }
+
+
+
+};
+
+function seetestdetail(obj) {
+
+    console.log(obj);
+
+    var img;
+
+    if(taskValue=="0"){
+
+        alert("请先选择标注类型");
+    }else{
+        if(taskValue=="1"  ) {
+            img = "<img src='/images/test1-extraction.png' />";
+        }else if(taskValue=="2"){
+            img = "<img src='/images/test-classify.png' />";
+        }else if(taskValue=="3") {
+            img = "<img src='/images/test1-relation.png' />";
+        }else if(taskValue=="4"){
+            img = "<img src='/images/test-pair.png' />";
+        }else if(taskValue=="5"){
+            img = "<img src='/images/test-sort.png' />";
+        } else if(taskValue=="6"){
+            img = "<img src='/images/test-contrast.png' />";
+        }
+
+        layer.open({
+            type:1,
+            shift: 2,
+            area: ['500px', '300px'],
+            shade:0,
+            title:'查看样例',
+            shadeClose:true,
+            content:img
+        });
+    }
+
+
+
+};
+
+function ajaxType1(mformData) {
     $.ajax({
         type: 'POST',
         url: "/task/paralabel",
@@ -786,7 +855,58 @@ function ajaxType12(mformData) {
                 });
             }
 
-           
+
+        },error: function (XMLHttpRequest, textStatus, errorThrown) {
+            alert("上传失败!");
+        },
+
+    });
+
+};
+
+function ajaxType2(mformData) {
+    $.ajax({
+        type: 'POST',
+        url: "/task/classify",
+        data: mformData,
+        contentType: false,
+        processData: false,//这个很有必要，不然不行
+        dataType: "json",
+        mimeType: "multipart/form-data",
+        success: function (data) {
+            //console.log(data.data);
+            if(data.status!=0){
+                //alert(data.msg);
+                layui.use('layer', function () {
+                    var layer = layui.layer;
+                    layui.use('layer', function () {
+                        var layer = layui.layer;
+                        layer.open({
+                            type: 1,
+                            content: '<div style="padding:30px;line-height:40px;font-size: 20px;">'+data.msg+'</div>',
+                        })
+                    });
+
+                });
+            }else{
+                layui.use('layer',function(){
+                    var layer=layui.layer;
+                    layui.use('layer',function(){
+                        var layer=layui.layer;
+                        layer.open({
+                            type:1,
+                            content:'<div style="padding:30px;line-height:40px;font-size: 20px;"><i class="layui-icon" style="color:#5FB878 ;font-size: 26px;padding:1px;">&#x1005;</i>任务发布成功!' +
+                                '<br>你可以选择<a href="/html/my_Homepage.html" target="_top" style="color: cornflowerblue;">查看任务列表</a>' +
+                                '或前去<a href="/html/do_Homepage.html" target="_top" style="color: cornflowerblue;">做任务</a>，' +
+                                '也可以选择继续<a href="/html/pub_Homepage.html" target="_top" style="color: cornflowerblue;">发布任务</a></div>',
+                        })
+                    });
+
+
+                });
+            }
+
+
 
         },error: function (XMLHttpRequest, textStatus, errorThrown) {
             // console.log(XMLHttpRequest.status);

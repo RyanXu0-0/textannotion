@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.annotation.dao.TestExtractionDataMapper">
+
+    <!--BaseResultMap-->
+    <resultMap id="BaseResultMap" type="com.annotation.model.TestExtractionData" >
+        <result column="task_id" property="taskId" jdbcType="INTEGER" />
+        <result column="subtask_id" property="subtaskId" jdbcType="INTEGER" />
+        <result column="content" property="content" jdbcType="VARCHAR" />
+        <result column="label" property="label" jdbcType="VARCHAR" />
+        <result column="document_id" property="documentId" jdbcType="INTEGER" />
+    </resultMap>
+
+
+
+    <!--插入任务-文件关系表extraction-->
+    <insert id="insertextraction" useGeneratedKeys="true" parameterType="com.annotation.model.TestExtractionData" >
+        insert into test_extractiondata (task_id,subtask_id, content,document_id)
+        values (#{taskId,jdbcType=INTEGER}, #{subtaskId,jdbcType=INTEGER},
+        #{content,jdbcType=VARCHAR},#{documentId,jdbcType=INTEGER})
+    </insert>
+    <!--插入任务-文件关系表extraction-->
+    <insert id="insertAll" useGeneratedKeys="true" parameterType="java.util.List" >
+        insert into test_extractiondata (task_id,subtask_id,content,document_id)
+        values
+        <foreach collection="list" item="item" separator=",">
+        (#{item.taskId,jdbcType=INTEGER}, #{item.subtaskId,jdbcType=INTEGER},
+        #{item.content,jdbcType=VARCHAR},#{item.documentId,jdbcType=INTEGER})
+        </foreach>
+    </insert>
+
+
+
+    <select id="selectByTaskid" parameterType="Integer" resultMap="BaseResultMap">
+        select dataid,task_id,subtask_id, content,document_id from test_extractiondata
+         where task_id = #{taskId} and subtask_id = #{subtaskId}
+    </select>
+
+    <select id="selectDataId" parameterType="Integer" resultMap="BaseResultMap">
+        select task_id,subtask_id, content,document_id from test_extractiondata
+         where dataid = #{dataId}
+    </select>
+
+    <delete id="deleteByTaskid" parameterType="java.lang.Integer">
+        delete from test_extractiondata
+        where task_id = #{taskid,jdbcType=INTEGER}
+    </delete>
+
+    <update id="alterTable">
+        ALTER TABLE test_extractiondata AUTO_INCREMENT =1
+    </update>
+
+
+
+    <!--插入任务所有的classify测试数据-->
+    <insert id="insertAllClassify" useGeneratedKeys="true" parameterType="java.util.List" >
+        insert into test_classify (task_id,subtask_id,content,label,document_id)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.taskId,jdbcType=INTEGER}, #{item.subtaskId,jdbcType=INTEGER},
+            #{item.content,jdbcType=VARCHAR},#{item.label,jdbcType=VARCHAR},#{item.documentId,jdbcType=INTEGER})
+        </foreach>
+    </insert>
+
+    <select id="selectClassifyByDataId" parameterType="Integer" resultMap="BaseResultMap">
+        select task_id,subtask_id, content,document_id from test_classify
+         where dataid = #{dataId}
+    </select>
+
+    <select id="selectClassifyByTaskid" parameterType="Integer" resultMap="BaseResultMap">
+        select dataid,task_id,subtask_id,content,document_id from test_classify
+         where task_id = #{taskId} and subtask_id = #{subtaskId}
+    </select>
+</mapper>

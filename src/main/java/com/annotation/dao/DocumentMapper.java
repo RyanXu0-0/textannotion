@@ -25,48 +25,6 @@ public interface DocumentMapper {
 
        int deleteByPrimaryKey(Integer did);
 
-//
-//
-//       /**
-//        * 分页查询
-//        * 参数：用户ID,页数，每页数量
-//        * @param data
-//        * @return
-//        */
-//       List<Document> selectDocumentByRelatedInfo(Map<String,Object> data);
-//
-//       /**
-//        * 根据文档ID查询
-//        * 参数：文档ID
-//        * @param documentid
-//        * @return
-//        */
-//       Document  selectDocumentById(int documentid);
-//
-//       /**
-//        * 根据用户ID获取记录总数
-//        * @param userid
-//        * @return
-//        */
-//       Integer countDocNumByUserId(int userid);
-
-//       /**
-//        * 根据contentid更新content的完成状态
-//        * @param document
-//        * @return
-//        */
-//       int updateDocumentById(Document document);
-
-//       /**
-//        * 根据instID更新文档状态
-//        * @param instId
-//        * @param docStatus
-//        * @return
-//        */
-//       int updateDocStatusByInstanceId(@Param("instId")int instId, @Param("docStatus")String docStatus);
-//
-
-
 
 
 

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.annotation.dao.TestExtractionRelMapper">
+
+    <!--BaseResultMap-->
+    <resultMap id="BaseResultMap" type="com.annotation.model.TestExtractionRel" >
+        <result column="task_id" property="taskId" jdbcType="INTEGER" />
+        <result column="subtask_id" property="subtaskId" jdbcType="INTEGER" />
+        <result column="relation_id" property="relationId" jdbcType="VARCHAR" />
+        <result column="relation" property="relation" jdbcType="VARCHAR" />
+        <result column="headentity" property="headentity" jdbcType="VARCHAR" />
+        <result column="tailentity" property="tailentity" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <!--插入任务-文件关系表-->
+    <insert id="insert" parameterType="com.annotation.model.TestExtractionRel" useGeneratedKeys="true">
+        insert into test_extractionrel (task_id,subtask_id, relation_id,relation,headentity,tailentity)
+        values (#{taskId,jdbcType=INTEGER}, #{subtaskId,jdbcType=INTEGER},#{relationId,jdbcType=INTEGER},
+        #{relation,jdbcType=VARCHAR},#{headEntity,jdbcType=VARCHAR},#{tailEntity,jdbcType=VARCHAR})
+    </insert>
+
+    <insert id="insertAll" useGeneratedKeys="true" parameterType="java.util.List" >
+        insert into test_extractionrel (task_id,subtask_id, relation_id,relation,headentity,tailentity)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.taskId,jdbcType=INTEGER}, #{item.subtaskId,jdbcType=INTEGER},
+            #{item.relationId,jdbcType=VARCHAR},#{item.relation,jdbcType=VARCHAR},
+            #{item.headentity,jdbcType=VARCHAR},#{item.tailentity,jdbcType=VARCHAR})
+        </foreach>
+    </insert>
+
+    <select id="selectByTaskid" parameterType="Integer" resultMap="BaseResultMap">
+        select task_id,subtask_id, relation_id,relation,headentity,tailentity from test_extractionrel
+         where task_id = #{taskId}
+    </select>
+
+    <select id="selectByTaskidAndSubtaskid" parameterType="Integer" resultMap="BaseResultMap">
+        select task_id,subtask_id, relation_id,relation,headentity,tailentity from test_extractionrel
+         where task_id = #{taskId} and subtask_id = #{subtaskId}
+    </select>
+
+
+    <delete id="deleteByTaskid" parameterType="java.lang.Integer">
+        delete from test_extractionrel
+        where task_id = #{taskid,jdbcType=INTEGER}
+    </delete>
+
+    <update id="alterTable">
+        ALTER TABLE test_extractionrel AUTO_INCREMENT =1
+    </update>
+</mapper>

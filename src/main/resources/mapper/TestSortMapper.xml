@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.annotation.dao.TestSortMapper">
+
+    <resultMap id="RelationResultMap" type="com.annotation.model.TestSort" >
+        <result column="dataid" property="dataId" jdbcType="INTEGER" />
+        <result column="task_id" property="taskId" jdbcType="INTEGER" />
+        <result column="subtask_id" property="subtaskId" jdbcType="INTEGER" />
+        <result column="itemid" property="itemId" jdbcType="INTEGER" />
+        <result column="contrastcontent" property="contrastContent" jdbcType="VARCHAR" />
+        <result column="content" property="content" jdbcType="VARCHAR" />
+        <result column="sortid" property="sortId" jdbcType="INTEGER" />
+    </resultMap>
+
+    <insert id="insertAllSort" useGeneratedKeys="true" parameterType="java.util.List" >
+        insert into test_sort(dataid,task_id,subtask_id,itemid,contrastcontent,content,sortid)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.dataId,jdbcType=INTEGER},#{item.taskId,jdbcType=INTEGER}, #{item.subtaskId,jdbcType=INTEGER},
+            #{item.itemId,jdbcType=INTEGER},#{item.contrastContent,jdbcType=VARCHAR},#{item.content,jdbcType=VARCHAR},
+            #{item.sortId,jdbcType=INTEGER})
+        </foreach>
+    </insert>
+
+
+    <update id="alterSortTable">
+        ALTER TABLE test_sort AUTO_INCREMENT =1
+    </update>
+
+</mapper>

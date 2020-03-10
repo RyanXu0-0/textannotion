@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.annotation.dao.TestPairingMapper">
+
+    <resultMap id="RelationResultMap" type="com.annotation.model.TestPairing" >
+        <result column="dataid" property="dataId" jdbcType="INTEGER" />
+        <result column="task_id" property="taskId" jdbcType="INTEGER" />
+        <result column="subtask_id" property="subtaskId" jdbcType="INTEGER" />
+        <result column="itemid" property="itemId" jdbcType="INTEGER" />
+        <result column="itemtype" property="itemType" jdbcType="VARCHAR" />
+        <result column="itemcontent" property="itemContent" jdbcType="VARCHAR" />
+        <result column="coritemid" property="corItemId" jdbcType="INTEGER" />
+    </resultMap>
+
+    <insert id="insertAll" useGeneratedKeys="true" parameterType="java.util.List" >
+        insert into test_pairing (dataid,task_id,subtask_id,itemid,itemtype,itemcontent,coritemid)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.dataId,jdbcType=INTEGER},#{item.taskId,jdbcType=INTEGER}, #{item.subtaskId,jdbcType=INTEGER},
+            #{item.itemId,jdbcType=INTEGER},#{item.itemType,jdbcType=VARCHAR},#{item.itemContent,jdbcType=VARCHAR},
+            #{item.corItemId,jdbcType=INTEGER})
+        </foreach>
+    </insert>
+
+
+
+    <update id="alterPairingTable">
+        ALTER TABLE test_pairing AUTO_INCREMENT =1
+    </update>
+
+</mapper>

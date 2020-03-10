@@ -28,9 +28,50 @@ public class TaskInfoEntity {
     private Integer attendnum;
     private String pubUserName;
 
-//  private List<Label> labelList;
+    private Integer currenttask;
+    private Integer frequence;
+    private Integer totaltask;
+
+    public Integer getFrequence() {
+        return frequence;
+    }
+
+    public Integer getCurrenttask() {
+        return currenttask;
+    }
+
+    public void setCurrenttask(Integer currenttask) {
+        this.currenttask = currenttask;
+    }
+
+    public Integer getTotaltask() {
+        return totaltask;
+    }
+
+    public void setTotaltask(Integer totaltask) {
+        this.totaltask = totaltask;
+    }
+
+    public void setFrequence(Integer frequence) {
+        this.frequence = frequence;
+    }
+
+    public List<Map<String, Object>> getRelaList() {
+        return relaList;
+    }
+
+    public void setRelaList(List<Map<String, Object>> relaList) {
+        this.relaList = relaList;
+    }
+
+    //  private List<Label> labelList;
     private List<Map<String,Object>> documentList;//文件列表
+
+
+
     private List<Map<String,Object>> labelList;//标签列表
+
+    private List<Map<String,Object>> relaList;//关系标签列表
 
     public Integer getTid() {
         return tid;
@@ -122,6 +163,14 @@ public class TaskInfoEntity {
     }
     public void setLabelList(List<Map<String,Object>> labelList){
         this.labelList = labelList;
+    }
+
+
+    public List<Map<String, Object>> getRelationList() {
+        return relaList;
+    }
+    public void setRelationList(List<Map<String, Object>> relaList) {
+        this.relaList = relaList;
     }
 
 }

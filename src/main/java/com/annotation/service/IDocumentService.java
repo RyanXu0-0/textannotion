@@ -23,6 +23,15 @@ public interface IDocumentService {
     @Transactional
     ResponseEntity checkAddDocParagraph(MultipartFile[] files, int userId) throws IllegalStateException;
 
+    /**
+     * 检查测试文件并插入数据
+     * @param files
+     * @param userId
+     * @return
+     * @throws IllegalStateException
+     */
+    @Transactional
+    ResponseEntity extractionParseTest(MultipartFile[] files,int taskId, int userId) throws IllegalStateException;
 
     /**
      * 插入document
@@ -167,54 +176,13 @@ public interface IDocumentService {
     int addItemOfSorting(int instId,String[] itemArr,int typeId);
 
 
-    /**
-     * 文件分页查询
-     * @param userId
-     * @param page 页数
-     * @param limit 每页数量
-     * @return
-     */
-//     List<Document> queryDocByRelatedInfo(int userId, int page, int limit);
+    //将classify的测试数据插入到数据库
+    ResponseEntity classifyParseTest(MultipartFile[] testfiles,int taskId, int userId);
 
-    /**
-     * 根据用户ID查询文件总数
-     * @param userId
-     * @return
-     */
-//     int countNumByUserId(int userId);
+    ResponseEntity relationParseTest(MultipartFile[] testfiles,int taskId, int userId);
+    ResponseEntity pairParseTest(MultipartFile[] testfiles,int taskId, int userId);
 
-//    /**
-//     * 插入文件内容
-//     * @param docId
-//     * @param contentArr
-//     * @return
-//     */
-//     int addContent(int docId,String[] contentArr);
-//
+    ResponseEntity sortParseTest(MultipartFile[] testfiles,int taskId, int userId);
 
-
-
-//
-//    /**
-//     * 文本排序
-//     * @param files
-//     * @param user
-//     * @return
-//     */
-//    ResponseEntity addMultiFileOneSorting(MultipartFile[] files,User user,String taskType);
-
-    /**
-     * 文本类比排序
-
-     * @param user
-     * @return
-     */
-    //ResponseEntity addMultiFileTwoSorting(MultipartFile[] files,User user);
-
-//    int addTwoInstances(Document document, User user, String docContent, String taskType);
-//
-//    int addTwoItems(int docId,String[] instanceArr,String taskType);
-//
-//    int addItems(int instId,String[] itemArr,String taskType);
-
+    ResponseEntity contrastSortParseTest(MultipartFile[] testfiles,int taskId, int userId);
 }

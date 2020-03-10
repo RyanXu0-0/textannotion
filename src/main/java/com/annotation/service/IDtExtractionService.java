@@ -1,5 +1,8 @@
 package com.annotation.service;
 
+import com.annotation.model.DTask;
+import com.annotation.model.DtExtraction;
+import com.annotation.model.DtExtractionRelation;
 import com.annotation.model.entity.ExtractionData;
 import com.annotation.model.entity.ParagraphLabelEntity;
 
@@ -21,16 +24,13 @@ public interface IDtExtractionService {
     /**
      * 信息抽取做任务
      * @param userId
-     * @param taskId
-     * @param docId
-     * @param paraId
-     * @param labelId
-     * @param indexBegin
-     * @param indexEnd
+
      * @return
      */
-    int addExtraction(int userId,int taskId,int docId,int paraId,int labelId,int indexBegin,int indexEnd);
+    int addExtraction(int userId, int taskId, List<DtExtraction> entityList, List<DtExtractionRelation> relationList);
 
-    public List<ExtractionData> queryExtractionData(int tid);
+    List<ExtractionData> queryExtractionData(int tid);
+
+    void contrastWithTest(DTask dTask, List<DtExtraction> entityList, List<DtExtractionRelation> relationList);
 
 }

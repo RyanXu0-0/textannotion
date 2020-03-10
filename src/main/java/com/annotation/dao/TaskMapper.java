@@ -91,13 +91,22 @@ public interface TaskMapper {
 
 
     /**
-     * 信息抽取和分类调用接口
+     * 分类调用接口
      * 该类任务一定有标签和文件
      * 否则会出错
      * @param tid
      * @return
      */
     TaskInfoEntity selectTaskInfoWithDocLabel(Integer tid);
+
+    /**
+     * 信息抽取
+     * 该类任务一定有标签和文件
+     * 否则会出错
+     * @param tid
+     * @return
+     */
+    TaskInfoEntity selectTaskInfoWithEntityRelLabel(Integer tid);
 
 
     /**

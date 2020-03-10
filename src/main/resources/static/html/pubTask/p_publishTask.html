@@ -56,13 +56,6 @@
                                 </select>
                             </div>
 
-                            <!--<option value="" selected>请选择标注类型：</option>-->
-                            <!--<option value="1">信息抽取</option>-->
-                            <!--<option value="2">分类</option>-->
-                            <!--<option value="3">文本关系类别标注</option>-->
-                            <!--<option value="4">文本配对标注</option>-->
-                            <!--<option value="5">文本排序</option>-->
-                            <!--<option value="6">文本类比排序</option>-->
 
                             <div id="type4-relation-div" style="display: none">
                                 <label class="layui-form-label">请选择关系</label>
@@ -128,7 +121,25 @@
 
                         </div>
 
+                        <br>
+                        <div class="layui-row" id="multitestfile-div">
 
+                            <div class="layui-col-md2">
+                                <label class="layui-form-label">测试文件上传</label>
+                            </div>
+                            <div class="layui-col-md3">
+                                <input id="mtf" type="file" style="display:none" name="mf" multiple="multiple">
+
+                                <button type="button" class="layui-btn layui-btn-primary" id="mtf-upload" onclick="$('input[id=mtf]').click();"><i class="layui-icon">&#xe67c;</i>上传文件</button>
+                            </div>
+
+                            <div class="layui-col-md7">
+                                <!--<div class="layui-form-mid layui-word-aux">此处只是演示联动排版，并未做联动交互</div>-->
+                                <div class="row" id="testfile-ul">
+                                </div>
+                            </div>
+
+                        </div>
 
                         <br>
                     </div>
@@ -150,16 +161,24 @@
                                 <label class="layui-form-label">查看样例</label>
                             </div>
                             <div class="layui-col-md5" id="example-pic">
-                                <a id="test" onclick="seedetail(this.id)">
+                                <a id="test" onclick="seedocdetail(this.id)">
                                     <img src="../../images/seepicture.png">
-                                    <span style="color: #0d96f2">查看样例图片</span>
+                                    <span style="color: #0d96f2">查看DOC样例图片</span>
+                                </a>
+                            </div>
+                            <div class="layui-col-md5" id="example-pic">
+                                <a id="test" onclick="seexlsdetail(this.id)">
+                                    <img src="../../images/seepicture.png">
+                                    <span style="color: #0d96f2">查看XLS样例图片</span>
                                 </a>
                             </div>
                             <div class="layui-col-md5">
-
-                                <!--<div class="layui-unselect layui-form-checkbox layui-form-checked">-->
-                                    <!--<span>dsafd</span>-->
-                                <!--</div>-->
+                            <div class="layui-col-md5" id="example-pic">
+                                <a id="test" onclick="seetestdetail(this.id)">
+                                    <img src="../../images/seepicture.png">
+                                    <span style="color: #0d96f2">查看测试用例样例图片</span>
+                                </a>
+                            </div>
 
                             </div>
                         </div>
@@ -216,6 +235,7 @@
                         <div id="color-div">
 
                         </div>
+
 
                         <!--<div class="layui-row">-->
                             <!--<div class="layui-col-md2">-->

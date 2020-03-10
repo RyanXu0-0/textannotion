@@ -2,67 +2,76 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.annotation.dao.DtExtractionMapper" >
   <resultMap id="BaseResultMap" type="com.annotation.model.DtExtraction" >
-    <id column="dtd_id" property="dtdId" jdbcType="INTEGER" />
-    <result column="dt_id" property="dtId" jdbcType="INTEGER" />
-    <result column="label_id" property="labelId" jdbcType="INTEGER" />
-    <result column="index_begin" property="indexBegin" jdbcType="INTEGER" />
-    <result column="index_end" property="indexEnd" jdbcType="INTEGER" />
+    <id column="dt_eid" property="dteId" jdbcType="INTEGER" />
+    <result column="task_id" property="taskId" jdbcType="INTEGER" />
+    <result column="subtask_id" property="subtaskId" jdbcType="INTEGER" />
+    <result column="userid" property="userId" jdbcType="INTEGER" />
+    <result column="entity_id" property="entityId" jdbcType="VARCHAR" />
+    <result column="entity_name" property="entityName" jdbcType="VARCHAR" />
+    <result column="startindex" property="startIndex" jdbcType="INTEGER" />
+    <result column="endindex" property="endIndex" jdbcType="INTEGER" />
+    <result column="entity" property="entity" jdbcType="VARCHAR" />
   </resultMap>
 
+  <!--
+  dt_eid,task_id,subtask_id,userid,entity_id,entity_name,startindex,endindex,entity
+  #{dteId,jdbcType=INTEGER}, #{taskId,jdbcType=INTEGER}, #{subtaskId,jdbcType=INTEGER},
+  #{userId,jdbcType=INTEGER}, #{entityId,jdbcType=VARCHAR},#{entityName,jdbcType=VARCHAR},
+  #{startIndex,jdbcType=INTEGER},#{endIndex,jdbcType=INTEGER},#{entity,jdbcType=VARCHAR}
+  -->
+
+  <!--&lt;!&ndash;信息抽取查询文件的所有段落以及已经做了的标签  &ndash;&gt;-->
+  <!--<resultMap id="ExtractionParaLabelByDocId" type="com.annotation.model.entity.ParagraphLabelEntity">-->
+    <!--<id column="pid" property="pid" jdbcType="INTEGER" />-->
+    <!--<result column="paracontent" property="paracontent" jdbcType="VARCHAR" />-->
+    <!--<result column="paraindex" property="paraindex" jdbcType="INTEGER" />-->
+    <!--<result column="document_id" property="documentId" jdbcType="INTEGER" />-->
+    <!--<result column="dotime" property="dotime" jdbcType="VARCHAR" />-->
+    <!--<result column="comptime" property="comptime" jdbcType="VARCHAR" />-->
+    <!--<result column="dtstatus" property="dtstatus" jdbcType="VARCHAR" />-->
+    <!--<collection property="alreadyDone" ofType="Map">-->
+      <!--<result column="label_id" property="label_id" jdbcType="INTEGER" />-->
+      <!--<result column="index_begin" property="index_begin" jdbcType="INTEGER" />-->
+      <!--<result column="index_end" property="index_end" jdbcType="INTEGER" />-->
+      <!--<result column="color" property="color" jdbcType="VARCHAR" />-->
+    <!--</collection>-->
+  <!--</resultMap>-->
+
+    <!--<select id="selectExtraction" parameterType="Integer" resultMap="ExtractionParaLabelByDocId">-->
+        <!--select p.pid, p.paracontent, p.paraindex, p.document_id-->
+        <!--from paragraph p-->
+        <!--where p.document_id=#{docId}-->
+        <!--ORDER BY p.pid-->
+    <!--</select>-->
 
 
-  <!--信息抽取查询文件的所有段落以及已经做了的标签-->
-  <resultMap id="ExtractionParaLabelByDocId" type="com.annotation.model.entity.ParagraphLabelEntity">
-    <id column="pid" property="pid" jdbcType="INTEGER" />
-    <result column="paracontent" property="paracontent" jdbcType="VARCHAR" />
-    <result column="paraindex" property="paraindex" jdbcType="INTEGER" />
-    <result column="document_id" property="documentId" jdbcType="INTEGER" />
-    <result column="dotime" property="dotime" jdbcType="VARCHAR" />
-    <result column="comptime" property="comptime" jdbcType="VARCHAR" />
-    <result column="dtstatus" property="dtstatus" jdbcType="VARCHAR" />
-    <collection property="alreadyDone" ofType="Map">
-      <result column="label_id" property="label_id" jdbcType="INTEGER" />
-      <result column="index_begin" property="index_begin" jdbcType="INTEGER" />
-      <result column="index_end" property="index_end" jdbcType="INTEGER" />
-      <result column="color" property="color" jdbcType="VARCHAR" />
-    </collection>
-  </resultMap>
-
-    <select id="selectExtraction" parameterType="Integer" resultMap="ExtractionParaLabelByDocId">
-        select p.pid, p.paracontent, p.paraindex, p.document_id
-        from paragraph p
-        where p.document_id=#{docId}
-        ORDER BY p.pid
-    </select>
-
-
-  <select id="selectExtractionParaLabel" parameterType="Integer" resultMap="ExtractionParaLabelByDocId">
-    select p.pid, p.paracontent, p.paraindex, p.document_id,
-    dte.label_id, dte.index_begin,dte.index_end,
-    tl.color,
-    dp.dotime,dp.comptime,dp.dtstatus
-    from paragraph p
-    left join d_paragraph dp on (dp.dtask_id=#{dTaskId} and p.pid=dp.paragraph_id)
-    left join dt_extraction dte on dp.dtid =dte.dt_id
-    left join task_label tl on tl.task_id =#{taskId} and dte.label_id=tl.label_id
-    where p.document_id=#{docId}
-    ORDER BY p.pid
-  </select>
+  <!--<select id="selectExtractionParaLabel" parameterType="Integer" resultMap="ExtractionParaLabelByDocId">-->
+    <!--select p.pid, p.paracontent, p.paraindex, p.document_id,-->
+    <!--dte.label_id, dte.index_begin,dte.index_end,-->
+    <!--tl.color,-->
+    <!--dp.dotime,dp.comptime,dp.dtstatus-->
+    <!--from paragraph p-->
+    <!--left join d_paragraph dp on (dp.dtask_id=#{dTaskId} and p.pid=dp.paragraph_id)-->
+    <!--left join dt_extraction dte on dp.dtid =dte.dt_eid-->
+    <!--left join task_label tl on tl.task_id =#{taskId} and dte.label_id=tl.label_id-->
+    <!--where p.document_id=#{docId}-->
+    <!--ORDER BY p.pid-->
+  <!--</select>-->
 
 
 
-  <select id="selectExtractionWithStatus" parameterType="Map" resultMap="ExtractionParaLabelByDocId">
-    select p.pid, p.paracontent, p.paraindex, p.document_id,
-    dte.label_id, dte.index_begin,dte.index_end,
-    tl.color,
-    dp.dotime,dp.comptime,dp.dtstatus
-    from paragraph p
-    left join d_paragraph dp on (dp.dtask_id=#{dTaskId} and p.pid=dp.paragraph_id)
-    left join dt_extraction dte on dp.dtid =dte.dt_id
-    left join task_label tl on tl.task_id =#{taskId} and dte.label_id=tl.label_id
-    where p.document_id=#{docId} and ( dp.dtstatus =#{status} or dp.dtstatus is null)
-    ORDER BY p.pid
-  </select>
+  <!--<select id="selectExtractionWithStatus" parameterType="Map" resultMap="ExtractionParaLabelByDocId">-->
+    <!--select p.pid, p.paracontent, p.paraindex, p.document_id,-->
+    <!--dte.label_id, dte.index_begin,dte.index_end,-->
+    <!--tl.color,-->
+    <!--dp.dotime,dp.comptime,dp.dtstatus-->
+    <!--from paragraph p-->
+    <!--left join d_paragraph dp on (dp.dtask_id=#{dTaskId} and p.pid=dp.paragraph_id)-->
+    <!--left join dt_extraction dte on dp.dtid =dte.dt_eid-->
+    <!--left join task_label tl on tl.task_id =#{taskId} and dte.label_id=tl.label_id-->
+    <!--where p.document_id=#{docId} and ( dp.dtstatus =#{status} or dp.dtstatus is null)-->
+    <!--ORDER BY p.pid-->
+  <!--</select>-->
 
 
   <!--设置数据库自增长-->
@@ -73,18 +82,18 @@
 
 
   <insert id="insert" parameterType="com.annotation.model.DtExtraction" >
-    insert into dt_extraction (dtd_id, dt_id, label_id,
-    index_begin, index_end)
-    values (#{dtdId,jdbcType=INTEGER}, #{dtId,jdbcType=INTEGER}, #{labelId,jdbcType=INTEGER},
-    #{indexBegin,jdbcType=INTEGER}, #{indexEnd,jdbcType=INTEGER})
+    insert into dt_extraction (dt_eid,task_id,subtask_id,userid,entity_id,entity_name,startindex,endindex,entity)
+    values (#{dteId,jdbcType=INTEGER}, #{taskId,jdbcType=INTEGER}, #{subtaskId,jdbcType=INTEGER},
+  #{userId,jdbcType=INTEGER}, #{entityId,jdbcType=VARCHAR},#{entityName,jdbcType=VARCHAR},
+  #{startIndex,jdbcType=INTEGER},#{endIndex,jdbcType=INTEGER},#{entity,jdbcType=VARCHAR})
   </insert>
 
 
 
 
-  <delete id="deleteByDtId" parameterType="java.lang.Integer" >
+  <delete id="deleteByDteId" parameterType="java.lang.Integer" >
     delete from dt_extraction
-    where dt_id = #{dtId}
+    where dt_eid = #{dteId}
   </delete>
 
 
@@ -97,19 +106,19 @@
 
   <update id="updateByPrimaryKey" parameterType="com.annotation.model.DtExtraction" >
     update dt_extraction
-    set dt_id = #{dtId,jdbcType=INTEGER},
+    set dt_eid = #{dteId,jdbcType=INTEGER},
       label_id = #{labelId,jdbcType=INTEGER},
       index_begin = #{indexBegin,jdbcType=INTEGER},
       index_end = #{indexEnd,jdbcType=INTEGER}
     where dtd_id = #{dtdId,jdbcType=INTEGER}
   </update>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
-    select dtd_id, dt_id, label_id, index_begin, index_end
+    select dtd_id, dt_eid, label_id, index_begin, index_end
     from dt_extraction
     where dtd_id = #{dtdId,jdbcType=INTEGER}
   </select>
   <select id="selectAll" resultMap="BaseResultMap" >
-    select dtd_id, dt_id, label_id, index_begin, index_end
+    select dtd_id, dt_eid, label_id, index_begin, index_end
     from dt_extraction
   </select>
 
@@ -130,7 +139,7 @@
         count(*) as labelNum
         FROM d_task dt
         left join d_paragraph dp on dt.tkid=dp.dtask_id
-        left join dt_extraction dte on dte.dt_id=dp.dtid
+        left join dt_extraction dte on dte.dt_eid=dp.dtid
         left join document dc on dc.did=dp.document_id
         left join paragraph pa on pa.pid = dp.paragraph_id
         left join label lb on lb.lid=dte.label_id

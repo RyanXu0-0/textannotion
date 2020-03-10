@@ -107,4 +107,10 @@ public class DtSortingController {
         }
         return rs;
     }
+
+    @PostMapping("/submit")
+    public String submitData(){
+        System.out.println("submit");
+        return "u_homepage";
+    }
 }

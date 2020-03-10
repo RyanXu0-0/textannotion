@@ -63,8 +63,9 @@ public class TaskServiceImpl implements ITaskService{
     DtPairingMapper dtPairingMapper;
     @Autowired
     DtSortingMapper dtSortingMapper;
-//    @Autowired
-//    TaskDocRepository taskDocRepository;
+    @Autowired
+    ExtrationRelationLabelMapper extrationRelationLabelMapper;
+
     @Autowired
     ILabelService iLabelService;
 
@@ -97,18 +98,25 @@ public class TaskServiceImpl implements ITaskService{
     }
 
     /**
-     * 信息抽取和分类任务
+     * 信息抽取
      * @param task
      * @param docIds
      * @param labels
+     * @param relalabels
      * @param colors
      * @return
      */
     @Transactional
-    public ResponseEntity addTaskOfDocPara(Task task, List<Integer> docIds, String[] labels, String[] colors){
+    public ResponseEntity addTaskOfExtration(Task task, List<Integer> docIds, String[] labels,String[] relalabels, String[] colors){
         ResponseEntity responseEntity = new ResponseEntity();
 
         taskMapper.alterTaskTable();
+        int totalTask=paragraphMapper.countBydocid(docIds);
+        int startpid = paragraphMapper.selectStartpid(docIds);
+        task.setFrequence(0);
+        task.setCurrenttask(0);
+        task.setTotaltask(totalTask);
+        task.setStartid(startpid);
         int taskRes=taskMapper.insert(task);//插入任务
 
         //插入任务表失败
@@ -127,17 +135,104 @@ public class TaskServiceImpl implements ITaskService{
         }
 
 
-//        for(int i=0;i<docIds.size();i++){
-//            TaskDocument taskDocument =new TaskDocument();
-//            taskDocument.setDocumentId(docIds.get(i));
-//            taskDocument.setTaskId(task.getTid());
-//            int task_docRes = taskDocumentMapper.insert(taskDocument);//插入关系表
-//            //插入任务-文件 关系表
-//            if(task_docRes <0){
-//                responseEntity=responseUtil.judgeResult(3002);
-//                return responseEntity;
-//            }
-//        }
+        labelMapper.alterLabelTable();
+        for(int i=0;i<labels.length;i++){
+
+            //查询该标签是否已经存在
+            Label selectLabel =labelMapper.selectLabelByLabelname(labels[i]);
+
+            int labelId;
+            //查询成功，则返回标签ID进行下一步插入
+            if(selectLabel == null){
+                //标签不存在再新建标签
+                Label label=new Label();
+                label.setLabelname(labels[i]);
+                int labelRes=labelMapper.insert(label);
+                labelId =label.getLid();
+
+                //标签插入失败
+                if(labelRes<0){
+                    responseEntity=responseUtil.judgeResult(3003);
+                    return responseEntity;
+                }
+            }else{
+                labelId=selectLabel.getLid();
+            }
+
+            //插入文件-标签关系表
+            TaskLabel taskLabel = new TaskLabel();
+            taskLabel.setLabelId(labelId);
+            taskLabel.setTaskId(task.getTid());
+            if(colors!=null){
+                taskLabel.setColor(colors[i]);
+            }
+
+            int task_labelRes = taskLabelMapper.insert(taskLabel);
+
+            //文件-标签关系表插入失败
+            if(task_labelRes<0){
+                responseEntity=responseUtil.judgeResult(3004);
+                return responseEntity;
+            }
+        }
+
+//插入实体关系
+        for(int i = 0; i < relalabels.length;i++){
+            ExtrationRelationLabel label = new ExtrationRelationLabel();
+            label.setRelation(relalabels[i]);
+            label.setTaskId(task.getTid());
+            extrationRelationLabelMapper.alterRelationLabelTable();
+            int task_relalabelRes =extrationRelationLabelMapper.insert(label);
+            if(task_relalabelRes<0){
+                responseEntity=responseUtil.judgeResult(3011);
+                return responseEntity;
+            }
+        }
+
+
+        //返回任务ID
+        responseEntity.setStatus(0);
+        responseEntity.setMsg("创建任务成功");
+        responseEntity.setData(task.getTid());
+        return responseEntity;
+    }
+
+    /**
+     * 分类
+     * @param task
+     * @param docIds
+     * @param labels
+     * @param colors
+     * @return
+     */
+    @Transactional
+    public ResponseEntity addTaskOfDocPara(Task task, List<Integer> docIds, String[] labels, String[] colors){
+        ResponseEntity responseEntity = new ResponseEntity();
+
+        taskMapper.alterTaskTable();
+        int totalTask=paragraphMapper.countBydocid(docIds);
+        int startpid = paragraphMapper.selectStartpid(docIds);
+        task.setFrequence(0);
+        task.setCurrenttask(0);
+        task.setTotaltask(totalTask);
+        task.setStartid(startpid);
+        int taskRes=taskMapper.insert(task);//插入任务
+
+        //插入任务表失败
+        if(taskRes<0){
+            responseEntity=responseUtil.judgeResult(3001);
+            return responseEntity;
+        }
+
+        int esRes=saveTask(task);
+
+        //任务表插入成功，继续插入关系表
+        int taskDocRes=addTaskDoc(task.getTid(),docIds);
+        if(taskDocRes!=0){
+            responseEntity=responseUtil.judgeResult(taskDocRes);
+            return responseEntity;
+        }
+
 
         labelMapper.alterLabelTable();
         for(int i=0;i<labels.length;i++){
@@ -188,7 +283,6 @@ public class TaskServiceImpl implements ITaskService{
 
 
 
-
     /**
      * 文本关系
      * @param task
@@ -204,6 +298,14 @@ public class TaskServiceImpl implements ITaskService{
         ResponseEntity responseEntity = new ResponseEntity();
 
         taskMapper.alterTaskTable();
+
+        int totalTask=instanceMapper.countTotalTask(docIds);
+        int startpid = instanceMapper.selectStartpid(docIds);
+        task.setFrequence(0);
+        task.setCurrenttask(0);
+        task.setTotaltask(totalTask);
+        task.setStartid(startpid);
+
         int taskRes=taskMapper.insert(task);//插入任务
 
         //插入任务表失败返回-1
@@ -485,12 +587,21 @@ public class TaskServiceImpl implements ITaskService{
         saveTask(task);
 
         /**
-         * 信息抽取和分类
+         * 信息抽取
          * task.getTypeName().equals("信息抽取")
          */
-        if (typeId==1 || typeId==2 ){
-            taskInfoEntity =taskMapper.selectTaskInfoWithDocLabel(tid);
-
+        if (typeId==1 ) {
+            taskInfoEntity = taskMapper.selectTaskInfoWithEntityRelLabel(tid);
+            List list = taskInfoEntity.getRelationList();
+            for (Object i:list) {
+                System.out.println(i.toString());
+            }
+        }else if(typeId==2 ){
+            /**
+             * 分类
+             * task.getTypeName().equals("信息抽取")
+             */
+            taskInfoEntity = taskMapper.selectTaskInfoWithDocLabel(tid);
         /**
          * 文本关系类别标注
          */

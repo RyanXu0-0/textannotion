@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.annotation.dao.TestRelationMapper">
+
+    <resultMap id="RelationResultMap" type="com.annotation.model.TestExtractionData" >
+        <result column="task_id" property="taskId" jdbcType="INTEGER" />
+        <result column="subtask_id" property="subtaskId" jdbcType="INTEGER" />
+        <result column="item1" property="content" jdbcType="VARCHAR" />
+        <result column="item2" property="label" jdbcType="VARCHAR" />
+        <result column="document_id" property="documentId" jdbcType="INTEGER" />
+    </resultMap>
+
+    <insert id="insertAllRelationData" useGeneratedKeys="true" parameterType="java.util.List" >
+        insert into test_relationdata (task_id,subtask_id,item1,item2,document_id)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.taskId,jdbcType=INTEGER}, #{item.subtaskId,jdbcType=INTEGER},
+            #{item.content,jdbcType=VARCHAR},#{item.label,jdbcType=VARCHAR},#{item.documentId,jdbcType=INTEGER})
+        </foreach>
+    </insert>
+
+
+    <insert id="insertAllRelationAnswer" parameterType="java.util.List" >
+        insert into test_relationanswer (task_id,subtask_id,labeltype,label)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.taskId,jdbcType=INTEGER}, #{item.subtaskId,jdbcType=INTEGER},
+            #{item.labeltype,jdbcType=VARCHAR},#{item.label,jdbcType=VARCHAR})
+        </foreach>
+    </insert>
+
+
+    <update id="alterRelationDataTable">
+        ALTER TABLE test_relationdata AUTO_INCREMENT =1
+    </update>
+
+    <update id="alterRelationAnswerTable">
+        ALTER TABLE test_relationanswer AUTO_INCREMENT =1
+    </update>
+</mapper>

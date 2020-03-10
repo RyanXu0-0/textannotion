@@ -13,6 +13,27 @@ public class Task {
     private Integer viewnum;
     private Integer attendnum;
 
+    private Integer currenttask;
+    private Integer frequence;
+    private Integer totaltask;
+    private Integer startid;
+    private String iftest;
+
+    public String getIftest() { return iftest; }
+    public void setIftest(String iftest) { this.iftest = iftest; }
+
+    public Integer getStartid() { return startid; }
+    public void setStartid(Integer startid) { this.startid = startid; }
+
+    public Integer getCurrenttask() { return currenttask; }
+    public void setCurrenttask(Integer currenttask) { this.currenttask = currenttask; }
+
+    public Integer getFrequence() { return frequence; }
+    public void setFrequence(Integer frequence) { this.frequence = frequence; }
+
+    public Integer getTotaltask() { return totaltask; }
+    public void setTotaltask(Integer totaltask) { this.totaltask = totaltask; }
+
     public Integer getTid() {
         return tid;
     }

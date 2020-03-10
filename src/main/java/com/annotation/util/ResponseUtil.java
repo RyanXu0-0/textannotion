@@ -123,6 +123,10 @@ public class ResponseUtil {
                 responseEntity.setStatus(2020);
                 responseEntity.setMsg("文件内容格式错误，请检查！");
                 break;
+            case 2021:
+                responseEntity.setStatus(2021);
+                responseEntity.setMsg("文件名格式错误，请检查！");
+                break;
             case 3001:
                 responseEntity.setStatus(3001);
                 responseEntity.setMsg("添加任务失败，请检查");
@@ -162,6 +166,10 @@ public class ResponseUtil {
             case 3010:
                 responseEntity.setStatus(3010);
                 responseEntity.setMsg("instance_label表的item2关系插入失败");
+                break;
+            case 3011:
+                responseEntity.setStatus(3011);
+                responseEntity.setMsg("relation标签插入失败");
                 break;
             case 4001:
                 responseEntity.setStatus(4001);

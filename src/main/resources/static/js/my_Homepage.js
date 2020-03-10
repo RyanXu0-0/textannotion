@@ -29,7 +29,6 @@ $(function () {
             contentType: "application/x-www-form-urlencoded; charset=UTF-8",
             dataType: "text",
             success: function (data) {
-
                 window.location.href ="u_login.html";
             }, error: function (XMLHttpRequest, textStatus, errorThrown) {
 

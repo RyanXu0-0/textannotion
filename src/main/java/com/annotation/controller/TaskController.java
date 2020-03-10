@@ -25,6 +25,7 @@ import java.util.List;
 
 /**
  * Created by twinkleStar on 2018/12/9.
+ * 处理提交的任务
  */
 
 @RestController
@@ -42,7 +43,7 @@ public class TaskController {
 
 
     /**
-     * 信息抽取和分类任务的创建
+     * 信息抽取的创建
      * @param multipartFiles
      * @param request
      * @param httpSession
@@ -58,8 +59,9 @@ public class TaskController {
     @Transactional
     public ResponseEntity pubParaLabelTask(
             @RequestParam( value="files[]",required=false)MultipartFile[] multipartFiles,
+            @RequestParam(value="testfiles[]",required=false)MultipartFile[] testFiles,
             HttpServletRequest request, HttpSession httpSession,
-            Task task, String[] label, String[] color,@RequestParam(defaultValue="0")int userId,@RequestParam(defaultValue="0")int pointUnit)throws IllegalStateException, IOException {
+            Task task, String[] label,String[] relalabel, String[] color,@RequestParam(defaultValue="0")int userId,@RequestParam(defaultValue="0")int pointUnit)throws IllegalStateException, IOException {
 
         if(userId==0){
             User user =(User)httpSession.getAttribute("currentUser");
@@ -67,7 +69,6 @@ public class TaskController {
         }
 
         List<Integer> docids = new ArrayList<Integer>();
-
         //文件上传结果
         ResponseEntity docResponseEntity = IDocumentService.checkAddDocParagraph(multipartFiles,userId);
         if(docResponseEntity.getStatus()!=0){
@@ -80,22 +81,99 @@ public class TaskController {
         }
 
 
+        if(testFiles.length > 0){
+            task.setIftest("yes");
+        }else{
+            task.setIftest("no");
+        }
+        task.setUserId(userId);
+        ResponseEntity taskRes =iTaskService.addTaskOfExtration(task,docids,label,relalabel,color);//创建任务的结果
+
+        int taskid = (Integer)taskRes.getData();
+        iPointUnitService.insert(pointUnit,taskid);
+
+        //处理测试集,最后处理，有标签需要插入
+        if(testFiles.length > 0){
+            ResponseEntity testDocResponseEntity = IDocumentService.extractionParseTest(testFiles,taskid,userId);
+        }
+        return responseUtil.judgeTaskController(taskRes,docids);
+    }
+
+
+
+    /**
+     * 分类任务的创建
+     * @param multipartFiles
+     * @param request
+     * @param httpSession
+     * @param task
+     * @param label
+     * @param color
+     * @param userId
+     * @return
+     * @throws IllegalStateException
+     * @throws IOException
+     */
+    @PostMapping(value = "/classify")
+    @Transactional
+    public ResponseEntity pubClassifyTask(
+            @RequestParam( value="files[]",required=false)MultipartFile[] multipartFiles,
+            @RequestParam(value="testfiles[]",required=false)MultipartFile[] testFiles,
+            HttpServletRequest request, HttpSession httpSession,
+            Task task, String[] label, String[] color,@RequestParam(defaultValue="0")int userId,@RequestParam(defaultValue="0")int pointUnit)throws IllegalStateException, IOException {
+
+        if(userId==0){
+            User user =(User)httpSession.getAttribute("currentUser");
+            userId = user.getId();
+        }
+
+
+        List<Integer> docids = new ArrayList<Integer>();
+
+        //文件上传结果
+        ResponseEntity docResponseEntity = IDocumentService.checkAddDocParagraph(multipartFiles,userId);
+
+        if(docResponseEntity.getStatus()!=0){
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return docResponseEntity;
+        }else{
+            //获取到上传文件的ID
+            HashMap<String,List<Integer>> hashmap = (HashMap)docResponseEntity.getData();
+            docids = hashmap.get("docIds");
+        }
+
 
         task.setUserId(userId);
+        if(testFiles.length > 0){
+            task.setIftest("yes");
+            for (MultipartFile i: testFiles) {
+                System.out.println(i.getOriginalFilename());
+            }
+        }else{
+            task.setIftest("no");
+        }
+        System.out.println(task.getIftest()+testFiles.length);
         ResponseEntity taskRes =iTaskService.addTaskOfDocPara(task,docids,label,color);//创建任务的结果
 
         int taskid = (Integer)taskRes.getData();
         iPointUnitService.insert(pointUnit,taskid);
 
+
+
+        if(testFiles.length > 0){
+            IDocumentService.classifyParseTest(testFiles,taskid,userId);
+        }
+
         return responseUtil.judgeTaskController(taskRes,docids);
 
     }
 
-
+//文本关系
     @PostMapping(value = "/relation")
     @Transactional
     public ResponseEntity pubRelationTask(
             @RequestParam( value="files[]",required=false)MultipartFile[] multipartFiles,
+            @RequestParam(value="testfiles[]",required=false)MultipartFile[] testFiles,
             HttpServletRequest request,HttpSession httpSession,
             Task task, String[] instLabel, String[] item1Label, String[] item2Label,
             int labelnum, int labelnum1, int labelnum2,@RequestParam(defaultValue="0")int userId,@RequestParam(defaultValue="0")int pointUnit)throws IllegalStateException, IOException {
@@ -109,6 +187,7 @@ public class TaskController {
 
         //获取上传的文件数组
         ResponseEntity fileResponseEntity = IDocumentService.checkAddDocInstanceItem(multipartFiles,userId,labelnum,labelnum1,labelnum2);
+
         if(fileResponseEntity.getStatus()!=0){
             //插入数据库有错误时整体回滚
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
@@ -124,25 +203,37 @@ public class TaskController {
 //            }
         }
 
+        if(testFiles.length > 0){
+            task.setIftest("yes");
+        }else{
+            task.setIftest("no");
+        }
         task.setUserId(userId);
         ResponseEntity taskRes =iTaskService.addTaskOfRelation(task,docids,instLabel,item1Label,item2Label);//创建任务的结果
-
         int taskid = (Integer)taskRes.getData();
         iPointUnitService.insert(pointUnit,taskid);
 
+
+
+        if(testFiles.length > 0){
+            IDocumentService.relationParseTest(testFiles,taskid,userId);
+        }
         return responseUtil.judgeTaskController(taskRes,docids);
     }
 
 
     @PostMapping(value = "/pairing")
     @Transactional
-    public ResponseEntity pubPairingTask(@RequestParam( value="files[]",required=false)MultipartFile[] multipartFiles,
+    public ResponseEntity pubPairingTask(
+            @RequestParam( value="files[]",required=false)MultipartFile[] multipartFiles,
+            @RequestParam(value="testfiles[]",required=false)MultipartFile[] testFiles,
             HttpServletRequest request,HttpSession httpSession, Task task,@RequestParam(defaultValue="0")int userId)throws IllegalStateException, IOException {
 
         if(userId==0){
             User user =(User)httpSession.getAttribute("currentUser");
             userId = user.getId();
         }
+
         List<Integer> docids = new ArrayList<Integer>();
 
         //获取上传的文件数组
@@ -162,9 +253,19 @@ public class TaskController {
 //            }
         }
 
+        if(testFiles.length > 0){
+            task.setIftest("yes");
+        }else{
+            task.setIftest("no");
+        }
         task.setUserId(userId);
         ResponseEntity taskRes =iTaskService.addTaskOfPairingAndSorting(task,docids);//创建任务的结果
+        int taskid = (Integer)taskRes.getData();
 
+
+        if(testFiles.length > 0){
+            IDocumentService.pairParseTest(testFiles,taskid,userId);
+        }
         return responseUtil.judgeTaskController(taskRes,docids);
 
     }
@@ -182,6 +283,7 @@ public class TaskController {
     @RequestMapping(value = "/sorting", method = RequestMethod.POST)
     public ResponseEntity pubSortingTask(
             @RequestParam( value="files[]",required=false)MultipartFile[] multipartFiles,
+            @RequestParam(value="testfiles[]",required=false)MultipartFile[] testFiles,
             HttpServletRequest request, HttpSession httpSession, Task task,int typeId,@RequestParam(defaultValue="0")int userId,@RequestParam(defaultValue="0")int pointUnit)throws IllegalStateException, IOException {
 
         if(userId==0){
@@ -190,6 +292,10 @@ public class TaskController {
         }
         List<Integer> docids = new ArrayList<Integer>();
         //User user =(User)iUserService.queryUserByUsername("test");
+
+
+
+
 
         //获取上传的文件数组
         ResponseEntity fileResponseEntity = IDocumentService.checkAddSortingDoc(multipartFiles,userId,typeId);
@@ -202,12 +308,23 @@ public class TaskController {
             docids = hashmap.get("docIds");
         }
 
+        if(testFiles.length > 0){
+            task.setIftest("yes");
+        }else{
+            task.setIftest("no");
+        }
         task.setUserId(userId);
         ResponseEntity taskRes = iTaskService.addTaskOfPairingAndSorting(task,docids);//创建任务的结果
 
         int taskid = (Integer)taskRes.getData();
         iPointUnitService.insert(pointUnit,taskid);
 
+
+        if(testFiles.length > 0 && typeId == 5){
+            IDocumentService.sortParseTest(testFiles,taskid,userId);
+        }else{
+            IDocumentService.contrastSortParseTest(testFiles,taskid,userId);
+        }
         return responseUtil.judgeTaskController(taskRes,docids);
     }
 

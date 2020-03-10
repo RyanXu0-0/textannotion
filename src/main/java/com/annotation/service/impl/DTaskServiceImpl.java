@@ -9,8 +9,11 @@ import com.annotation.model.Task;
 import com.annotation.service.IDTaskService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -61,7 +64,6 @@ public class DTaskServiceImpl implements IDTaskService {
         int dTaskId;
         DTask dTaskSelect=dTaskMapper.selectByTaskIdAndUserId(taskId,userId);
         if(dTaskSelect != null){
-
             dTaskId=dTaskSelect.getTkid();
         }else{
             DTask dTask=new DTask();
@@ -80,7 +82,41 @@ public class DTaskServiceImpl implements IDTaskService {
             }else{
                 dTaskId=dTask.getTkid();
             }
+            Task task=taskMapper.selectTaskById(taskId);
+            task.setAttendnum(task.getAttendnum()+1);
+            int taskRes=taskMapper.updateById(task);
+            if(taskRes<0){
+                return 4005;
+            }
+        }
+        return dTaskId;
+    }
 
+    public int addDTask(int userId,int taskId,String currentStatus,int subtaskId){
+        int dTaskId;
+        DTask dTaskSelect=dTaskMapper.selectByTaskIdAndUserId(taskId,userId);
+        System.out.println("dTaskSelect:"+dTaskSelect);
+        if(dTaskSelect != null){
+            dTaskId=dTaskSelect.getTkid();
+        }else{
+            DTask dTask=new DTask();
+            dTask.setUserId(userId);
+            dTask.setTaskId(taskId);
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
+            dTask.setDotime(df.format(new Date()));
+            dTask.setDstatus("进行中");
+            dTask.setDpercent("0%");
+            int totalPart=paragraphMapper.countTotalPart(taskId);
+            dTask.setTotalpart(totalPart);
+            dTask.setAlreadypart(0);
+            dTask.setPid(subtaskId);
+            dTask.setDstatus(currentStatus);
+            int dTaskRes=dTaskMapper.insert(dTask);
+            if(dTaskRes<0){
+                return 4001;
+            }else{
+                dTaskId=dTask.getTkid();
+            }
             Task task=taskMapper.selectTaskById(taskId);
             task.setAttendnum(task.getAttendnum()+1);
             int taskRes=taskMapper.updateById(task);

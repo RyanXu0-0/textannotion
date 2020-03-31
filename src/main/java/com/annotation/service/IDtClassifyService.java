@@ -31,7 +31,7 @@ public interface IDtClassifyService {
      * @param labelId
      * @return
      */
-    int addClassify(int userId,int taskId,int docId,int paraId,int[] labelId);
+    ResponseEntity addClassify(int userId,int taskId,int docId,int paraId,int[] labelId);
 
 
     DtClassify addComment(int dtdId, int cNum, int flag, int uId);
@@ -41,5 +41,10 @@ public interface IDtClassifyService {
     List<ClassifyData> queryClassifyData(int tid);
 
     HSSFWorkbook getClassifyExcel(List<ClassifyData> classifyDataList);
-    ParagraphLabelEntity getClassTask(int userId,int taskId);
+
+    ParagraphLabelEntity getClassifyData(int userId, int taskId);
+
+    ParagraphLabelEntity getLastClassifyData(int userId, int taskId,int subtaskId);
+
+    ResponseEntity getNextClassifyData(int userId, int taskId,int subtaskId);
 }

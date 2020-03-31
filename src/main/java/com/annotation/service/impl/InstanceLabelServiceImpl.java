@@ -49,4 +49,30 @@ public class InstanceLabelServiceImpl implements IInstanceLabelService {
         return labelList;
     }
 
+
+    public List<Label> queryInstanceLabelByTaskId(int taskId){
+        List<Label> labelList =instanceLabelMapper.selectInstanceLabelByTaskId(taskId);
+        return labelList;
+    }
+
+    /**
+     * 根据文件ID查询item1对应的label
+     * @param taskId
+     * @return
+     */
+    public List<Label> queryItem1LabelByTaskId(int taskId){
+        List<Label> labelList =instanceLabelMapper.selectItem1LabelByTaskId(taskId);
+        return labelList;
+    }
+
+    /**
+     * 根据文件ID查询item2对应的label
+     * @param taskId
+     * @return
+     */
+    public List<Label> queryItem2LabelByTaskId(int taskId){
+        List<Label> labelList =instanceLabelMapper.selectItem2LabelByTaskId(taskId);
+        return labelList;
+    }
+
 }

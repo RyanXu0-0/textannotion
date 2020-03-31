@@ -3,8 +3,8 @@ package com.annotation.service;
 import com.annotation.model.DTask;
 import com.annotation.model.DtExtraction;
 import com.annotation.model.DtExtractionRelation;
-import com.annotation.model.entity.ExtractionData;
-import com.annotation.model.entity.ParagraphLabelEntity;
+import com.annotation.model.entity.*;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 
 import java.util.List;
 
@@ -27,10 +27,19 @@ public interface IDtExtractionService {
 
      * @return
      */
-    int addExtraction(int userId, int taskId, List<DtExtraction> entityList, List<DtExtractionRelation> relationList);
-
+    ResponseEntity addExtraction(int userId, int taskId,int subtaskId, List<Entity> entities, List<Relation> relations);
+    int addExtraction(int userId,int taskId,int docId,int paraId,int labelId,int indexBegin,int indexEnd);
     List<ExtractionData> queryExtractionData(int tid);
 
-    void contrastWithTest(DTask dTask, List<DtExtraction> entityList, List<DtExtractionRelation> relationList);
+    void contrastWithTest(DTask dTask,List<Entity> entities, List<Relation> relations);
 
+    ParagraphLabelEntity getExtractionData(int userId, int taskId);
+
+    ResponseEntity qualityControl(DoExtractionData doExtractionData);
+
+    ParagraphLabelEntity getLastExtractionData(int userId, int taskId,int subtaskId);
+
+    ResponseEntity getNextExtractionData(int userId, int taskId,int subtaskId);
+
+    HSSFWorkbook getExtractionExcel(List<ExtractionData> extractionDataList);
 }

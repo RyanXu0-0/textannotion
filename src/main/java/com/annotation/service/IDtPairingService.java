@@ -2,6 +2,7 @@ package com.annotation.service;
 
 import com.annotation.model.entity.InstanceListitemEntity;
 import com.annotation.model.entity.PairingData;
+import com.annotation.model.entity.ResponseEntity;
 import com.annotation.model.entity.resHandle.ResPairingData;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 
@@ -66,4 +67,12 @@ public interface IDtPairingService {
 
     List<ResPairingData> queryResPairingData(int tid, int docId, int instanceIndex);
 
-}
+
+    InstanceListitemEntity getPairingData(int userId, int taskId);
+    String qualityControl(int taskId,int docId,int subtaskId,int userId,int[] aListItemId,int[] bListItemId,String taskType);
+
+
+    ResponseEntity getNextPairingData(int userId, int taskId, int subtaskId);
+
+    InstanceListitemEntity getLastPairingData(int userId, int taskId,int subtaskId);
+    }

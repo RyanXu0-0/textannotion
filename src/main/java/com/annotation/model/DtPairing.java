@@ -3,10 +3,11 @@ package com.annotation.model;
 public class DtPairing {
     private Integer dtdId;
 
-    private Integer dtId;
+    private Integer taskId;
+    private Integer subtaskId;
+    private Integer userId;
 
     private Integer aLitemid;
-
     private Integer bLitemid;
     private Integer goodlabel;
     private Integer badlabel;
@@ -35,14 +36,6 @@ public class DtPairing {
         this.dtdId = dtdId;
     }
 
-    public Integer getDtId() {
-        return dtId;
-    }
-
-    public void setDtId(Integer dtId) {
-        this.dtId = dtId;
-    }
-
     public Integer getaLitemid() {
         return aLitemid;
     }
@@ -57,5 +50,29 @@ public class DtPairing {
 
     public void setbLitemid(Integer bLitemid) {
         this.bLitemid = bLitemid;
+    }
+
+    public Integer getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(Integer taskId) {
+        this.taskId = taskId;
+    }
+
+    public Integer getSubtaskId() {
+        return subtaskId;
+    }
+
+    public void setSubtaskId(Integer subtaskId) {
+        this.subtaskId = subtaskId;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 }

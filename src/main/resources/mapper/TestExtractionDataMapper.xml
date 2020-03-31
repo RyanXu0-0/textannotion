@@ -4,6 +4,7 @@
 
     <!--BaseResultMap-->
     <resultMap id="BaseResultMap" type="com.annotation.model.TestExtractionData" >
+        <result column="dataid" property="dataId" jdbcType="INTEGER" />
         <result column="task_id" property="taskId" jdbcType="INTEGER" />
         <result column="subtask_id" property="subtaskId" jdbcType="INTEGER" />
         <result column="content" property="content" jdbcType="VARCHAR" />
@@ -37,9 +38,20 @@
     </select>
 
     <select id="selectDataId" parameterType="Integer" resultMap="BaseResultMap">
-        select task_id,subtask_id, content,document_id from test_extractiondata
+        select dataid,task_id,subtask_id, content,document_id from test_extractiondata
          where dataid = #{dataId}
     </select>
+
+    <select id="countTestNum" parameterType="Integer" resultType="Integer">
+        select count(*) from test_extractiondata
+         where task_id = #{taskId}
+    </select>
+
+    <select id="selectFirst" parameterType="Integer" resultMap="BaseResultMap">
+        select * from test_extractiondata
+         where task_id = #{taskId} limit 1
+    </select>
+
 
     <delete id="deleteByTaskid" parameterType="java.lang.Integer">
         delete from test_extractiondata

@@ -12,12 +12,7 @@
     <result column="tailentity" property="tailEntity" jdbcType="VARCHAR" />
   </resultMap>
 
-    <!--
-  dt_erid,task_id,subtask_id,userid,relation_id,relation,headentity,tailentity
-  #{dterId,jdbcType=INTEGER}, #{taskId,jdbcType=INTEGER}, #{subtaskId,jdbcType=INTEGER},
-  #{userId,jdbcType=INTEGER}, #{relationId,jdbcType=VARCHAR},#{relation,jdbcType=VARCHAR},
-  #{headentity,jdbcType=VARCHAR},#{tailentity,jdbcType=VARCHAR}
-  -->
+
 
   <!--设置数据库自增长-->
   <update id="alterDtExtractionRelationTable">
@@ -34,4 +29,29 @@
   </insert>
 
 
+
+  <select id="selectByTaskidAndSubtaskid" parameterType="Integer" resultMap="BaseResultMap">
+        select dt_erid,task_id,subtask_id, relation_id,relation,headentity,tailentity from dt_extraction_relation
+         where task_id = #{taskId} and subtask_id = #{subtaskId}
+   </select>
+
+  <delete id="deleteBeforeUpdate" parameterType="java.lang.Integer" >
+    delete from dt_extraction_relation
+    where userid = #{userId} and task_id = #{taskId} and subtask_id = #{subtaskId}
+  </delete>
+
+  <delete id="delete" parameterType="java.lang.Integer" >
+    delete from dt_extraction_relation where  task_id = #{taskId}
+  </delete>
+
+
+  <select id="selectCurrentDone" parameterType="java.lang.Integer" resultMap="BaseResultMap" >
+    select * from dt_extraction_relation
+    where userid = #{userId} and task_id = #{taskId} and subtask_id = #{subtaskId}
+  </select>
+
+  <delete id="deleteAllByTaskId" parameterType="java.lang.Integer" >
+    delete from dt_extraction_relation
+    where task_id = #{taskId,jdbcType=INTEGER}
+  </delete>
 </mapper>

@@ -1,6 +1,7 @@
 package com.annotation.service;
 
 import com.annotation.model.Task;
+import com.annotation.model.User;
 import com.annotation.model.entity.ResponseEntity;
 import com.annotation.model.entity.TaskInfoEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +33,17 @@ public interface ITaskService {
     ResponseEntity addTaskOfExtration(Task task, List<Integer> docIds, String[] labels,String[] relalabels, String[] colors);
 
     /**
+     * 信息抽取检测任务
+     * @param task
+     * @param docIds
+     * @param labels
+     * @param colors
+     * @return
+     */
+    @Transactional
+    ResponseEntity addTestOfExtration(Task task, List<Integer> docIds, String[] labels,String[] relalabels, String[] colors);
+
+    /**
      * 分类
      * @param task
      * @param docIds
@@ -41,6 +53,18 @@ public interface ITaskService {
      */
     @Transactional
     ResponseEntity addTaskOfDocPara(Task task, List<Integer> docIds, String[] labels, String[] colors);
+
+    /**
+     * 分类
+     * @param task
+     * @param docIds
+     * @param labels
+     * @param colors
+     * @return
+     */
+    @Transactional
+    ResponseEntity addTestOfDocPara(Task task, List<Integer> docIds, String[] labels, String[] colors);
+
 
     /**
      * 文本关系
@@ -54,6 +78,9 @@ public interface ITaskService {
     @Transactional
     ResponseEntity addTaskOfRelation(Task task, List<Integer> docIds, String[] instanceLabel, String[] item1Label, String[] item2Label);
 
+    @Transactional
+    ResponseEntity addTestOfRelation(Task task, List<Integer> docIds, String[] instanceLabel, String[] item1Label, String[] item2Label);
+
     /**
      * 文本匹配/文本排序
      * @param task
@@ -63,6 +90,9 @@ public interface ITaskService {
     @Transactional
     ResponseEntity addTaskOfPairingAndSorting(Task task, List<Integer> docids);
 
+    @Transactional
+    ResponseEntity addTestOfPairingAndSorting(Task task, List<Integer> docids);
+
 
     /**
      * 分页查询所有可以做的任务
@@ -70,7 +100,7 @@ public interface ITaskService {
      * @param limit
      * @return
      */
-    List<Task> queryTotalTaskOfUndo(int page, int limit);
+    List<Task> queryTotalTaskOfUndo(User user, int page, int limit);
 
 
     /**
@@ -78,7 +108,7 @@ public interface ITaskService {
      *
      * @return
      */
-    int countNumOfUndo();
+    int countNumOfUndo(int userId);
 
     /**
      *

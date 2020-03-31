@@ -3,6 +3,8 @@ package com.annotation.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.annotation.model.User;
 import com.annotation.model.entity.InstanceListitemEntity;
+import com.annotation.model.entity.ParagraphLabelEntity;
+import com.annotation.model.entity.ResponseEntity;
 import com.annotation.model.entity.resHandle.ResPairingData;
 import com.annotation.service.IDtPairingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +44,8 @@ public class DtPairingController {
 
 //        List<InstanceListitemEntity> instanceItemEntityList = iDtPairingService.queryInstanceListitem(docId,userId,status,taskId);
         List<InstanceListitemEntity> instanceItemEntityList = new ArrayList<>();
-        instanceItemEntityList =  iDtPairingService.queryInstanceListitem(docId,userId,status,taskId);
+        InstanceListitemEntity instanceItemEntity =  iDtPairingService.getPairingData(userId,taskId);
+        instanceItemEntityList.add(instanceItemEntity);
         JSONObject rs = new JSONObject();
         if(instanceItemEntityList != null){
             rs.put("msg","查询文件内容成功");
@@ -94,16 +97,13 @@ public class DtPairingController {
             userId = user.getId();
         }
 
-        String dtInstItRes =iDtPairingService.addPairing(taskId,docId,instanceId,userId,aListitemId,bListitemId,taskType);
+        String dtInstItRes =iDtPairingService.qualityControl(taskId,docId,instanceId,userId,aListitemId,bListitemId,taskType);
         JSONObject jso =new JSONObject();
 
-        if(dtInstItRes.contains("0")){
+        if(dtInstItRes.contains("#")){
             jso.put("msg","部分添加失败");
             jso.put("code",-1);
-            jso.put("faildata",dtInstItRes.substring(1));
-//            String tmpStr=dtInstItRes.substring(1);
-//            String[] tmpArr=tmpStr.split("#");
-
+            jso.put("faildata",dtInstItRes.split("#"));
         }else{
             switch (dtInstItRes){
                 case "-1":
@@ -150,9 +150,50 @@ public class DtPairingController {
     }
 
 
-    @PostMapping("/submit")
-    public String submitData(){
-        System.out.println("submit");
-        return "u_homepage";
+    @PostMapping
+    @RequestMapping("/lasttask")
+    public JSONObject lastPairingTask(HttpSession httpSession,int taskId,int subtaskId,@RequestParam(defaultValue="0")int userId){
+
+        if(userId==0){
+            User user =(User)httpSession.getAttribute("currentUser");
+            userId = user.getId();
+        }
+        System.out.println("当前任务id："+subtaskId);
+        InstanceListitemEntity instanceItemEntity = iDtPairingService.getLastPairingData(userId,taskId,subtaskId);
+        JSONObject rs = new JSONObject();
+        if(instanceItemEntity != null){
+            rs.put("msg","查询文件内容成功");
+            rs.put("code",0);
+            rs.put("data",instanceItemEntity);
+        }else{
+            rs.put("msg","查询文件内容失败");
+            rs.put("code",-1);
+        }
+        return rs;
     }
+
+
+
+    @PostMapping
+    @RequestMapping("/nexttask")
+    public JSONObject nextPairingTask(HttpSession httpSession,int taskId,int subtaskId,@RequestParam(defaultValue="0")int userId){
+
+        if(userId==0){
+            User user =(User)httpSession.getAttribute("currentUser");
+            userId = user.getId();
+        }
+
+        ResponseEntity response  = iDtPairingService.getNextPairingData(userId,taskId,subtaskId);
+        JSONObject rs = new JSONObject();
+        if(response.getData()!= null){
+            rs.put("msg","查询文件内容成功");
+            rs.put("code",0);
+            rs.put("data",response.getData());
+        }else{
+            rs.put("msg",response.getMsg());
+            rs.put("code",response.getStatus());
+        }
+        return rs;
+    }
+
 }

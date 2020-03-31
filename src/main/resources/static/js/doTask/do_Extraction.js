@@ -110,33 +110,24 @@ $(function () {
          deadline = Date.parse(orign_time1)/1000;
          currentTime = Date.parse(new Date())/1000;//转化成秒
          spaceTime = deadline-currentTime;
-        // var testhtml='<div class="layui-col-md1" >'+
-        //    ' <div id="timer" style="color:red" mce_style="color:red"></div>'+
-        //  '</div>';
-        // $("#div-dotaskbtn").html(testhtml);
-
-
-
-    });
-
-
-    $("#select-docStatus").click(function(){
-        curParaIndex=0;
+        /**
+         * 获取文件内容，提前加载
+         */
         ajaxDocContent(docId);
+
     });
+
+
+    // $("#select-docStatus").click(function(){
+    //     curParaIndex=0;
+    //     ajaxDocContent(docId);
+    // });
 
     //下一个任务
     $("#nexttask").click(function(){
-        var taskData={
-            taskId :taskId,
-            docId:docId,
-            userId:0,
-            paraId:paraId[curParaIndex],
-            entities:entity_done,
-            relations:rela_done
-        };
-        ajaxNextTask(taskData);
+        ajaxNextTask();
     });
+
 //提交当前任务
     $("#submit-task").click(function(){
         if(entity_done == null){
@@ -170,17 +161,25 @@ $(function () {
                     relations.push(temprelation);
                 }
             }
+
             var taskData = {
                 taskId: taskId,
                 userId: 0,
-                entities: JSON.stringify(entities),
-                relations: JSON.stringify(relations)
+                subtaskId:paraId[0],
+                entities: entities,
+                relations: relations
+
             };
-            // console.log(JSON.stringify(entities));
-            // console.log(JSON.stringify(relations));
+            console.log(JSON.stringify(taskData));
             ajaxSubmitTask(taskData);
         }
     });
+
+//
+    $("#lasttask").click(function () {
+        ajaxLastTask();
+    });
+
 
     /**
      * 鼠标选定文本事件
@@ -458,7 +457,7 @@ function ajaxTaskInfo(taskId) {
 
             taskInfo=data.data; //console.log(taskInfo);
             labelList=data.data.labelList;//console.log(labelList);
-            relaList=data.data.relationList;console.log("relaList"+JSON.stringify(relaList));
+            relaList=data.data.relaList;console.log("relaList"+JSON.stringify(relaList));
             documentList =data.data.documentList;//console.log(documentList);
             docId=documentList[0].did;//console.log(docId);
             deadline=data.data.deadline;
@@ -535,10 +534,7 @@ function ajaxTaskInfo(taskId) {
 
             });
 
-            /**
-             * 获取文件内容，提前加载
-             */
-            ajaxDocContent(docId);
+
 
             /**
              * 对实体label的加载和处理，以及页面的显示
@@ -579,12 +575,12 @@ function ajaxDocContent(docId){
         success: function (data) {
             if(data.data==null || data.data==""){
                 alert("该文本已经全部完成，没有进行中的段落！")
+                top.location.href ="/html/u_homepage.html";
             }else{
-
                 /**
                  * 左边文件内容的显示处理
                  */
-                console.log("docid"+docid);
+                //console.log("docid"+docid);
                 paraIndex =data.data.length;//段落数
                 var sflag=0;
                 //var div_footer='<div class="text-center">';
@@ -592,9 +588,7 @@ function ajaxDocContent(docId){
                     paraContent[i]=data.data[i].paracontent;//每段内容
 
                     dtstatus[i]=data.data[i].dtstatus;//每段的状态
-
                     if(data.data[i].dtstatus=="已完成"){
-
                         sflag++;
                     }
                     // data.data：[{"color":"#ff8080","index_begin":6,"index_end":5,"label_id":44},{"color":"#ff8080","index_begin":23,"index_end":22,"label_id":44},{"color":"#ffff80","index_begin":4,"index_end":3,"label_id":45}]
@@ -630,8 +624,6 @@ function ajaxDocContent(docId){
                         $("#submit-task").removeAttr("disabled");
                     }
                 }
-
-
 
 
                 $("#p-para").html(paraContent[0]);//设置内容
@@ -900,7 +892,6 @@ function relationHtml(relationList){
     for(var i=0;i<relationLength;i++){
         //初始化数组
         rela_done[i] = new Array;
-
         relation_ans_div[i]="rela-ans-div-"+i;//panel-body-div的ID
 
         var list_html = '<div class="panel panel-success">'
@@ -1225,38 +1216,99 @@ function paintAlreadyDone2() {
 
 }
 
-function ajaxNextTask(taskData) {
+//url: "/dpara/status",
+function ajaxSubmitTask(taskData) {
     $.ajax({
-        url: "/extraction/nexttask",
+        url: "/extraction",
         type: "post",
+        //traditional: true,
+        //application/x-www-form-urlencoded; charset=UTF-8
+        contentType: "application/json; charset=UTF-8",
+        dataType: "json",
+        data:JSON.stringify(taskData),
+
+        success: function (data) {
+            window.alert("当前数据提交成功");
+            //top.location.href ="/html/u_homepage.html";
+            //window.location.href ="do_Homepage.html";直接下一个任务了
+            console.log(data);
+        }, error: function (XMLHttpRequest, textStatus, errorThrown,data) {
+            console.log("跳转了error");
+            // 状态码
+            console.log(XMLHttpRequest.status);
+            // 状态
+            console.log(XMLHttpRequest.readyState);
+            // 错误信息
+            console.log(textStatus);
+        },
+    });
+};
+
+//申请上一个任务的数据
+function ajaxLastTask(){
+    var currentTaskInfo={
+        subtaskId: paraId[0],
+        taskId:taskId,
+        userId:0
+    };
+    $.ajax({
+        url: "/extraction/lasttask",
+        type: "get",
         traditional: true,
         contentType: "application/x-www-form-urlencoded; charset=UTF-8",
         dataType: "json",
-        data:taskData,
+        data:currentTaskInfo,
         success: function (data) {
+            if(data.data==null || data.data==""){
+                alert("这已经是第一个任务了");
+            }else{
+                cleardata();
+                var entitydone = data.data.alreadyDone;
+                var relationdone = data.data.relalreadyDone;
+                paraContent[0]=data.data.paracontent;//每段内容
+                console.log("data.data："+JSON.stringify(data));
+                paraId[0]=data.data.pid;//console.log(paraId[i]);//每段内容的ID
+                paintText(paraContent[0],entitydone);
+                var newentitydone = paintEntity(entitydone);
+                paintRelation(entitydone,relationdone,newentitydone);
+            }
 
         }, error: function (XMLHttpRequest, textStatus, errorThrown) {
-
 
         },
     });
 };
 
-//url: "/dpara/status",
-function ajaxSubmitTask(taskData) {
+
+function ajaxNextTask() {
+    var currentTaskInfo={
+        subtaskId: paraId[0],
+        taskId:taskId,
+        userId:0
+    };
     $.ajax({
-        url: "/extraction/submit",
-        type: "post",
+        url: "/extraction/nexttask",
+        type: "get",
         traditional: true,
-        //application/x-www-form-urlencoded; charset=UTF-8
         contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-        dataType: "text",
-        data:taskData,
+        dataType: "json",
+        data:currentTaskInfo,
+
         success: function (data) {
-            top.location.href ="/html/u_homepage.html";
-            //window.location.href ="do_Homepage.html";直接下一个任务了
-        }, error: function (XMLHttpRequest, textStatus, errorThrown) {
-            console.log("跳转了error");
+            if(data.code != 0){
+                window.alert(data.msg);
+                return null;
+            }
+            var entitydone = data.data.alreadyDone;
+            var relationdone = data.data.relalreadyDone;
+            console.log("data.data："+JSON.stringify(data));
+            cleardata();
+            paraContent[0]=data.data.paracontent;//每段内容
+            paraId[0]=data.data.pid;//console.log(paraId[i]);//每段内容的ID
+            paintText(paraContent[0],entitydone);
+            var newentitydone = paintEntity(entitydone);
+            paintRelation(entitydone,relationdone,newentitydone);
+        }, error: function (XMLHttpRequest, textStatus, errorThrown,data) {
         },
     });
 };
@@ -1287,10 +1339,8 @@ function relaPopClick(fromentity,toentity,rela) {
     var addLiNum = rela_done[rela].length;
 
     $("#rela-ans-div-"+rela+"-"+addLiNum).text(fromentity.text+"-"+toentity.text+":"+relaList[rela].relation);
-    // $("#rela-img-ok-"+rela+"-"+addLiNum).attr("src","/images/blank.PNG");
     $("#rela-img-ok-"+rela+"-"+addLiNum).attr("src","/images/labelsuccess.png");
     $("#rela-img-ok-"+rela+"-"+addLiNum).removeAttr("onclick");
-    // $("#rela-img-del-"+rela+"-"+addLiNum).attr("src","/images/labelsuccess.png");
     $("#rela-img-del-"+rela+"-"+addLiNum).attr("onclick","relaDelClick(this.id)");
 
 
@@ -1380,4 +1430,127 @@ function entityPopClick(entity,label) {
     entity_done[label].push({spanId:spanId,labelId:labelId,entity:entity,start:startend.start,end:startend.end});
 };
 
+function cleardata() {
+    entity_done = new Array();
+    rela_done = new Array();
+    relation_ans_div = new Array();
+
+    $("#relationlist-div-panel").empty();
+    $("#labellist-div-panel").empty();
+
+    labelHtml(labelList);
+    relationHtml(relaList);
+}
+
+
+function paintText(paraContent,entitydone){
+    var textarr = paraContent.split('');
+    for(var i = 0;i < entitydone.length;i++){
+        var curindex = entitydone[i].entityId.substr(0,1);
+        var start = entitydone[i].startIndex;
+        var end = entitydone[i].endIndex;
+        console.log("color:"+labelList[curindex].color);
+        console.log("start:"+textarr[start]);
+        console.log("end:"+textarr[end-1]);
+        textarr[start] = '<span id="label-ul-li-span-'+entitydone[i].entityId+'"'+
+            'onclick="selectentityforrela(id)"'+
+            'style="font-size: 20px; color:'+labelList[curindex].color+
+            '"'+'>' +textarr[start];
+        textarr[end-1] = textarr[end-1]+'</span>';
+    }
+    var content = textarr.join("");
+    $("#p-para").html(content);
+
+}
+
+function paintEntity(entitydone){
+    for(var i = 0;i < entitydone.length;i++){
+        var entityid = entitydone[i].entityId;
+        var label = entitydone[i].entityId.substr(0,1);
+        var entity = entitydone[i].entity;
+        var start = entitydone[i].startIndex;
+        var end = entitydone[i].endIndex;
+        var addLiNum = entity_done[label].length;
+        $("#li-ans-div-"+label+"-"+addLiNum).text(entity);
+        $("#li-img-ok-"+label+"-"+addLiNum).attr("src","/images/labelsuccess.png");
+        $("#li-img-ok-"+label+"-"+addLiNum).removeAttr("onclick");
+        $("#li-img-del-"+label+"-"+addLiNum).attr("onclick","imgDelClick(this.id)");
+
+
+        /**
+         * 提交一个li之后，添加一个li
+         */
+        var addLi= '<li class="list-group-item" id="label-ans-li-'+label+'-'+(addLiNum+1)+'">'
+            +'<div class="row">'
+            +'<div class="col-lg-10" id="li-ans-div-'+label+'-'+(addLiNum+1)+'">'
+            +'</div>'
+            +'<div class="col-lg-1">'
+            +'<img class="okAns" src="/images/ok.png" id="li-img-ok-'+label+'-'+(addLiNum+1)+'">'
+            +'</div>'
+            +'<div class="col-lg-1">'
+            +'<img class="delAns" src="/images/delete.png" id="li-img-del-'+label+'-'+(addLiNum+1)+'">'
+            +'</div>'
+            +'</div>'
+            +'</li>';
+
+        $("#label-ans-ul-"+label).append(addLi);
+
+        //将数据存入数组
+        var spanId = "label-ul-li-span-"+label+"-"+addLiNum;
+        var labelId="label-ans-li-"+label+"-"+addLiNum;
+        entitydone[i].entityId = label+"-"+addLiNum;
+        entity_done[label].push({spanId:spanId,labelId:labelId,entity:entity,start:start,end:end});
+    }
+    return entitydone;
+}
+
+function paintRelation(entitydone,relationdone,newentitydone){
+    for(var i = 0;i < relationdone.length;i++){
+        var relationid = relationdone[i].relationId;
+        var rela = relationdone[i].relationId.substr(0,1);
+        var addLiNum = rela_done[rela].length;
+        var headEntity = relationdone[i].headEntity;
+        var tailEntity = relationdone[i].tailEntity;
+        var fromentity,toentity;
+
+        for (var i = 0;i < entitydone.length;i++){
+            if(headEntity == entitydone[i].entityId){
+                fromentity={entity:newentitydone[i].entity,id:newentitydone[i].entityId};
+            }
+            if(tailEntity == entitydone[i].entityId){
+                toentity = {entity:newentitydone[i].entity,id:newentitydone[i].entityId};
+            }
+        }
+
+
+        $("#rela-ans-div-"+rela+"-"+addLiNum).text(fromentity.entity+"-"+toentity.entity+":"+relaList[rela].relation);
+        // $("#rela-img-ok-"+rela+"-"+addLiNum).attr("src","/images/blank.PNG");
+        $("#rela-img-ok-"+rela+"-"+addLiNum).attr("src","/images/labelsuccess.png");
+        $("#rela-img-ok-"+rela+"-"+addLiNum).removeAttr("onclick");
+        // $("#rela-img-del-"+rela+"-"+addLiNum).attr("src","/images/labelsuccess.png");
+        $("#rela-img-del-"+rela+"-"+addLiNum).attr("onclick","relaDelClick(this.id)");
+
+
+        /**
+         * 提交一个li之后，添加一个li
+         */
+        var addLi= '<li class="list-group-item" id="rela-ans-li-'+rela+'-'+(addLiNum+1)+'">'
+            +'<div class="row">'
+            +'<div class="col-lg-10" id="rela-ans-div-'+rela+'-'+(addLiNum+1)+'">'
+            +'</div>'
+            +'<div class="col-lg-1">'
+            +'<img class="okAns" src="/images/ok.png" id="rela-img-ok-'+rela+'-'+(addLiNum+1)+'">'
+            +'</div>'
+            +'<div class="col-lg-1">'
+            +'<img class="delAns" src="/images/delete.png" id="rela-img-del-'+rela+'-'+(addLiNum+1)+'">'
+            +'</div>'
+            +'</div>'
+            +'</li>';
+
+        $("#rela-ans-ul-"+rela).append(addLi);
+        var relaId = "rela-ans-li-"+rela+'-'+addLiNum;
+        rela_done[rela].push({relaId:relaId,fromId:"label-ul-li-span-"+fromentity.id,fromEntity:fromentity.entity,toId:"label-ul-li-span-"+toentity.id,toEntity:toentity.entity});
+    }
+
+}
 

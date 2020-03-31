@@ -124,7 +124,11 @@
                     var taskid=data.tid;
                     var taskType=data.typeName;
                     var url="";
-
+                    var taskcompstatus = data.taskcompstatus;
+                    if(taskcompstatus == "已完成"){
+                        window.alert("该任务已完成");
+                        return;
+                    }
                     if(taskType.indexOf("文本分类")!=-1){
                         url = "/html/doTask/do_Classification.html?taskid="+taskid;
                         parent.element.tabAdd('home-tabs', {//从父页面添加tab选项卡，如果不指定id，选项卡id会自增

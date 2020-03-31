@@ -10,8 +10,8 @@ public class SortingData {
     private int docId;
     private String docName;
     private int instanceIndex;
-    private String itemContent;
-    private int itemId;
+//    private String itemContent;
+//    private int itemId;
 
     private int preIndex;
     private List<Map<String,Object>> sortingContent;//具体内容，导出
@@ -67,27 +67,21 @@ public class SortingData {
         this.instanceIndex = instanceIndex;
     }
 
-    public String getItemContent() {
-        return itemContent;
-    }
-
-    public void setItemContent(String itemContent) {
-        this.itemContent = itemContent;
-    }
-
-    public int getItemId() {
-        return itemId;
-    }
-
-    public void setItemId(int itemId) {
-        this.itemId = itemId;
-    }
-
-//    public int getNewIndex() {
-//        return newIndex;
+//    public String getItemContent() {
+//        return itemContent;
 //    }
 //
-//    public void setNewIndex(int newIndex) {
-//        this.newIndex = newIndex;
+//    public void setItemContent(String itemContent) {
+//        this.itemContent = itemContent;
 //    }
+//
+//    public int getItemId() {
+//        return itemId;
+//    }
+//
+//    public void setItemId(int itemId) {
+//        this.itemId = itemId;
+//    }
+
+
 }

@@ -3,6 +3,7 @@ package com.annotation.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.annotation.model.User;
 import com.annotation.model.entity.InstanceItemEntity;
+import com.annotation.model.entity.InstanceListitemEntity;
 import com.annotation.model.entity.ResponseEntity;
 import com.annotation.model.entity.resHandle.ResSortingData;
 import com.annotation.service.IDtSortingService;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -41,7 +43,9 @@ public class DtSortingController {
             userId = user.getId();
         }
 
-        List<InstanceItemEntity> instanceItemEntityList = iDtSortingService.querySortingInstanceItem(docId,userId,status,taskId);
+        List<InstanceItemEntity> instanceItemEntityList = new ArrayList<InstanceItemEntity>();
+        InstanceItemEntity instanceItemEntities  = iDtSortingService.getSortingData(userId,taskId);
+        instanceItemEntityList.add(instanceItemEntities);
 
         JSONObject rs = new JSONObject();
         if(instanceItemEntityList != null){
@@ -84,7 +88,7 @@ public class DtSortingController {
             User user =(User)httpSession.getAttribute("currentUser");
             userId = user.getId();
         }
-        ResponseEntity responseEntity =iDtSortingService.addSorting(taskId,docId, instanceId,userId,itemIds,newIndex);//创建做任务表的结果
+        ResponseEntity responseEntity =iDtSortingService.qualityControl(taskId,instanceId,userId,itemIds,newIndex);//创建做任务表的结果
         return responseEntity;
     }
 
@@ -108,9 +112,50 @@ public class DtSortingController {
         return rs;
     }
 
-    @PostMapping("/submit")
-    public String submitData(){
-        System.out.println("submit");
-        return "u_homepage";
+    @PostMapping
+    @RequestMapping("/lasttask")
+    public JSONObject lastSortingTask(HttpSession httpSession,int taskId,int subtaskId,@RequestParam(defaultValue="0")int userId){
+
+        if(userId==0){
+            User user =(User)httpSession.getAttribute("currentUser");
+            userId = user.getId();
+        }
+        System.out.println("当前任务id："+subtaskId);
+        InstanceItemEntity instanceItemEntity = iDtSortingService.getLastSortingData(userId,taskId,subtaskId);
+        JSONObject rs = new JSONObject();
+        if(instanceItemEntity != null){
+            rs.put("msg","查询文件内容成功");
+            rs.put("code",0);
+            rs.put("data",instanceItemEntity);
+        }else{
+            rs.put("msg","查询文件内容失败");
+            rs.put("code",-1);
+        }
+        return rs;
     }
+
+
+
+    @PostMapping
+    @RequestMapping("/nexttask")
+    public JSONObject nextSortingTask(HttpSession httpSession,int taskId,int subtaskId,@RequestParam(defaultValue="0")int userId){
+
+        if(userId==0){
+            User user =(User)httpSession.getAttribute("currentUser");
+            userId = user.getId();
+        }
+
+        ResponseEntity response  = iDtSortingService.getNextSortingData(userId,taskId,subtaskId);
+        JSONObject rs = new JSONObject();
+        if(response.getData()!= null){
+            rs.put("msg","查询文件内容成功");
+            rs.put("code",0);
+            rs.put("data",response.getData());
+        }else{
+            rs.put("msg",response.getMsg());
+            rs.put("code",response.getStatus());
+        }
+        return rs;
+    }
+
 }

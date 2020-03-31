@@ -54,7 +54,7 @@ $(function(){
             data: user,
             success: function (data) {
                 if(data.status=="200"){
-                    alert("请重新登陆");
+                    alert("注册成功！");
                     $("#login-form").show();
                     $("#register-form").hide();
                 }else{
@@ -62,9 +62,7 @@ $(function(){
                 }
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
-                // console.log(XMLHttpRequest.status);
-                // console.log(XMLHttpRequest.readyState);
-                // console.log(textStatus);
+
             },
         });
 

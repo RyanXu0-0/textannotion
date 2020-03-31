@@ -22,6 +22,7 @@
         <result column="frequence" property="frequence" jdbcType="INTEGER" />
         <result column="totaltask" property="totaltask" jdbcType="INTEGER" />
         <result column="iftest" property="iftest" jdbcType="VARCHAR" />
+        <result column="testtask_id" property="testtaskId" jdbcType="INTEGER" />
     </resultMap>
 
     <!--插入任务-->
@@ -29,13 +30,14 @@
         insert into task (tid, title, description,
         type_name, createtime, deadline,
         taskcompstatus, otherinfo, user_id,viewnum, attendnum,
-        currenttask,frequence,totaltask,startid,iftest)
+        currenttask,frequence,totaltask,startid,iftest,testtask_id)
         values (#{tid,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR},
         #{typeName,jdbcType=VARCHAR}, #{createtime,jdbcType=VARCHAR}, #{deadline,jdbcType=TIMESTAMP},
         #{taskcompstatus,jdbcType=VARCHAR}, #{otherinfo,jdbcType=VARCHAR}, #{userId,jdbcType=INTEGER},
         #{viewnum,jdbcType=INTEGER}, #{attendnum,jdbcType=INTEGER},
         #{currenttask,jdbcType=INTEGER},#{frequence,jdbcType=INTEGER},
-        #{totaltask,jdbcType=INTEGER},#{startid,jdbcType=INTEGER},#{iftest,jdbcType=VARCHAR})
+        #{totaltask,jdbcType=INTEGER},#{startid,jdbcType=INTEGER},#{iftest,jdbcType=VARCHAR},
+        #{testtaskId,jdbcType=INTEGER})
     </insert>
 
     <!--设置数据库自增长-->
@@ -44,20 +46,26 @@
     </update>
 
     <!--查询所有未完成的任务-->
+    <!--如果该任务为测试任务，并不是该用户发布的，则不返回给用户-->
     <select id="selectTotalTaskOfUndo" parameterType="map" resultMap="BaseResultMap">
         select t.tid, t.title, t.description,t.type_name, t.createtime, t.deadline,
         t.taskcompstatus, t.otherinfo, t.user_id,t.viewnum, t.attendnum,
         t.totaltask,t.currenttask,t.frequence,
-        u.username pubUserName
+        u.username pubUserName,t.iftest
         from task t
         INNER JOIN user u on u.id=t.user_id
-        where taskcompstatus != "已完成"
+        where taskcompstatus != "已完成" and tid not in (select tid from task where user_id != #{userId} and iftest = "test")
         order by t.tid
         limit #{currIndex},#{pageSize}
     </select>
 
+    <!--如果该任务为测试任务，并不是该用户发布的，则不返回给用户
+    select count(*) from task where taskcompstatus != "已完成"
+    and tid not in (select tid from task where user_id != 5 and iftest = "test");
+    -->
     <select id="countNumOfTaskUndo"  resultType="Integer">
         select count(*) from task where taskcompstatus != "已完成"
+        and tid not in (select tid from task where user_id != #{userId} and iftest = "test")
     </select>
 
     <!--根据发布者ID查询所有发布的任务-->
@@ -128,7 +136,8 @@
             <if test="frequence!=null">frequence=#{frequence},</if>
             <if test="totaltask!=null">totaltask=#{totaltask},</if>
             <if test="startid!=null">startid=#{startid},</if>
-            <if test="iftest!=null">iftest=#{iftest}</if>
+            <if test="iftest!=null">iftest=#{iftest},</if>
+            <if test="testtaskId!=null">testtask_id=#{testtaskId}</if>
         </trim>
         WHERE tid = #{tid}
     </update>
@@ -393,13 +402,26 @@
 
 
     <select id="selectTaskInfoWithEntityRelLabel" parameterType="Integer" resultMap="TaskInfoWithEntityRelLabel">
-        select t.tid,t.title,t.description,t.type_name,t.createtime,t.deadline,
+
+    select t.tid,t.title,t.description,t.type_name,t.createtime,t.deadline,
               t.otherinfo,t.user_id,t.viewnum,t.attendnum,
                 u.username pubUserName,
                 d.did,d.filename,d.filetype,d.filesize,d.docuploadtime,
-                l.lid,l.labelname,tl.color,rl.rela_id,rl.relation
-                from task t,label l,document d,task_label tl,task_document td,user u,extraction_relationlabel rl
+                l.lid,l.labelname,tl.color,rl.relation
+                from (task t,label l,document d,task_label tl,task_document td,user u)
+                left join extraction_relationlabel rl on rl.task_id=#{tid}
                 where t.tid=#{tid} AND t.tid=tl.task_id AND tl.label_id=l.lid
-                AND t.tid=td.task_id AND td.document_id= d.did AND u.id=t.user_id and t.tid = tl.task_id
-    </select>
+                AND t.tid=td.task_id AND td.document_id= d.did AND u.id=t.user_id and t.tid = tl.task_id;
+ </select>
+
+    <!--select t.tid,t.title,t.description,t.type_name,t.createtime,t.deadline,
+              t.otherinfo,t.user_id,t.viewnum,t.attendnum,
+                u.username pubUserName,
+                d.did,d.filename,d.filetype,d.filesize,d.docuploadtime,
+                l.lid,l.labelname,tl.color,rl.relation
+                from (task t,label l,document d,task_label tl,task_document td,user u)
+                left join extraction_relationlabel rl on rl.task_id=#{tid}
+                where t.tid=#{tid} AND t.tid=tl.task_id AND tl.label_id=l.lid
+                AND t.tid=td.task_id AND td.document_id= d.did AND u.id=t.user_id and t.tid = tl.task_id;
+-->
 </mapper>

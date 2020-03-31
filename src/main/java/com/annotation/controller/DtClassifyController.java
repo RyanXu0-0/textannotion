@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -49,9 +50,10 @@ public class DtClassifyController {
             userId = user.getId();
         }
 
-        List<ParagraphLabelEntity> paragraphLabelEntityList=iDtClassifyService.queryClassifyParaLabel(docId,userId,status,taskId);
+        List<ParagraphLabelEntity> paragraphLabelEntityList= new ArrayList<>();
+        ParagraphLabelEntity taskdata=iDtClassifyService.getClassifyData(userId,taskId);
+        paragraphLabelEntityList.add(taskdata);
 
-        //List<Content> contentList = iContentService.selectContentByDocId(docId);
         JSONObject rs = new JSONObject();
         if(paragraphLabelEntityList != null){
             rs.put("msg","查询文件内容成功");
@@ -186,14 +188,11 @@ public class DtClassifyController {
             userId = user.getId();
         }
 
-        int dtid =iDtClassifyService.addClassify(userId,taskId, docId, paraId,labelId);//创建做任务表的结果
+        ResponseEntity responseEntity =iDtClassifyService.addClassify(userId,taskId, docId, paraId,labelId);//创建做任务表的结果
 
-        if(dtid==4001 || dtid==4005|| dtid==4006|| dtid==4007|| dtid==4008|| dtid==4009){
-            ResponseEntity responseEntity = responseUtil.judgeResult(dtid);
-            return responseEntity;
-        }else{
-            return responseUtil.judgeDoTaskController(dtid);
-        }
+
+        return responseEntity;
+
 
     }
 
@@ -241,12 +240,52 @@ public class DtClassifyController {
     }
 
 
+    @PostMapping
+    @RequestMapping("/lasttask")
+    public JSONObject lastClassifyTask(HttpSession httpSession,int taskId,int subtaskId,@RequestParam(defaultValue="0")int userId){
+
+        if(userId==0){
+            User user =(User)httpSession.getAttribute("currentUser");
+            userId = user.getId();
+        }
+        System.out.println("当前任务id："+subtaskId);
+        ParagraphLabelEntity paragraphLabelEntity = iDtClassifyService.getLastClassifyData(userId,taskId,subtaskId);
+        JSONObject rs = new JSONObject();
+        if(paragraphLabelEntity != null){
+            rs.put("msg","查询文件内容成功");
+            rs.put("code",0);
+            rs.put("data",paragraphLabelEntity);
+        }else{
+            rs.put("msg","查询文件内容失败");
+            rs.put("code",-1);
+        }
+        return rs;
+    }
 
 
 
+    @PostMapping
+    @RequestMapping("/nexttask")
+    public JSONObject nextClassifyTask(HttpSession httpSession,int taskId,int subtaskId,@RequestParam(defaultValue="0")int userId){
 
+        if(userId==0){
+            User user =(User)httpSession.getAttribute("currentUser");
+            userId = user.getId();
+        }
 
-
+        ResponseEntity response = iDtClassifyService.getNextClassifyData(userId,taskId,subtaskId);
+        JSONObject rs = new JSONObject();
+        System.out.println(response.toString());
+        if(response.getData()!= null){
+            rs.put("msg","查询文件内容成功");
+            rs.put("code",0);
+            rs.put("data",response.getData());
+        }else{
+            rs.put("msg",response.getMsg());
+            rs.put("code",response.getStatus());
+        }
+        return rs;
+    }
 
 
 }

@@ -1,7 +1,10 @@
 package com.annotation.model.entity;
 
+import com.annotation.model.DtExtraction;
+import com.annotation.model.DtExtractionRelation;
 import com.annotation.model.Paragraph;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +24,8 @@ public class ParagraphLabelEntity {
     //已经做了的标签
     private List<Map<String,Object>> alreadyDone;
 
+    private List<Map<String,Object>> relalreadyDone;
+
     public ParagraphLabelEntity(){}
     public ParagraphLabelEntity(Paragraph paragraph){
         this.pid = paragraph.getPid();
@@ -28,6 +33,7 @@ public class ParagraphLabelEntity {
         this.paraindex = paragraph.getParaindex();
         this.documentId = paragraph.getDocumentId();
     }
+
 
     public Integer getPid() {
         return pid;
@@ -85,4 +91,20 @@ public class ParagraphLabelEntity {
         this.alreadyDone = alreadyDone;
     }
 
+    public List<Map<String, Object>> getRelalreadyDone() {
+        return relalreadyDone;
+    }
+
+    public void setRelalreadyDone(List<Map<String, Object>> relalreadyDone) {
+        this.relalreadyDone = relalreadyDone;
+    }
+
+    public ParagraphLabelEntity(Paragraph paragraph, List<Map<String, Object>> alreadyDone, List<Map<String, Object>> relalreadyDone) {
+        this.pid = paragraph.getPid();
+        this.paracontent = paragraph.getParacontent();
+        this.paraindex = paragraph.getParaindex();
+        this.documentId = paragraph.getDocumentId();
+        this.alreadyDone = alreadyDone;
+        this.relalreadyDone = relalreadyDone;
+    }
 }

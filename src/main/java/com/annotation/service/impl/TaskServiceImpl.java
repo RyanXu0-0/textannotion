@@ -16,6 +16,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -71,6 +73,10 @@ public class TaskServiceImpl implements ITaskService{
 
     @Autowired
     PointUnitMapper pointUnitMapper;
+    @Autowired
+    DtExtractionRelationMapper dtExtractionRelationMapper;
+    @Autowired
+    UserSubtaskMapper userSubtaskMapper;
 
    public Label test(){
        Label labelList=iLabelService.queryLabelByTaskId("1");
@@ -99,6 +105,7 @@ public class TaskServiceImpl implements ITaskService{
 
     /**
      * 信息抽取
+     * 插入任务、label、label和task、documentid和task、
      * @param task
      * @param docIds
      * @param labels
@@ -197,6 +204,101 @@ public class TaskServiceImpl implements ITaskService{
         return responseEntity;
     }
 
+
+    @Transactional
+    public ResponseEntity addTestOfExtration(Task task, List<Integer> docIds, String[] labels,String[] relalabels, String[] colors){
+        ResponseEntity responseEntity = new ResponseEntity();
+
+        taskMapper.alterTaskTable();
+        int totalTask=paragraphMapper.countBydocid(docIds);
+        int startpid = paragraphMapper.selectStartpid(docIds);
+        Task mainTask = taskMapper.selectTaskById(task.getTid());
+        task.setTesttaskId(mainTask.getTid());
+        task.setTid(null);
+        task.setTitle(task.getTitle()+"-检测任务");
+        task.setFrequence(0);
+        task.setCurrenttask(0);
+        task.setTotaltask(totalTask);
+        task.setStartid(startpid);
+        //test字段表示该任务为检测任务
+        task.setIftest("test");
+        int taskRes=taskMapper.insert(task);//插入任务
+        mainTask.setTesttaskId(task.getTid());
+        taskMapper.updateById(mainTask);
+        //插入任务表失败
+        if(taskRes<0){
+            responseEntity=responseUtil.judgeResult(3001);
+            return responseEntity;
+        }
+
+        //任务表插入成功，继续插入关系表
+        int taskDocRes=addTaskDoc(task.getTid(),docIds);
+        if(taskDocRes!=0){
+            responseEntity=responseUtil.judgeResult(taskDocRes);
+            return responseEntity;
+        }
+
+
+        labelMapper.alterLabelTable();
+        for(int i=0;i<labels.length;i++){
+
+            //查询该标签是否已经存在
+            Label selectLabel =labelMapper.selectLabelByLabelname(labels[i]);
+
+            int labelId;
+            //查询成功，则返回标签ID进行下一步插入
+            if(selectLabel == null){
+                //标签不存在再新建标签
+                Label label=new Label();
+                label.setLabelname(labels[i]);
+                int labelRes=labelMapper.insert(label);
+                labelId =label.getLid();
+
+                //标签插入失败
+                if(labelRes<0){
+                    responseEntity=responseUtil.judgeResult(3003);
+                    return responseEntity;
+                }
+            }else{
+                labelId=selectLabel.getLid();
+            }
+
+            //插入文件-标签关系表
+            TaskLabel taskLabel = new TaskLabel();
+            taskLabel.setLabelId(labelId);
+            taskLabel.setTaskId(task.getTid());
+            if(colors!=null){
+                taskLabel.setColor(colors[i]);
+            }
+
+            int task_labelRes = taskLabelMapper.insert(taskLabel);
+
+            //文件-标签关系表插入失败
+            if(task_labelRes<0){
+                responseEntity=responseUtil.judgeResult(3004);
+                return responseEntity;
+            }
+        }
+
+//插入实体关系
+        for(int i = 0; i < relalabels.length;i++){
+            ExtrationRelationLabel label = new ExtrationRelationLabel();
+            label.setRelation(relalabels[i]);
+            label.setTaskId(task.getTid());
+            extrationRelationLabelMapper.alterRelationLabelTable();
+            int task_relalabelRes =extrationRelationLabelMapper.insert(label);
+            if(task_relalabelRes<0){
+                responseEntity=responseUtil.judgeResult(3011);
+                return responseEntity;
+            }
+        }
+        //返回任务ID
+        responseEntity.setStatus(0);
+        responseEntity.setMsg("创建任务成功");
+        responseEntity.setData(task.getTid());
+        return responseEntity;
+    }
+
     /**
      * 分类
      * @param task
@@ -281,6 +383,97 @@ public class TaskServiceImpl implements ITaskService{
         return responseEntity;
     }
 
+    /**
+     * 分类检测任务
+     * @param task
+     * @param docIds
+     * @param labels
+     * @param colors
+     * @return
+     */
+    @Transactional
+    public ResponseEntity addTestOfDocPara(Task task, List<Integer> docIds, String[] labels, String[] colors){
+        ResponseEntity responseEntity = new ResponseEntity();
+
+        taskMapper.alterTaskTable();
+        int totalTask=paragraphMapper.countBydocid(docIds);
+        int startpid = paragraphMapper.selectStartpid(docIds);
+        Task mainTask = taskMapper.selectTaskById(task.getTid());
+        task.setTesttaskId(mainTask.getTid());
+        task.setTid(null);
+        task.setTitle(task.getTitle()+"-检测任务");
+        task.setFrequence(0);
+        task.setCurrenttask(0);
+        task.setTotaltask(totalTask);
+        task.setStartid(startpid);
+        //test字段表示该任务为检测任务
+        task.setIftest("test");
+        int taskRes=taskMapper.insert(task);//插入任务
+        mainTask.setTesttaskId(task.getTid());
+        taskMapper.updateById(mainTask);
+
+        //插入任务表失败
+        if(taskRes<0){
+            responseEntity=responseUtil.judgeResult(3001);
+            return responseEntity;
+        }
+
+        int esRes=saveTask(task);
+
+        //任务表插入成功，继续插入关系表
+        int taskDocRes=addTaskDoc(task.getTid(),docIds);
+        if(taskDocRes!=0){
+            responseEntity=responseUtil.judgeResult(taskDocRes);
+            return responseEntity;
+        }
+
+
+        labelMapper.alterLabelTable();
+        for(int i=0;i<labels.length;i++){
+
+            //查询该标签是否已经存在
+            Label selectLabel =labelMapper.selectLabelByLabelname(labels[i]);
+
+            int labelId;
+            //查询成功，则返回标签ID进行下一步插入
+            if(selectLabel == null){
+                //标签不存在再新建标签
+                Label label=new Label();
+                label.setLabelname(labels[i]);
+                int labelRes=labelMapper.insert(label);
+                labelId =label.getLid();
+
+                //标签插入失败
+                if(labelRes<0){
+                    responseEntity=responseUtil.judgeResult(3003);
+                    return responseEntity;
+                }
+            }else{
+                labelId=selectLabel.getLid();
+            }
+
+            //插入文件-标签关系表
+            TaskLabel taskLabel = new TaskLabel();
+            taskLabel.setLabelId(labelId);
+            taskLabel.setTaskId(task.getTid());
+            if(colors!=null){
+                taskLabel.setColor(colors[i]);
+            }
+
+            int task_labelRes = taskLabelMapper.insert(taskLabel);
+
+            //文件-标签关系表插入失败
+            if(task_labelRes<0){
+                responseEntity=responseUtil.judgeResult(3004);
+                return responseEntity;
+            }
+        }
+        //返回任务ID
+        responseEntity.setStatus(0);
+        responseEntity.setMsg("创建任务成功");
+        responseEntity.setData(task.getTid());
+        return responseEntity;
+    }
 
 
     /**
@@ -452,6 +645,181 @@ public class TaskServiceImpl implements ITaskService{
         return responseEntity;
     }
 
+    /**
+     * 文本关系检测任务
+     * @param task
+     * @param docIds
+     * @param instanceLabel
+     * @param item1Label
+     * @param item2Label
+     * @return
+     */
+    @Transactional
+    public ResponseEntity addTestOfRelation(Task task, List<Integer> docIds, String[] instanceLabel, String[] item1Label, String[] item2Label){
+
+        ResponseEntity responseEntity = new ResponseEntity();
+
+        taskMapper.alterTaskTable();
+        int totalTask=instanceMapper.countTotalTask(docIds);
+        int startpid = instanceMapper.selectStartpid(docIds);
+        Task mainTask = taskMapper.selectTaskById(task.getTid());
+        task.setTesttaskId(mainTask.getTid());
+        task.setTid(null);
+        task.setTitle(task.getTitle()+"-检测任务");
+        task.setFrequence(0);
+        task.setCurrenttask(0);
+        task.setTotaltask(totalTask);
+        task.setStartid(startpid);
+        //test字段表示该任务为检测任务
+        task.setIftest("test");
+        int taskRes=taskMapper.insert(task);//插入任务
+        mainTask.setTesttaskId(task.getTid());
+        taskMapper.updateById(mainTask);
+        //插入任务表失败返回-1
+        if(taskRes < 0){
+            responseEntity=responseUtil.judgeResult(3001);
+            return responseEntity;
+        }
+
+        int esRes=saveTask(task);
+
+        //任务表插入成功，继续插入关系表
+        int taskDocRes=addTaskDoc(task.getTid(),docIds);
+        if(taskDocRes!=0){
+            responseEntity=responseUtil.judgeResult(taskDocRes);
+            return responseEntity;
+        }
+
+
+        labelMapper.alterLabelTable();
+        //插入instance标签
+        for(int i=0;i<instanceLabel.length;i++) {
+
+            //查询该标签是否已经存在
+            Label selectInstLabel = labelMapper.selectLabelByLabelname(instanceLabel[i]);
+            int labelId;
+            //查询成功，则返回标签ID进行下一步插入
+            if (selectInstLabel == null) {
+                //标签不存在再新建标签
+                Label label = new Label();
+                label.setLabelname(instanceLabel[i]);
+                int instanceLabelRes = labelMapper.insert(label);
+                labelId = label.getLid();
+                //标签插入失败
+                if (instanceLabelRes<0) {
+                    responseEntity=responseUtil.judgeResult(3005);
+                    return responseEntity;
+                }
+            } else {
+                labelId = selectInstLabel.getLid();
+            }
+
+            //插入instance_label关系表
+            InstanceLabel instanceLabel0 = new InstanceLabel();
+            instanceLabel0.setLabelId(labelId);
+            instanceLabel0.setLabeltype("instance");
+            instanceLabel0.setTaskId(task.getTid());
+
+            //插入文件-标签关系表
+            int instance_labelRes = instanceLabelMapper.insert(instanceLabel0);
+
+            //文件-标签关系表插入失败
+            if (instance_labelRes<0) {
+                responseEntity=responseUtil.judgeResult(3006);
+                //插入数据库有错误时整体回滚
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                return responseEntity;
+            }
+
+        }
+
+        //继续插入label标签表
+        for(int j=0;j<item1Label.length;j++){
+            //查询该标签是否已经存在
+            Label selectItem1Label =labelMapper.selectLabelByLabelname(item1Label[j]);
+
+            int labelitemId1;
+            //查询成功，则返回标签ID进行下一步插入
+            if(selectItem1Label == null){
+                //标签不存在再新建标签
+                Label label=new Label();
+                label.setLabelname(item1Label[j]);
+                int labelRes1=labelMapper.insert(label);
+                labelitemId1 =label.getLid();
+
+                //标签插入失败
+                if(labelRes1 ==-1){
+                    responseEntity=responseUtil.judgeResult(3007);
+                    //插入数据库有错误时整体回滚
+                    TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                    return responseEntity;
+                }
+            }else{
+                labelitemId1=selectItem1Label.getLid();
+            }
+
+            //插入instance_label关系表
+            InstanceLabel instanceLabel1 = new InstanceLabel();
+            instanceLabel1.setLabelId(labelitemId1);
+            instanceLabel1.setLabeltype("item1");
+            instanceLabel1.setTaskId(task.getTid());
+            int insta_labelRes1 = instanceLabelMapper.insert(instanceLabel1);
+            //文件-标签关系表插入失败
+            if(insta_labelRes1<0){
+                responseEntity=responseUtil.judgeResult(3008);
+                //插入数据库有错误时整体回滚
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                return responseEntity;
+            }
+        }
+
+        //插入item2标签
+        for(int k=0;k<item2Label.length;k++){
+            //查询该标签是否已经存在
+            Label selectItem2Label =labelMapper.selectLabelByLabelname(item2Label[k]);
+
+            int labelitemId2;
+            //查询成功，则返回标签ID进行下一步插入
+            if(selectItem2Label == null){
+                //标签不存在再新建标签
+                Label label=new Label();
+                label.setLabelname(item2Label[k]);
+                int labelRes2 =labelMapper.insert(label);
+                labelitemId2 =label.getLid();
+
+                //标签插入失败
+                if(labelRes2<0){
+                    responseEntity=responseUtil.judgeResult(3009);
+                    //插入数据库有错误时整体回滚
+                    TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                    return responseEntity;
+                }
+            }else{
+                labelitemId2=selectItem2Label.getLid();
+            }
+
+            //插入insta_label关系表
+            InstanceLabel instanceLabel2 = new InstanceLabel();
+            instanceLabel2.setLabelId(labelitemId2);
+            instanceLabel2.setLabeltype("item2");
+            instanceLabel2.setTaskId(task.getTid());
+            int insta_labelRes2 = instanceLabelMapper.insert(instanceLabel2);
+            //文件-标签关系表插入失败
+            if(insta_labelRes2<0){
+                responseEntity=responseUtil.judgeResult(3010);
+                //插入数据库有错误时整体回滚
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                return responseEntity;
+            }
+        }
+        responseEntity.setStatus(0);
+        responseEntity.setMsg("创建任务成功");
+        responseEntity.setData(task.getTid());
+        //返回任务ID
+        return responseEntity;
+    }
+
+
 
     /**
      * 文本匹配/文本排序
@@ -465,7 +833,19 @@ public class TaskServiceImpl implements ITaskService{
         taskMapper.alterTaskTable();
         ResponseEntity responseEntity = new ResponseEntity();
 
+        taskMapper.alterTaskTable();
+        for (int i: docIds) {
+            System.out.println("docId:"+i);
+        }
+        int totalTask=instanceMapper.countTotalTask(docIds);
+        int startpid = instanceMapper.selectStartpid(docIds);
+        task.setFrequence(0);
+        task.setCurrenttask(0);
+        task.setTotaltask(totalTask);
+        task.setStartid(startpid);
+
         int taskRes=taskMapper.insert(task);//插入任务
+
 
         if(taskRes < 0){
             responseEntity=responseUtil.judgeResult(3001);
@@ -489,18 +869,105 @@ public class TaskServiceImpl implements ITaskService{
 
 
     /**
+     * 文本匹配/文本排序 检测任务
+     * @param task
+     * @param docIds
+     * @return
+     */
+    @Transactional
+    public ResponseEntity addTestOfPairingAndSorting(Task task, List<Integer> docIds){
+
+        taskMapper.alterTaskTable();
+        ResponseEntity responseEntity = new ResponseEntity();
+
+        taskMapper.alterTaskTable();
+        int totalTask=instanceMapper.countTotalTask(docIds);
+        int startpid = instanceMapper.selectStartpid(docIds);
+        Task mainTask = taskMapper.selectTaskById(task.getTid());
+        task.setTesttaskId(mainTask.getTid());
+        task.setTid(null);
+        task.setTitle(task.getTitle()+"-检测任务");
+        task.setFrequence(0);
+        task.setCurrenttask(0);
+        task.setTotaltask(totalTask);
+        task.setStartid(startpid);
+        //test字段表示该任务为检测任务
+        task.setIftest("test");
+        int taskRes=taskMapper.insert(task);//插入任务
+        mainTask.setTesttaskId(task.getTid());
+        taskMapper.updateById(mainTask);
+        if(taskRes < 0){
+            responseEntity=responseUtil.judgeResult(3001);
+            return responseEntity;
+        }
+
+        int esRes=saveTask(task);
+
+        //任务表插入成功，继续插入关系表
+        int taskDocRes=addTaskDoc(task.getTid(),docIds);
+        if(taskDocRes!=0){
+            responseEntity=responseUtil.judgeResult(taskDocRes);
+            return responseEntity;
+        }
+
+        responseEntity.setStatus(0);
+        responseEntity.setMsg("创建任务成功");
+        responseEntity.setData(task.getTid());
+        return responseEntity;
+    }
+
+
+
+    /**
      * 分页查询所有可以做的任务
      * @param page
      * @param limit
      * @return
      */
-    public List<Task> queryTotalTaskOfUndo(int page,int limit){
+    public List<Task> queryTotalTaskOfUndo(User user,int page,int limit){
         int startNum =(page-1)*limit;
         Map<String,Object> data =new HashMap();
         data.put("currIndex",startNum);
         data.put("pageSize",limit);
         List<Task> task =taskMapper.selectTotalTaskOfUndo(data);
-        return task;
+        List<Task> tasks = checkTask(user ,task);
+        return tasks;
+    }
+
+    public List<Task> checkTask(User user,List<Task> tasks){
+        int userid = user.getId();
+//        System.out.println("userid"+userid);
+//        System.out.println(tasks.size());
+        for(int i = 0; i < tasks.size(); i ++) {
+            Task task = tasks.get(i);
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
+            try {
+                //如果任务已经超过了时间，则设置为已完成，并不返回给用户
+                Date deadLine = df.parse(task.getDeadline());
+                Date currentDate = df.parse(df.format(new Date()));
+                boolean before = deadLine.before(currentDate);
+                if(before){
+                    task.setTaskcompstatus("已完成");
+                    tasks.remove(i);
+                    taskMapper.updateById(task);
+                    continue;
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            //如果该任务为测试任务，并不是该用户发布的，则不返回给用户
+//            System.out.println(task.getIftest());
+            if(task.getIftest()!= null && task.getIftest().equals("test")){
+//                System.out.println("进入test，taskuserid："+task.getUserId());
+                if(task.getUserId() != userid){
+                    tasks.remove(i);
+                    continue;
+                }
+            }
+        }
+//        System.out.println(tasks.size());
+        return tasks;
     }
 
     /**
@@ -508,8 +975,8 @@ public class TaskServiceImpl implements ITaskService{
      * numInt.intValue();
      * @return
      */
-    public int countNumOfUndo(){
-        int num = taskMapper.countNumOfTaskUndo();
+    public int countNumOfUndo(int userId){
+        int num = taskMapper.countNumOfTaskUndo(userId);
         return num;
     }
 
@@ -592,10 +1059,15 @@ public class TaskServiceImpl implements ITaskService{
          */
         if (typeId==1 ) {
             taskInfoEntity = taskMapper.selectTaskInfoWithEntityRelLabel(tid);
-            List list = taskInfoEntity.getRelationList();
-            for (Object i:list) {
-                System.out.println(i.toString());
+            //"relaList":[{"relation":"3"},{"relation":"3"}]
+            List<ExtrationRelationLabel> relationList = extrationRelationLabelMapper.selectByTaskid(tid);
+            List<Map<String,Object>> relaList = new ArrayList<>();
+            for(ExtrationRelationLabel i:relationList){
+                Map<String,Object> map = new HashMap<>();
+                map.put("relation",i.getRelation());
+                relaList.add(map);
             }
+            taskInfoEntity.setRelaList(relaList);
         }else if(typeId==2 ){
             /**
              * 分类
@@ -652,99 +1124,39 @@ public class TaskServiceImpl implements ITaskService{
         if(dTaskList!=null){
             if(typeId==1){
 
-                for (DTask dTask : dTaskList) {
-                    int tkId=dTask.getTkid();
-                    List<DParagraph> dParagraphList=dParagraphMapper.selectByDtaskId(tkId);
-                    for(DParagraph dParagraph:dParagraphList){
-                        int dtId=dParagraph.getDtid();
-                        int delDtExtraction=dtExtractionMapper.deleteByDtId(dtId);
-                        if(delDtExtraction<0){
-                            return -1;
-                        }
-                    }
-
-                    int delDPara=dParagraphMapper.deleteByDtaskId(tkId);
-                    if(delDPara<0){
-                        return -1;
-                    }
-
+                int delDtExtraction=dtExtractionMapper.deleteAllByTaskId(tid);
+                if(delDtExtraction<0){
+                    return -1;
+                }
+                int delRelationLabel=extrationRelationLabelMapper.deleteByTaskId(tid);
+                if(delRelationLabel<0){
+                    return -1;
+                }
+                int delDtExtractionRelation=dtExtractionRelationMapper.deleteAllByTaskId(tid);
+                if(delDtExtractionRelation<0){
+                    return -1;
                 }
 
             }else if(typeId==2){
-
-                for (DTask dTask : dTaskList) {
-                    int tkId=dTask.getTkid();
-                    List<DParagraph> dParagraphList=dParagraphMapper.selectByDtaskId(tkId);
-                    for(DParagraph dParagraph:dParagraphList){
-                        int dtId=dParagraph.getDtid();
-                        int delDtClass=dtClassifyMapper.deleteByDtId(dtId);
-                        if(delDtClass<0){
-                            return -1;
-                        }
-                    }
-
-                    int delDPara=dParagraphMapper.deleteByDtaskId(tkId);
-                    if(delDPara<0){
-                        return -1;
-                    }
-
+                int delDtClass=dtClassifyMapper.deleteAllByTaskId(tid);
+                if(delDtClass<0){
+                    return -1;
                 }
             }else if(typeId==3){
-
-                for (DTask dTask : dTaskList) {
-                    int tkId=dTask.getTkid();
-                    List<DInstance> dInstanceList=dInstanceMapper.selectByDtaskId(tkId);
-                    for(DInstance dInstance:dInstanceList){
-                        int dtId=dInstance.getDtid();
-                        int delRelation=dtRelationMapper.deleteByDtId(dtId);
-                        if(delRelation<0){
-                            return -1;
-                        }
-                    }
-
-                    int delDInstance=dInstanceMapper.deleteByDtaskId(tkId);
-                    if(delDInstance<0){
-                        return -1;
-                    }
-
+                int delRelation=dtRelationMapper.deleteAllByTaskId(tid);
+                if(delRelation<0){
+                    return -1;
                 }
             }else if(typeId==4){
 
-                for (DTask dTask : dTaskList) {
-                    int tkId=dTask.getTkid();
-                    List<DInstance> dInstanceList=dInstanceMapper.selectByDtaskId(tkId);
-                    for(DInstance dInstance:dInstanceList){
-                        int dtId=dInstance.getDtid();
-                        int delPairing=dtPairingMapper.deleteByDtId(dtId);
-                        if(delPairing<0){
-                            return -1;
-                        }
-                    }
-
-                    int delDInstance=dInstanceMapper.deleteByDtaskId(tkId);
-                    if(delDInstance<0){
-                        return -1;
-                    }
-
+                int delPairing=dtPairingMapper.deleteAllByTaskId(tid);
+                if(delPairing<0){
+                    return -1;
                 }
             }else{
-
-                for (DTask dTask : dTaskList) {
-                    int tkId=dTask.getTkid();
-                    List<DInstance> dInstanceList=dInstanceMapper.selectByDtaskId(tkId);
-                    for(DInstance dInstance:dInstanceList){
-                        int dtId=dInstance.getDtid();
-                        int delSorting=dtSortingMapper.deleteByDtId(dtId);
-                        if(delSorting<0){
-                            return -1;
-                        }
-                    }
-
-                    int delDInstance=dInstanceMapper.deleteByDtaskId(tkId);
-                    if(delDInstance<0){
-                        return -1;
-                    }
-
+                int delSorting=dtSortingMapper.deleteAllByTaskId(tid);
+                if(delSorting<0){
+                    return -1;
                 }
             }
 
@@ -753,6 +1165,11 @@ public class TaskServiceImpl implements ITaskService{
             if(delDTask<0){
                 return  -1;
             }
+        }
+
+        int delUserSubtask = userSubtaskMapper.deleteAllByTaskId(tid);
+        if(delUserSubtask<0){
+            return  -1;
         }
 
         int[] docIds=taskDocumentMapper.selectDocIdByTid(tid);

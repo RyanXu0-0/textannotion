@@ -223,6 +223,22 @@ public class ResponseUtil {
                 responseEntity.setStatus(4013);
                 responseEntity.setMsg("该段落你还没有做");
                 break;
+            case 4014:
+                responseEntity.setStatus(4014);
+                responseEntity.setMsg("做信息抽取任务实体插入失败");
+                break;
+            case 4015:
+                responseEntity.setStatus(4015);
+                responseEntity.setMsg("做信息抽取任务关系插入失败");
+                break;
+            case 5000:
+                responseEntity.setStatus(5000);
+                responseEntity.setMsg("当前任务还未提交");
+                break;
+            case 5001:
+                responseEntity.setStatus(5001);
+                responseEntity.setMsg("当前任务已完成");
+                break;
             case -4:
                 responseEntity.setStatus(-1);
                 responseEntity.setMsg("文件-标签关系插入失败");
@@ -232,11 +248,6 @@ public class ResponseUtil {
             default:
                 responseEntity.setStatus(0);
                 responseEntity.setMsg("创建任务成功");
-//                Map<String, Object> data = new HashMap<>();
-//                StringBuffer fileids = new StringBuffer();
-//                data.put("taskid", taskRes);//返回文件id，方便后续添加任务
-//                data.put("docIds",docids);
-//                responseEntity.setData(data);
         }
         return responseEntity;
     }

@@ -73,10 +73,10 @@ $(function ($) {
         ajaxCompleteInstance(docId);
     });
 
-    $("#select-docStatus").click(function(){
-        curInstanceIndex=0;
-        ajaxDocInstanceItem(docId);
-    });
+    // $("#select-docStatus").click(function(){
+    //     curInstanceIndex=0;
+    //     ajaxDocInstanceItem(docId);
+    // });
 
 
     /**
@@ -126,10 +126,10 @@ $(function ($) {
     $("#btn-dotask").click(function(){
 
         $("#div-dotaskbtn").hide();
-        $("#div-btn-hide").show();
+        $("#div-doTask").show();
         $('#taskInfoPanel').collapse('hide');
 
-
+        ajaxDocInstanceItem(docId);
     });
 
     /**
@@ -179,14 +179,14 @@ $(function ($) {
     $("#submit-instance").click(function(){
 
         /**
-         * 先清除整个画布
-         * @type {Element}
-         */
-        var canvas = document.getElementById('canvas-front');
-        var cWidth=$("#canvas-front").attr("width");
-        var cHeight=$("#canvas-front").attr("height");
-        var context = canvas.getContext('2d');
-        context.clearRect(0,0,cWidth,cHeight);
+        //  * 先清除整个画布
+        //  * @type {Element}
+        //  */
+        // var canvas = document.getElementById('canvas-front');
+        // var cWidth=$("#canvas-front").attr("width");
+        // var cHeight=$("#canvas-front").attr("height");
+        // var context = canvas.getContext('2d');
+        // //context.clearRect(0,0,cWidth,cHeight);
 
         /**
          * 临时存储连线的点和几条线
@@ -197,11 +197,9 @@ $(function ($) {
         /**
          * 清除原数据
          * @type {number}
-         */
-        tempNum[curInstanceIndex]=0;
-        lineLR[curInstanceIndex]=new Array;
-
-
+        //  */
+        // tempNum[curInstanceIndex]=0;
+        // lineLR[curInstanceIndex]=new Array;
 
         var fRes=0;
 
@@ -209,21 +207,8 @@ $(function ($) {
         var bListitemId=new Array;
         for(var i=0;i<tempN;i++){
             for (var property in tempArr[i]){
-                //drawLeftBack(property); console.log("property="+property);
-                //console.log(tempArr[i][property]);
-
-                //drawRightBack(tempArr[i][property]);
-
-                //console.log(property.substring(5));
-                //console.log(listItem);
-                // aListitemId[i]=listItem[property.substring(5)-1].liid;
                 aListitemId[i]=property.substring(5);
-                //console.log(aListitemId);
-                //console.log(tempArr[i][property].substring(6));
                 bListitemId[i]=tempArr[i][property].substring(6);
-                // bListitemId[i]=listItem[tempArr[i][property].substring(6)-1].liid;
-                //console.log(bListitemId);
-
             }
         }
 
@@ -238,14 +223,17 @@ $(function ($) {
         };console.log(doTaskData);
 
         ajaxdoTaskInfo(doTaskData,fRes);
-        // if(fRes==-1){
-        //     alert("提交失败");
-        // }else{
-        //     alert("提交成功");
-        // }
-        tempNum[curInstanceIndex]=0;
-        lineLR[curInstanceIndex]=new Array;
+    });
 
+
+
+    //下一个任务
+    $("#nexttask").click(function(){
+        ajaxNextTask();
+    });
+
+    $("#lasttask").click(function () {
+        ajaxLastTask();
     });
 
 });
@@ -326,8 +314,6 @@ function ajaxTaskInfo(taskId) {
 
             docSelectHtml=docSelectHtml+ '</select>';
             $("#doc-div").html(docSelectHtml);
-
-            ajaxDocInstanceItem(docId);
 
             layui.use(['form', 'layedit'], function() {
 
@@ -789,12 +775,6 @@ function drawRightBack(obj) {
 
 
 
-// var keys=[];
-// for (var property in tempArr[i]) {
-//     keys.push(property);
-// }
-// console.log(keys);
-
 /**
  * 做任务上传自己的标注内容
  * @param doTaskData
@@ -810,10 +790,10 @@ function ajaxdoTaskInfo(doTaskData,fRes) {
         success: function (data) {
             if(data.code==0){
                 alert("提交成功");
-                ajaxDocInstanceItem(docId);
+                //ajaxDocInstanceItem(docId);
             }else{
                 alert("部分提交失败");
-                ajaxDocInstanceItem(docId);
+                //ajaxDocInstanceItem(docId);
             }
 
             //console.log(data);
@@ -883,3 +863,92 @@ function ajaxCompleteInstance(docId) {
         },
     });
 };
+
+
+function ajaxNextTask() {
+    var currentTaskInfo={
+        subtaskId: instanceItem[curInstanceIndex].instid,
+        taskId:taskId,
+        userId:0
+    };
+    $.ajax({
+        url: "/pairing/nexttask",
+        type: "get",
+        traditional: true,
+        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+        dataType: "json",
+        data:currentTaskInfo,
+
+        success: function (data) {
+            if(data.code != 0){
+                window.alert(data.msg);
+                return null;
+            }
+            cleardata();
+            console.log(JSON.stringify(data));
+            listItem = new Array();
+            listItem=data.data.listitems;
+            console.log(JSON.stringify(listItem[0]));
+            alreadyDone=data.data.alreadyDone;
+            paintDoTask(listItem,alreadyDone);
+            instanceItem[curInstanceIndex].instid = data.data.instid;
+        }, error: function (XMLHttpRequest, textStatus, errorThrown,data) {
+        },
+    });
+};
+
+//申请上一个任务的数据
+function ajaxLastTask(){
+    var currentTaskInfo={
+        subtaskId: instanceItem[curInstanceIndex].instid,
+        taskId:taskId,
+        userId:0
+    };
+    $.ajax({
+        url: "/pairing/lasttask",
+        type: "get",
+        traditional: true,
+        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+        dataType: "json",
+        data:currentTaskInfo,
+        success: function (data) {
+            if(data.data==null || data.data==""){
+                alert("这已经是第一个任务了");
+            }else{
+                cleardata();
+                console.log(JSON.stringify(data));
+                listItem = new Array();
+                listItem=data.data.listitems;
+                console.log(JSON.stringify(listItem[0]));
+                alreadyDone=data.data.alreadyDone;
+                paintDoTask(listItem,alreadyDone);
+                instanceItem[curInstanceIndex].instid = data.data.instid;
+            }
+
+        }, error: function (XMLHttpRequest, textStatus, errorThrown) {
+
+        },
+    });
+};
+
+
+function cleardata() {
+    $("#div-left").empty();
+    $("#div-right").empty();
+
+    /**
+     * 先清除整个画布
+     * @type {Element}
+     */
+    var canvas = document.getElementById('canvas-front');
+    var cWidth=$("#canvas-front").attr("width");
+    var cHeight=$("#canvas-front").attr("height");
+    var context = canvas.getContext('2d');
+    context.clearRect(0,0,cWidth,cHeight);
+    /**
+     * 清除原数据
+     * @type {number}
+     */
+    tempNum[curInstanceIndex]=0;
+    lineLR[curInstanceIndex]=new Array;
+}

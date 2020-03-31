@@ -35,6 +35,22 @@
     </select>
 
 
+    <select id="selectInstanceLabelByTaskId" parameterType="Integer" resultType="com.annotation.model.Label">
+        SELECT l.lid,l.labelname FROM label l,instance_label tl
+        WHERE tl.task_id=#{taskId}  AND l.lid=tl.label_id AND tl.labeltype="instance"
+    </select>
+
+    <select id="selectItem1LabelByTaskId" parameterType="Integer" resultType="com.annotation.model.Label">
+        SELECT l.lid,l.labelname FROM label l,instance_label tl
+        WHERE tl.task_id=#{taskId}  AND l.lid=tl.label_id AND tl.labeltype="item1"
+    </select>
+
+    <select id="selectItem2LabelByTaskId" parameterType="Integer" resultType="com.annotation.model.Label">
+        SELECT l.lid,l.labelname FROM label l,instance_label tl
+        WHERE tl.task_id=#{taskId} AND l.lid=tl.label_id AND tl.labeltype="item2"
+    </select>
+
+
     <delete id="deleteByTid" parameterType="java.lang.Integer" >
         delete from instance_label
         where task_id = #{tid,jdbcType=INTEGER}

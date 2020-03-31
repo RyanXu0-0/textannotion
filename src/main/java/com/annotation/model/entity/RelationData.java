@@ -1,17 +1,17 @@
 package com.annotation.model.entity;
 
+import java.util.List;
+import java.util.Map;
+
 /**
- * Created by twinkleStar on 2019/4/18.
+ * Created by Ryan on 2020/3/31.
  */
 public class RelationData {
 
     private String docName;
-    private String labelType;
     private int instanceIndex;
-    private int itemIndex;
-    private String itemContent;
-    private String  labelName;
-    private int labelNum;
+    private List<Map<String,Object>> relationContent;
+    private List<Map<String,Object>> relationLabel;
 
     public String getDocName() {
         return docName;
@@ -19,14 +19,6 @@ public class RelationData {
 
     public void setDocName(String docName) {
         this.docName = docName;
-    }
-
-    public String getLabelType() {
-        return labelType;
-    }
-
-    public void setLabelType(String labelType) {
-        this.labelType = labelType;
     }
 
     public int getInstanceIndex() {
@@ -37,35 +29,19 @@ public class RelationData {
         this.instanceIndex = instanceIndex;
     }
 
-    public int getItemIndex() {
-        return itemIndex;
+    public List<Map<String, Object>> getRelationContent() {
+        return relationContent;
     }
 
-    public void setItemIndex(int itemIndex) {
-        this.itemIndex = itemIndex;
+    public void setRelationContent(List<Map<String, Object>> relationContent) {
+        this.relationContent = relationContent;
     }
 
-    public String getItemContent() {
-        return itemContent;
+    public List<Map<String, Object>> getRelationLabel() {
+        return relationLabel;
     }
 
-    public void setItemContent(String itemContent) {
-        this.itemContent = itemContent;
-    }
-
-    public String getLabelName() {
-        return labelName;
-    }
-
-    public void setLabelName(String labelName) {
-        this.labelName = labelName;
-    }
-
-    public int getLabelNum() {
-        return labelNum;
-    }
-
-    public void setLabelNum(int labelNum) {
-        this.labelNum = labelNum;
+    public void setRelationLabel(List<Map<String, Object>> relationLabel) {
+        this.relationLabel = relationLabel;
     }
 }

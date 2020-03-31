@@ -3,8 +3,9 @@ package com.annotation.model;
 public class DtClassify {
     private Integer dtdId;
 
-    private Integer dtId;
-
+    private Integer taskId;
+    private Integer subtaskId;
+    private Integer userId;
     private Integer labelId;
     private Integer goodlabel;
     private Integer badlabel;
@@ -17,12 +18,28 @@ public class DtClassify {
         this.dtdId = dtdId;
     }
 
-    public Integer getDtId() {
-        return dtId;
+    public Integer getTaskId() {
+        return taskId;
     }
 
-    public void setDtId(Integer dtId) {
-        this.dtId = dtId;
+    public void setTaskId(Integer taskId) {
+        this.taskId = taskId;
+    }
+
+    public Integer getSubtaskId() {
+        return subtaskId;
+    }
+
+    public void setSubtaskId(Integer subtaskId) {
+        this.subtaskId = subtaskId;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
     public Integer getLabelId() {

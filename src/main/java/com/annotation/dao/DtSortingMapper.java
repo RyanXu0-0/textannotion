@@ -1,5 +1,6 @@
 package com.annotation.dao;
 
+import com.annotation.model.DtExtraction;
 import com.annotation.model.DtSorting;
 import com.annotation.model.entity.ExportSortingData;
 import com.annotation.model.entity.InstanceItemEntity;
@@ -25,6 +26,8 @@ public interface DtSortingMapper {
      * @return
      */
     List<InstanceItemEntity> selectSorting(@Param("docId")Integer docId);
+
+    InstanceItemEntity selectSortingByInstanceId(@Param("instId")Integer instId);
 
     List<InstanceItemEntity> selectSortingInstanceItem(@Param("docId")Integer docId,
                                                        @Param("userId")Integer userId,
@@ -71,4 +74,10 @@ public interface DtSortingMapper {
 
     //标注数据导出
     List<ExportSortingData> getSortingDataOutAndroid(int tid);
+
+    int deleteBeforeUpdate(@Param("taskId")Integer taskId,@Param("subtaskId")Integer subtaskId);
+
+    List<DtSorting> selectByTaskidAndSubtaskid(@Param("taskId")int taskId, @Param("subtaskId") int subtaskId);
+
+    int deleteAllByTaskId(@Param("taskId")Integer taskId);
 }

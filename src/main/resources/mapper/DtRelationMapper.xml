@@ -4,7 +4,9 @@
 
   <resultMap id="BaseResultMap" type="com.annotation.model.DtRelation" >
     <id column="dtd_id" property="dtdId" jdbcType="INTEGER" />
-    <result column="dt_id" property="dtId" jdbcType="INTEGER" />
+    <result column="task_id" property="taskId" jdbcType="INTEGER" />
+      <result column="subtask_id" property="subtaskId" jdbcType="INTEGER" />
+      <result column="user_id" property="userId" jdbcType="INTEGER" />
     <result column="labeltype" property="labeltype" jdbcType="VARCHAR" />
     <result column="label_id" property="labelId" jdbcType="INTEGER" />
   </resultMap>
@@ -41,6 +43,14 @@
         ORDER BY s.instid
     </select>
 
+    <select id="selectRelationByInstanceId" parameterType="Integer" resultMap="InstanceItemByDocId">
+        select s.instid, s.instindex, s.document_id, s.labelnum,
+        it.itid, it.itemcontent, it.itemindex, it.instance_id, it.labelnum itemlabelnum
+        from instance s
+        left join item it on s.instid=it.instance_id
+        where s.instid=#{instId}
+    </select>
+
 
   <select id="selectRelationInstanceItem" parameterType="Integer" resultMap="InstanceItemByDocId">
     select s.instid, s.instindex, s.document_id, s.labelnum,
@@ -71,10 +81,10 @@
     </select>
 
   <insert id="insert" useGeneratedKeys="true" keyProperty="dtd_id" parameterType="com.annotation.model.DtRelation" >
-    insert into dt_relation (dtd_id, dt_id, labeltype,
-    label_id)
-    values (#{dtdId,jdbcType=INTEGER}, #{dtId,jdbcType=INTEGER}, #{labeltype,jdbcType=VARCHAR},
-    #{labelId,jdbcType=INTEGER})
+    insert into dt_relation (dtd_id, task_id,subtask_id,user_id, labeltype,label_id)
+    values (#{dtdId,jdbcType=INTEGER}, #{taskId,jdbcType=INTEGER},
+    #{subtaskId,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER},
+    #{labeltype,jdbcType=VARCHAR},#{labelId,jdbcType=INTEGER})
   </insert>
 
   <!--设置自增-->
@@ -84,11 +94,12 @@
 
 
   <insert id="insertLabelList" useGeneratedKeys="true" keyProperty="dtd_id">
-    insert into dt_relation (dt_id,labeltype,label_id) values
+    insert into dt_relation (task_id,subtask_id,user_id, labeltype,label_id) values
     <foreach collection="itemLabels" index="index" item="item" separator=",">
-      ( #{dt_id},#{labeltype},#{item} )
+      ( #{taskId,jdbcType=INTEGER},#{subtaskId,jdbcType=INTEGER},
+        #{userId,jdbcType=INTEGER},
+        #{labeltype,jdbcType=VARCHAR},#{item,jdbcType=INTEGER} )
     </foreach>
-    ON DUPLICATE KEY UPDATE labeltype = values(labeltype)
   </insert>
 
 
@@ -121,14 +132,44 @@
 
     <resultMap id="relationDataOut" type="com.annotation.model.entity.RelationData">
         <result column="docName" property="docName" jdbcType="VARCHAR"/>
-        <result column="labelType" property="labelType" jdbcType="VARCHAR"/>
         <result column="instanceIndex" property="instanceIndex" jdbcType="INTEGER"/>
-        <result column="itemIndex" property="itemIndex" jdbcType="INTEGER"/>
-        <result column="itemContent" property="itemContent" jdbcType="VARCHAR"/>
-        <result column="labelName" property="labelName" jdbcType="VARCHAR"/>
-        <result column="labelNum" property="labelNum" jdbcType="INTEGER"/>
+        <collection property="relationContent" ofType="Map">
+            <result column="itemindex" property="itemIndex" jdbcType="INTEGER" />
+            <result column="itemcontent" property="itemContent" jdbcType="VARCHAR" />
+        </collection>
+        <collection property="relationLabel" ofType="Map">
+            <result column="labeltype" property="labeltype" jdbcType="VARCHAR" />
+            <result column="label" property="label" jdbcType="VARCHAR" />
+        </collection>
     </resultMap>
     <select id="getRelationDataOut" parameterType="Integer" resultMap="relationDataOut">
-SELECT any_value(doc.filename) docName,any_value(dtr.labeltype) labelType, inst.instindex instanceIndex,any_value(it.itemindex) itemIndex, any_value(it.itemcontent) itemContent,lb.labelname labelName,count(*) as labelNum FROM d_task dt,d_instance di,dt_relation dtr,document doc,instance inst,item it,label lb where di.dtask_id=dt.tkid and dtr.dt_id=di.dtid and it.instance_id=inst.instid and inst.instid=di.instance_id and doc.did=di.document_id and lb.lid=dtr.label_id and dt.task_id=#{tid} and (SUBSTR(dtr.labeltype,5,1) = it.itemindex OR dtr.labeltype = 'instance') group by dtr.label_id,di.instance_id,it.itid order by di.instance_id
+    SELECT dc.filename docName,ins.instindex instanceIndex,
+    it.itemindex itemindex,it.itemcontent itemcontent,
+    dtr.labeltype labeltype,l.labelname label
+        FROM task dt
+        left join user_subtask us on us.task_id=dt.tid
+        left join instance ins on ins.instid=us.subtask_id
+        left join document dc on dc.did=ins.document_id
+        left join item it on it.instance_id=ins.instid
+        left join dt_relation dtr on dtr.subtask_id = us.subtask_id
+        left join label l on l.lid = dtr.label_id
+        where dt.tid=#{tid} and us.done = "yes"
+        ORDER by dc.filename and ins.instindex
+
 </select>
+
+    <delete id="deleteBeforeUpdate" parameterType="java.lang.Integer" >
+    delete from dt_relation where user_id = #{userId} and
+     task_id = #{taskId} and subtask_id = #{subtaskId}
+  </delete>
+
+    <select id="selectByTaskidAndSubtaskid" parameterType="Integer" resultMap="BaseResultMap">
+        select * from dt_relation
+         where task_id = #{taskId} and subtask_id = #{subtaskId}  and labeltype = #{labeltype}
+    </select>
+
+    <delete id="deleteAllByTaskId" parameterType="java.lang.Integer" >
+    delete from dt_relation
+    where task_id = #{taskId,jdbcType=INTEGER}
+  </delete>
 </mapper>

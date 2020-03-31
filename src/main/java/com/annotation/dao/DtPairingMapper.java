@@ -1,5 +1,6 @@
 package com.annotation.dao;
 
+import com.annotation.model.DtExtraction;
 import com.annotation.model.DtPairing;
 import com.annotation.model.entity.InstanceListitemEntity;
 import com.annotation.model.entity.PairingData;
@@ -22,6 +23,8 @@ public interface DtPairingMapper {
      * @return
      */
     List<InstanceListitemEntity> selectPairing(@Param("docId")Integer docId);
+
+    InstanceListitemEntity selectPairingByInstanceId(@Param("instId")Integer instId);
 
     List<InstanceListitemEntity> selectInstanceListitem(@Param("docId")Integer docId,
                                                         @Param("userId")Integer userId,
@@ -81,11 +84,17 @@ public interface DtPairingMapper {
 
     int deleteByPrimaryKey(Integer dtdId);
 
-    int insert(DtPairing record);
+    int insertPairing(DtPairing record);
 
     DtPairing selectByPrimaryKey(Integer dtdId);
 
     List<DtPairing> selectAll();
 
     int updateByPrimaryKey(DtPairing record);
+
+    int deleteBeforeUpdate(@Param("userId") Integer userId,@Param("taskId")Integer taskId,@Param("subtaskId")Integer subtaskId);
+
+    List<DtPairing> selectByTaskidAndSubtaskid(@Param("taskId")int taskId, @Param("subtaskId") int subtaskId);
+
+    int deleteAllByTaskId(@Param("taskId")Integer taskId);
 }

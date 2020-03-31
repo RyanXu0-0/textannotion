@@ -8,7 +8,7 @@ import java.util.Map;
  */
 public class PairingData {
     private int userId;//不导出
-    private String userName;//用户名，导出
+    private String userName;//用户名，不导出
     private String docName;//文档名，导出
     private int paraIndex;//段落索引，导出
     private List<Map<String,Object>> pairingContent;//具体内容，导出

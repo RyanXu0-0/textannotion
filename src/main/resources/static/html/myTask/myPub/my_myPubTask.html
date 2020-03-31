@@ -146,13 +146,11 @@
                             if(taskType.indexOf("文本分类")!=-1){
                                 typeId=2;
                             }else if(taskType.indexOf("信息抽取")!=-1){
-
                                 typeId=1;
                             }else if(taskType.indexOf("文本关系")!=-1){
                                 typeId=3;
                             }else if(taskType.indexOf("文本配对")!=-1){
                                 typeId=4;
-
                             }else if(taskType.indexOf("文本排序")!=-1){
                                 typeId=5;
                             }else if(taskType.indexOf("类比排序")!=-1){
@@ -283,9 +281,9 @@
                             if(taskType.indexOf("文本分类")!=-1){
                                 window.location.href="/file/classify?tid="+taskId;
                             }else if(taskType.indexOf("信息抽取")!=-1){
-                                alert("该功能还未开发");
+                                window.location.href="/file/extraction?tid="+taskId;
                             }else if(taskType.indexOf("文本关系")!=-1){
-                                alert("该功能还未开发");
+                                window.location.href="/file/relation?tid="+taskId;
                             }else if(taskType.indexOf("文本配对")!=-1){
                                 window.location.href="/file/pairing?tid="+taskId;
                             }else if(taskType.indexOf("文本排序")!=-1){

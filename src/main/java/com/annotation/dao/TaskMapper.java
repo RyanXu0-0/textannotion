@@ -86,7 +86,7 @@ public interface TaskMapper {
      * 计算所有可以做的任务的数量
      * @return
      */
-    int countNumOfTaskUndo();
+    int countNumOfTaskUndo(Integer userId);
 
 
 

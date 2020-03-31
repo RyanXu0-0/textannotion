@@ -18,6 +18,15 @@ public class Task {
     private Integer totaltask;
     private Integer startid;
     private String iftest;
+    private Integer testtaskId;
+
+    public Integer getTesttaskId() {
+        return testtaskId;
+    }
+
+    public void setTesttaskId(Integer testtaskId) {
+        this.testtaskId = testtaskId;
+    }
 
     public String getIftest() { return iftest; }
     public void setIftest(String iftest) { this.iftest = iftest; }

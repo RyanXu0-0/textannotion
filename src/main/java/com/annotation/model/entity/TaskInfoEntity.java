@@ -165,12 +165,4 @@ public class TaskInfoEntity {
         this.labelList = labelList;
     }
 
-
-    public List<Map<String, Object>> getRelationList() {
-        return relaList;
-    }
-    public void setRelationList(List<Map<String, Object>> relaList) {
-        this.relaList = relaList;
-    }
-
 }

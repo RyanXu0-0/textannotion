@@ -1,6 +1,7 @@
 package com.annotation.dao;
 
 import com.annotation.model.DtClassify;
+import com.annotation.model.DtExtraction;
 import com.annotation.model.entity.ClassifyData;
 import com.annotation.model.entity.LabelCountEntity;
 import com.annotation.model.entity.ParagraphLabelEntity;
@@ -67,4 +68,12 @@ public interface DtClassifyMapper {
     List<DtClassify> selectAll();
 
     int updateByPrimaryKey(DtClassify record);
+
+    int deleteBeforeUpdate(@Param("userId") Integer userId,@Param("taskId")Integer taskId,@Param("subtaskId")Integer subtaskId);
+
+    List<DtClassify> selectByTaskidAndSubtaskid(@Param("taskId")int taskId, @Param("subtaskId") int subtaskId);
+
+    List<DtClassify> selectCurrentDone(@Param("userId") Integer userId,@Param("taskId")Integer taskId,@Param("subtaskId")Integer subtaskId);
+
+    int deleteAllByTaskId(@Param("taskId")Integer taskId);
 }

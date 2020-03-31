@@ -3,7 +3,9 @@
 <mapper namespace="com.annotation.dao.DtClassifyMapper" >
   <resultMap id="BaseResultMap" type="com.annotation.model.DtClassify" >
     <id column="dtd_id" property="dtdId" jdbcType="INTEGER" />
-    <result column="dt_id" property="dtId" jdbcType="INTEGER" />
+    <result column="task_id" property="taskId" jdbcType="INTEGER" />
+      <result column="subtask_id" property="subtaskId" jdbcType="INTEGER" />
+      <result column="user_id" property="userId" jdbcType="INTEGER" />
     <result column="label_id" property="labelId" jdbcType="INTEGER" />
       <result column="goodlabel" property="goodlabel" jdbcType="INTEGER" />
       <result column="badlabel" property="badlabel" jdbcType="INTEGER" />
@@ -95,10 +97,12 @@
 
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="dtd_id" parameterType="com.annotation.model.DtClassify" >
-        insert into dt_classify (dtd_id, dt_id, label_id,goodlabel,badlabel
+        insert into dt_classify (dtd_id, task_id,subtask_id,user_id, label_id,goodlabel,badlabel
         )
-        values (#{dtdId,jdbcType=INTEGER}, #{dtId,jdbcType=INTEGER}, #{labelId,jdbcType=INTEGER},
-        #{goodlabel,jdbcType=INTEGER},#{badlabel,jdbcType=INTEGER}
+        values (#{dtdId,jdbcType=INTEGER}, #{taskId,jdbcType=INTEGER},
+        #{subtaskId,jdbcType=INTEGER},#{userId,jdbcType=INTEGER},
+         #{labelId,jdbcType=INTEGER},
+          #{goodlabel,jdbcType=INTEGER},#{badlabel,jdbcType=INTEGER}
         )
     </insert>
 
@@ -118,40 +122,33 @@
         <result column="paraContent" property="paraContent" jdbcType="VARCHAR" />
         <collection property="classifyContent" ofType="Map">
             <result column="labelName" property="labelName" jdbcType="VARCHAR" />
-            <result column="labelNum" property="labelNum" jdbcType="INTEGER" />
         </collection>
     </resultMap>
 
     <select id="getClassifyDataOut" parameterType="Integer" resultMap="classifyDataOut">
         SELECT  dc.filename docName,
-        dp.paragraph_id,
         pa.paraindex paraIndex,pa.paracontent paraContent,
-        lb.labelname labelName,
-        dtc.label_id ,count(*) as labelNum
-        FROM d_task dt
-        left join d_paragraph dp on dt.tkid=dp.dtask_id
-        left join dt_classify dtc on dtc.dt_id=dp.dtid
-        left join document dc on dc.did=dp.document_id
-        left join paragraph pa on pa.pid = dp.paragraph_id
+        lb.labelname labelName
+        FROM task dt
+        left join user_subtask us on us.task_id=dt.tid
+        left join paragraph pa on pa.pid = us.subtask_id
+        left join dt_classify dtc on dtc.subtask_id=us.subtask_id
+        left join document dc on dc.did=pa.document_id
         left join label lb on lb.lid=dtc.label_id
-        where dt.task_id=#{tid}
-        group by dtc.label_id,dp.paragraph_id
-        order by dp.paragraph_id;
+        where dt.tid=#{tid} and us.done = "yes"
+        order by pa.pid;
     </select>
 
 
 
-
-    <delete id="deleteByDtId" parameterType="java.lang.Integer" >
-        delete from dt_classify
-        where dt_id = #{dtId}
-    </delete>
 
 
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from dt_classify
     where dtd_id = #{dtdId,jdbcType=INTEGER}
   </delete>
+
+
 
     <update id="updateByPrimaryKey" parameterType="com.annotation.model.DtClassify">
     update dt_classify
@@ -165,12 +162,34 @@
 
 
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
-    select dtd_id, dt_id, label_id,goodlabel,badlabel
+    select dtd_id, task_id,subtask_id,user_id, label_id,goodlabel,badlabel
     from dt_classify
     where dtd_id = #{dtdId,jdbcType=INTEGER}
   </select>
+
   <select id="selectAll" resultMap="BaseResultMap" >
-    select dtd_id, dt_id, label_id
+    select dtd_id, task_id,subtask_id,user_id, label_id
     from dt_classify
   </select>
+
+    <delete id="deleteBeforeUpdate" parameterType="java.lang.Integer" >
+    delete from dt_classify
+    where user_id = #{userId} and task_id = #{taskId} and subtask_id = #{subtaskId}
+  </delete>
+
+    <select id="selectByTaskidAndSubtaskid" parameterType="Integer" resultMap="BaseResultMap">
+        select * from dt_classify
+         where task_id = #{taskId} and subtask_id = #{subtaskId}
+    </select>
+
+
+    <select id="selectCurrentDone" parameterType="java.lang.Integer" resultMap="BaseResultMap" >
+    select * from dt_classify
+    where user_id = #{userId} and task_id = #{taskId} and subtask_id = #{subtaskId}
+  </select>
+
+    <delete id="deleteAllByTaskId" parameterType="java.lang.Integer" >
+    delete from dt_classify
+    where task_id = #{taskId,jdbcType=INTEGER}
+  </delete>
 </mapper>

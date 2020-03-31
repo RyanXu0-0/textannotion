@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.annotation.dao.UserSubtaskMapper" >
+
+  <!--BaseResultMap-->
+  <resultMap id="BaseResultMap" type="com.annotation.model.UserSubtask" >
+    <id column="uts_id" property="utsId" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="task_id" property="taskId" jdbcType="INTEGER" />
+    <result column="subtask_id" property="subtaskId" jdbcType="INTEGER" />
+    <result column="done" property="done" jdbcType="VARCHAR" />
+    <result column="dotime" property="dotime" jdbcType="VARCHAR" />
+  </resultMap>
+
+  <!--设置自增长-->
+  <update id="alterDtInstanceTable">
+    ALTER TABLE d_instance AUTO_INCREMENT =1
+  </update>
+
+  <insert id="insert" useGeneratedKeys="true" keyProperty="uts_id" parameterType="com.annotation.model.UserSubtask" >
+    insert into user_subtask (uts_id, user_id, task_id,subtask_id,done,dotime)
+    values (#{utsId,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER},
+    #{taskId,jdbcType=INTEGER},#{subtaskId,jdbcType=INTEGER},
+    #{done,jdbcType=VARCHAR},#{dotime,jdbcType=VARCHAR})
+  </insert>
+
+  <select id="selectByUserIdAndSubtaskId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select * from user_subtask
+    where user_id = #{userId} AND task_id=#{taskId} and subtask_id = #{subtaskId}
+  </select>
+
+  <select id="selectLastData" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select * from user_subtask
+    where user_id = #{userId} AND task_id=#{taskId} and subtask_id &lt; #{subtaskId}
+    order by uts_id DESC limit 1
+  </select>
+
+  <select id="selectTheLastData" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select * from user_subtask
+    where user_id = #{userId} AND task_id=#{taskId}
+    order by uts_id DESC limit 1
+  </select>
+
+  <select id="selectNextData" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select * from user_subtask
+    where user_id = #{userId} AND task_id=#{taskId} and subtask_id &gt; #{subtaskId}
+    order by uts_id limit 1
+  </select>
+
+    <update id="update" parameterType="com.annotation.model.UserSubtask" >
+        update user_subtask
+        set
+      <if test="utsId != null">uts_id=#{utsId,jdbcType=INTEGER}, </if>
+      <if test="userId != null"> user_id=#{userId,jdbcType=INTEGER},</if>
+      <if test="taskId != null">  task_id = #{taskId,jdbcType=INTEGER},</if>
+      <if test="subtaskId != null"> subtask_id = #{subtaskId,jdbcType=INTEGER},</if>
+      <if test="done != null"> done = #{done,jdbcType=VARCHAR},</if>
+      <if test="dotime != null"> dotime = #{dotime,jdbcType=VARCHAR}</if>
+        where uts_id = #{utsId,jdbcType=INTEGER}
+    </update>
+
+
+  <delete id="deleteAllByTaskId" parameterType="java.lang.Integer" >
+    delete from user_subtask
+    where task_id = #{taskId,jdbcType=INTEGER}
+  </delete>
+</mapper>

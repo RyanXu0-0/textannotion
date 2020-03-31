@@ -118,7 +118,6 @@ public class DocumentServiceImpl implements IDocumentService {
                 if(docType.equals(".doc") || docType.equals(".docx")){
                     String docContent=fileUtil.parseDocContent(file);
                     docRes=  addDocumentParagraph(document,docContent);
-
                 }else{
                     docRes=  addXlsParagraph(document,file);
                 }

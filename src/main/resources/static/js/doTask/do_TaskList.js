@@ -17,19 +17,6 @@ layui.use(['jquery', 'layer'], function(){
 
 });
 
-// layui.use(['form', 'layedit'], function() {
-//
-//     var form = layui.form;
-//     form.on('select(selectType)', function(data){
-//         /**
-//          *获取任务类型
-//          */
-//         taskType=data.elem[data.elem.selectedIndex].text;//console.log(taskType);
-//         taskValue=data.value; //console.log(taskValue);
-//
-//     });
-//
-// });
 
 layui.use(['table'],function(){
     var table = layui.table;

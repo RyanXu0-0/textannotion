@@ -1,5 +1,7 @@
 package com.annotation.model;
 
+import com.annotation.model.entity.Relation;
+
 public class DtExtractionRelation {
     private int dterId;
     private int taskId;
@@ -86,5 +88,18 @@ public class DtExtractionRelation {
 
     public void setTailEntity(String tailEntity) {
         this.tailEntity = tailEntity;
+    }
+
+    public DtExtractionRelation(int taskId, int subtaskId, int userId, Relation relation) {
+        this.taskId = taskId;
+        this.subtaskId = subtaskId;
+        this.userId = userId;
+        this.relationId = relation.getRelationId();
+        this.relation = relation.getRelation();
+        this.headEntity = relation.getHeadEntity();
+        this.tailEntity = relation.getTailEntity();
+    }
+
+    public DtExtractionRelation() {
     }
 }

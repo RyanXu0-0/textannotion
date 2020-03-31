@@ -161,7 +161,7 @@
 
 
 <!--做任务面板-->
-<div class="layui-row" id="div-doTask">
+<div class="layui-row" id="div-doTask" style="display: none">
 
     <div class="layui-row">
         <div class="layui-col-md1">
@@ -193,11 +193,11 @@
 
         </div>
 
-        <div class="layui-col-md5" id="div-btn-hide" style="display: none;">
+        <div class="layui-col-md5" id="div-btn-hide" style="float: right">
             <input type="button" class="btn btn-info" value="后退一步" id="backOneStep">
-            <input type="button" class="btn btn-success" value="提交这部分" id="submit-instance">
-            <input type="button" class="btn btn-warning" value="结束本段" id="complete-instance">
-            <input type="button" class="btn btn-warning" value="结束该文档" id="complete-doc">
+            <input type="button" class="btn btn-warning" value="上一个任务" id="lasttask">
+            <input type="button" class="btn btn-success" value="提交任务" id="submit-instance">
+            <input type="button" class="btn btn-warning" value="下一个任务" id="nexttask">
             <span class="layui-word-aux">确认结束后不可再修改</span>
         </div>
     </div>

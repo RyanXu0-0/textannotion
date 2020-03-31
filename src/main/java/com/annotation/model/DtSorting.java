@@ -3,7 +3,11 @@ package com.annotation.model;
 public class DtSorting {
     private Integer dtdId;
 
-    private Integer dtId;
+    private Integer taskId;
+
+    private Integer subtaskId;
+
+    private Integer userId;
 
     private Integer itemId;
 
@@ -17,13 +21,6 @@ public class DtSorting {
         this.dtdId = dtdId;
     }
 
-    public Integer getDtId() {
-        return dtId;
-    }
-
-    public void setDtId(Integer dtId) {
-        this.dtId = dtId;
-    }
 
     public Integer getItemId() {
         return itemId;
@@ -39,5 +36,29 @@ public class DtSorting {
 
     public void setNewindex(Integer newindex) {
         this.newindex = newindex;
+    }
+
+    public Integer getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(Integer taskId) {
+        this.taskId = taskId;
+    }
+
+    public Integer getSubtaskId() {
+        return subtaskId;
+    }
+
+    public void setSubtaskId(Integer subtaskId) {
+        this.subtaskId = subtaskId;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 }

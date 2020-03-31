@@ -51,9 +51,9 @@ $(function () {
      */
     $("#btn-dotask").click(function(){
         $("#div-dotaskbtn").hide();
-        $("#div-btn-hide").show();
+        $("#div-doTask").show();
         $('#taskInfoPanel').collapse('hide');
-
+        ajaxDocSortingInstanceItem(docId);
     });
 
     $("#complete-doc").click(function(){
@@ -101,6 +101,15 @@ $(function () {
 
         // console.log(rightLiLength);
         // console.log(ulHtml.children[0].getAttribute('drag-id'));
+    });
+
+    //下一个任务
+    $("#nexttask").click(function(){
+        ajaxNextTask();
+    });
+
+    $("#lasttask").click(function () {
+        ajaxLastTask();
     });
 });
 
@@ -402,7 +411,7 @@ function addSortingTask(doTaskData) {
             console.log(data);
             if(data.status==0){
                 alert("提交成功！");
-                ajaxDocSortingInstanceItem(docId);
+               // ajaxDocSortingInstanceItem(docId);
             }else{
                 alert("提交失败！");
             }
@@ -546,3 +555,72 @@ function ajaxCompleteInstance(docId) {
 };
 
 
+
+function ajaxNextTask() {
+    var currentTaskInfo={
+        subtaskId: instanceItem[curInstanceIndex].instid,
+        taskId:taskId,
+        userId:0
+    };
+    $.ajax({
+        url: "/sorting/nexttask",
+        type: "get",
+        traditional: true,
+        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+        dataType: "json",
+        data:currentTaskInfo,
+
+        success: function (data) {
+            if(data.code != 0){
+                window.alert(data.msg);
+                return null;
+            }
+            cleardata();
+            console.log(JSON.stringify(data));
+            itemList= data.data.itemList;
+            alreadyDone=instanceItem[curInstanceIndex].alreadyDone;
+            paintSortingContent(itemList,alreadyDone);
+            instanceItem[curInstanceIndex].instid = data.data.instid;
+        }, error: function (XMLHttpRequest, textStatus, errorThrown,data) {
+        },
+    });
+};
+
+//申请上一个任务的数据
+function ajaxLastTask(){
+    var currentTaskInfo={
+        subtaskId: instanceItem[curInstanceIndex].instid,
+        taskId:taskId,
+        userId:0
+    };
+    $.ajax({
+        url: "/sorting/lasttask",
+        type: "get",
+        traditional: true,
+        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+        dataType: "json",
+        data:currentTaskInfo,
+        success: function (data) {
+            if(data.data==null || data.data==""){
+                alert("这已经是第一个任务了");
+            }else{
+                cleardata();
+                console.log(JSON.stringify(data));
+                itemList= data.data.itemList;
+                alreadyDone=instanceItem[curInstanceIndex].alreadyDone;
+                paintSortingContent(itemList,alreadyDone);
+                instanceItem[curInstanceIndex].instid = data.data.instid;
+            }
+
+        }, error: function (XMLHttpRequest, textStatus, errorThrown) {
+
+        },
+    });
+};
+
+
+function cleardata() {
+    itemId=new Array();
+    newIndex=new Array();
+    $("#left-sorting").empty();
+}

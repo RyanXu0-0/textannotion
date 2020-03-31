@@ -24,10 +24,10 @@ public interface TestExtractionDataMapper {
 
     TestExtractionData selectByTaskid(@Param("taskId") int taskId,@Param("subtaskId") int subtaskId);
 
-
+    int countTestNum(int taskId);
     int deleteByTaskid(Integer tid);
     TestExtractionData selectDataId(int dataId);
-
+    TestExtractionData selectFirst(@Param("taskId")int taskId);
     TestExtractionData selectClassifyByDataId(int dataId);
     TestExtractionData selectClassifyByTaskid(@Param("taskId") int taskId,@Param("subtaskId") int subtaskId);
 

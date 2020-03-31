@@ -4,7 +4,9 @@
 
     <resultMap id="BaseResultMap" type="com.annotation.model.DtPairing" >
         <id column="dtd_id" property="dtdId" jdbcType="INTEGER" />
-        <result column="dt_id" property="dtId" jdbcType="INTEGER" />
+        <result column="task_id" property="taskId" jdbcType="INTEGER" />
+        <result column="subtask_id" property="subtaskId" jdbcType="INTEGER" />
+        <result column="user_id" property="userId" jdbcType="INTEGER" />
         <result column="a_litemid" property="aLitemid" jdbcType="INTEGER" />
         <result column="b_litemid" property="bLitemid" jdbcType="INTEGER" />
     </resultMap>
@@ -66,6 +68,15 @@
     </select>
 
 
+    <select id="selectPairingByInstanceId" parameterType="Integer" resultMap="InstanceListitemByDocId">
+        select s.instid, s.instindex, s.document_id, s.labelnum,
+        lt.ltid, lt.litemcontent, lt.list_index, lt.litemindex
+        from instance s
+        left join listitem lt on s.instid=lt.instance_id
+        where s.instid=#{instId}
+    </select>
+
+
     <select id="selectInstanceListitem" parameterType="Integer" resultMap="InstanceListitemByDocId">
         select s.instid, s.instindex, s.document_id, s.labelnum,
         lt.ltid, lt.litemcontent, lt.list_index, lt.litemindex,
@@ -105,8 +116,6 @@
 
     <!--文本配对类型标注数据导出-->
     <resultMap id="PairingDataOut" type="com.annotation.model.entity.PairingData">
-        <result column="userId" jdbcType="INTEGER" property="userId" />
-        <result column="userName" property="userName" jdbcType="VARCHAR" />
         <result column="docName" property="docName" jdbcType="VARCHAR" />
         <result column="paraIndex" property="paraIndex" jdbcType="INTEGER" />
         <collection property="pairingContent" ofType="Map">
@@ -118,23 +127,21 @@
     </resultMap>
 
     <select id="getPairingDataOut" parameterType="Map" resultMap="PairingDataOut">
-        select dt.user_id userId,
-        u.username userName,
-        dc.filename docName,
+        select dc.filename docName,
         ins.instindex paraIndex,
         dtp.a_litemid,dtp.b_litemid,
         lt1.litemcontent a_litemcontent,
         lt2.litemcontent b_litemcontent
-        from d_task dt
-        left join user u on u.id=dt.user_id
-        left join d_instance di on  dt.tkid=di.dtask_id
-        left join document dc on dc.did=di.document_id
-        left join instance ins on ins.instid = di.instance_id
-        left join dt_pairing dtp on di.dtid =dtp.dt_id
+        FROM task dt
+        left join user_subtask us on us.task_id=dt.tid
+        left join instance ins on ins.instid=us.subtask_id
+        left join document dc on dc.did=ins.document_id
+        left join dt_pairing dtp on us.subtask_id =dtp.subtask_id
         left join listitem lt1 on lt1.ltid =dtp.a_litemid
         left join listitem lt2 on lt2.ltid =dtp.b_litemid
-        where dt.task_id=#{tid}
-        ORDER by dt.user_id and dc.filename and ins.instindex
+        where dt.tid=#{tid} and us.done = "yes"
+        ORDER by dc.filename and ins.instindex
+
     </select>
 
 
@@ -181,12 +188,7 @@
     delete from dt_pairing
     where dtd_id = #{dtdId,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.annotation.model.DtPairing" >
-    insert into dt_pairing (dtd_id, dt_id, a_litemid, 
-      b_litemid)
-    values (#{dtdId,jdbcType=INTEGER}, #{dtId,jdbcType=INTEGER}, #{aLitemid,jdbcType=INTEGER}, 
-      #{bLitemid,jdbcType=INTEGER})
-  </insert>
+
   <update id="updateByPrimaryKey" parameterType="com.annotation.model.DtPairing" >
     update dt_pairing
     set dt_id = #{dtId,jdbcType=INTEGER},
@@ -203,4 +205,24 @@
     select dtd_id, dt_id, a_litemid, b_litemid
     from dt_pairing
   </select>
+
+    <delete id="deleteBeforeUpdate" parameterType="java.lang.Integer" >
+    delete from dt_pairing
+    where user_id = #{userId} and task_id = #{taskId} and subtask_id = #{subtaskId}
+  </delete>
+
+    <select id="selectByTaskidAndSubtaskid"  resultMap="BaseResultMap">
+        select * from dt_pairing
+         where task_id = #{taskId} and subtask_id = #{subtaskId}
+    </select>
+
+    <insert id="insertPairing" useGeneratedKeys="true" keyProperty="dtd_id" parameterType="com.annotation.model.DtPairing">
+        insert into dt_pairing (task_id,subtask_id,user_id, a_litemid,b_litemid) values
+        (#{taskId},#{subtaskId},#{userId},#{aLitemid},#{bLitemid})
+    </insert>
+
+    <delete id="deleteAllByTaskId" parameterType="java.lang.Integer" >
+    delete from dt_pairing
+    where task_id = #{taskId,jdbcType=INTEGER}
+  </delete>
 </mapper>

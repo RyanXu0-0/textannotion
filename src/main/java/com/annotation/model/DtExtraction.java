@@ -1,5 +1,7 @@
 package com.annotation.model;
 
+import com.annotation.model.entity.Entity;
+
 public class DtExtraction {
     private Integer dteId;
     private Integer taskId;
@@ -97,5 +99,19 @@ public class DtExtraction {
 
     public void setEntity(String entity) {
         this.entity = entity;
+    }
+
+    public DtExtraction(Integer taskId,Integer subtaskId,Integer userId,  Entity entity) {
+        this.taskId = taskId;
+        this.subtaskId = subtaskId;
+        this.userId = userId;
+        this.entityId = entity.getEntityId();
+        this.entityName = entity.getEntityName();
+        this.startIndex = entity.getStartIndex();
+        this.endIndex = entity.getEndIndex();
+        this.entity = entity.getEntity();
+    }
+
+    public DtExtraction() {
     }
 }

@@ -1,5 +1,6 @@
 package com.annotation.dao;
 
+import com.annotation.model.DtExtraction;
 import com.annotation.model.DtRelation;
 import com.annotation.model.entity.InstanceItemEntity;
 import com.annotation.model.entity.RelationData;
@@ -24,6 +25,8 @@ public interface DtRelationMapper {
      */
     List<InstanceItemEntity> selectRelation(@Param("docId")Integer docId);
 
+    InstanceItemEntity selectRelationByInstanceId(@Param("instId")Integer instId);
+
     List<InstanceItemEntity> selectRelationWithStatus(Map<String,Object> data);
 
     List<InstanceItemEntity> selectRelationInstanceItem(@Param("docId")Integer docId,
@@ -45,7 +48,11 @@ public interface DtRelationMapper {
      * @param itemLabels
      * @return
      */
-    int insertLabelList(@Param("dt_id")Integer dt_id,@Param("labeltype")String labeltype, @Param("itemLabels")int[] itemLabels);
+    int insertLabelList(@Param("taskId")Integer taskId,
+                        @Param("subtaskId")Integer subtaskId,
+                        @Param("userId")Integer userId,
+                        @Param("labeltype")String labeltype,
+                        @Param("itemLabels")int[] itemLabels);
 
 
 
@@ -63,4 +70,10 @@ public interface DtRelationMapper {
     int updateByPrimaryKey(DtRelation record);
     //标注数据导出
     List<RelationData> getRelationDataOut(int tid);
+
+    int deleteBeforeUpdate(@Param("userId") Integer userId,@Param("taskId")Integer taskId,@Param("subtaskId")Integer subtaskId);
+
+    List<DtRelation> selectByTaskidAndSubtaskid(@Param("taskId")int taskId, @Param("subtaskId") int subtaskId,@Param("labeltype")String labeltype);
+
+    int deleteAllByTaskId(@Param("taskId")Integer taskId);
 }

@@ -59,10 +59,13 @@ $(function () {
      * 同时将任务详细信息折叠面板设为hide
      */
     $("#input-dotask").click(function(){
+        /**
+         * 获取文件内容，提前加载
+         */
+        ajaxDocContent(docId);
         $("#row-div-dotask").show();
         $("#div-dotaskbtn").hide();
         $('#taskInfoPanel').collapse('hide');
-
     });
 
 
@@ -70,15 +73,6 @@ $(function () {
         curParaIndex=0;
         ajaxDocContent(docId);
     });
-
-    // $("#complete-doc").click(function(){
-    //     ajaxCompleteDoc(docId);
-    // });
-    //
-    // $("#complete-para").click(function(){
-    //     ajaxCompletePara(docId);
-    // });
-
 
     /**
      * ajaxdoTask提交事件
@@ -119,6 +113,14 @@ $(function () {
 
     });
 
+    //下一个任务
+    $("#nexttask").click(function(){
+        ajaxNextTask();
+    });
+
+    $("#lasttask").click(function () {
+        ajaxLastTask();
+    });
 });
 
 /**
@@ -252,20 +254,6 @@ function ajaxTaskInfo(taskId) {
                 labelListHtml=labelListHtml+labelInfoHtml;
             }
             $("#taskLabels").append(labelListHtml);
-
-            /**
-             * 处理获取文件列表选择框和状态选择框
-             */
-
-
-
-
-
-            /**
-             * 获取文件内容，提前加载
-             */
-            ajaxDocContent(docId);
-
 
 
         }, error: function (XMLHttpRequest, textStatus, errorThrown) {
@@ -474,9 +462,6 @@ function ajaxDocContent(docId) {
     });
 }
 
-function pageHandle() {
-
-}
 /**
  * label部分的初始化
  * @param labelList
@@ -515,15 +500,15 @@ function labelHtml(labelList) {
 function ajaxdoTaskInfo(doTaskData) {
 
     $.ajax({
-        url: "/classify/submit",
+        url: "/classify",
         type: "post",
         traditional: true,
         contentType: "application/x-www-form-urlencoded; charset=UTF-8",
         dataType: "text",
         data:doTaskData,
         success: function (data) {
-            top.location.href ="/html/u_homepage.html";
-
+            window.alert("当前数据提交成功");
+            console.log(data);
         }, error: function (XMLHttpRequest, textStatus, errorThrown) {
 
 
@@ -590,3 +575,84 @@ function ajaxCompletePara(docId) {
         },
     });
 };
+
+
+function ajaxNextTask() {
+    var currentTaskInfo={
+        subtaskId: paraId[0],
+        taskId:taskId,
+        userId:0
+    };
+    $.ajax({
+        url: "/classify/nexttask",
+        type: "get",
+        traditional: true,
+        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+        dataType: "json",
+        data:currentTaskInfo,
+
+        success: function (data) {
+            if(data.code != 0){
+                window.alert(data.msg);
+                return null;
+            }
+            cleardata();
+            paraContent[0]=data.data.paracontent;//每段内容
+            console.log("data.data："+JSON.stringify(data));
+            paraId[0]=data.data.pid;//console.log(paraId[i]);//每段内容的ID
+            $("#p-para").html(paraContent[0]);
+        }, error: function (XMLHttpRequest, textStatus, errorThrown,data) {
+        },
+    });
+};
+
+//申请上一个任务的数据
+function ajaxLastTask(){
+    var currentTaskInfo={
+        subtaskId: paraId[0],
+        taskId:taskId,
+        userId:0
+    };
+    $.ajax({
+        url: "/classify/lasttask",
+        type: "get",
+        traditional: true,
+        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+        dataType: "json",
+        data:currentTaskInfo,
+        success: function (data) {
+            if(data.data==null || data.data==""){
+                alert("这已经是第一个任务了");
+            }else{
+                cleardata();
+                paraContent[0]=data.data.paracontent;//每段内容
+                console.log("data.data："+JSON.stringify(data));
+                paraId[0]=data.data.pid;//console.log(paraId[i]);//每段内容的ID
+                $("#p-para").html(paraContent[0]);
+
+            }
+
+        }, error: function (XMLHttpRequest, textStatus, errorThrown) {
+
+        },
+    });
+};
+
+function cleardata() {
+    para_label = new Array();
+    label_list_img = new Array();
+
+    //重画前端，可以和alreadydone一起做
+    $("#label").empty();
+    var label_html="";
+    for(var i=0;i<labelLength;i++){
+        var list_html ='<li class="list-group-item">'
+            +'<img class="notAns" src="/images/notAns.png" id="label-list-img-'+i+'" onclick="imgClick(this.id)">'
+            +labelList[i].labelname
+            +'</li>';
+        label_html =label_html+list_html;
+        label_list_img[i]="label-list-img-"+i;
+    }
+    $("#ul-label-list").html(label_html);
+
+}

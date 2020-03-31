@@ -10,9 +10,9 @@ public class ExtractionData {
 
     private String docName;
     private int paraIndex;
-    private String  labelName;
-    private String subContent;
-    private int labelNum;
+    private String paraContent;
+    private List<Map<String,Object>> entityList;
+    private List<Map<String,Object>> relationList;
 
     public String getDocName() {
         return docName;
@@ -30,27 +30,27 @@ public class ExtractionData {
         this.paraIndex = paraIndex;
     }
 
-    public String getLabelName() {
-        return labelName;
+    public String getParaContent() {
+        return paraContent;
     }
 
-    public void setLabelName(String labelName) {
-        this.labelName = labelName;
+    public void setParaContent(String paraContent) {
+        this.paraContent = paraContent;
     }
 
-    public String getSubContent() {
-        return subContent;
+    public List<Map<String, Object>> getEntityList() {
+        return entityList;
     }
 
-    public void setSubContent(String subContent) {
-        this.subContent = subContent;
+    public void setEntityList(List<Map<String, Object>> entityList) {
+        this.entityList = entityList;
     }
 
-    public int getLabelNum() {
-        return labelNum;
+    public List<Map<String, Object>> getRelationList() {
+        return relationList;
     }
 
-    public void setLabelNum(int labelNum) {
-        this.labelNum = labelNum;
+    public void setRelationList(List<Map<String, Object>> relationList) {
+        this.relationList = relationList;
     }
 }

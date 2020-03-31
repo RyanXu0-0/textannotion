@@ -627,11 +627,11 @@ $(function(){
 
             if(taskValue=="1" && inputId=="tagValue"){
 
+                var temcolor =getRandomColor();
                 var tmphtml='<div class="tagItem"><span>'+valueStr+'</span>' +
-                    '<input type="color" id="color-'+type12ColorNum+'" class="color" onchange="myChange(this.id)"><div class="delete"></div></div>';
-
+                    '<input type="color" value="'+temcolor+'" id="color-'+type12ColorNum+'" class="color" onchange="myChange(this.id)"><div class="delete"></div></div>';
                 type12ColorId[type12ColorNum]="color-"+type12ColorNum;
-                publishColor[type12ColorNum]="#FF0000";
+                publishColor[type12ColorNum]=temcolor;
                 type12ColorNum++;
                 console.log(type12ColorNum);
 
@@ -685,6 +685,14 @@ $(function(){
     
 
 });
+
+function getRandomColor() {
+
+    return '#' +
+        (function(color) {
+            return (color += '0123456789abcdef' [Math.floor(Math.random() * 16)]) && (color.length == 6) ? color : arguments.callee(color);
+        })('');
+}
 
 function myChange(obj) {
     console.log($("#"+obj).val());
@@ -774,44 +782,44 @@ function seexlsdetail(obj) {
 
 };
 
-function seetestdetail(obj) {
-
-    console.log(obj);
-
-    var img;
-
-    if(taskValue=="0"){
-
-        alert("请先选择标注类型");
-    }else{
-        if(taskValue=="1"  ) {
-            img = "<img src='/images/test1-extraction.png' />";
-        }else if(taskValue=="2"){
-            img = "<img src='/images/test-classify.png' />";
-        }else if(taskValue=="3") {
-            img = "<img src='/images/test1-relation.png' />";
-        }else if(taskValue=="4"){
-            img = "<img src='/images/test-pair.png' />";
-        }else if(taskValue=="5"){
-            img = "<img src='/images/test-sort.png' />";
-        } else if(taskValue=="6"){
-            img = "<img src='/images/test-contrast.png' />";
-        }
-
-        layer.open({
-            type:1,
-            shift: 2,
-            area: ['500px', '300px'],
-            shade:0,
-            title:'查看样例',
-            shadeClose:true,
-            content:img
-        });
-    }
-
-
-
-};
+// function seetestdetail(obj) {
+//
+//     console.log(obj);
+//
+//     var img;
+//
+//     if(taskValue=="0"){
+//
+//         alert("请先选择标注类型");
+//     }else{
+//         if(taskValue=="1"  ) {
+//             img = "<img src='/images/test1-extraction.png' />";
+//         }else if(taskValue=="2"){
+//             img = "<img src='/images/test-classify.png' />";
+//         }else if(taskValue=="3") {
+//             img = "<img src='/images/test1-relation.png' />";
+//         }else if(taskValue=="4"){
+//             img = "<img src='/images/test-pair.png' />";
+//         }else if(taskValue=="5"){
+//             img = "<img src='/images/test-sort.png' />";
+//         } else if(taskValue=="6"){
+//             img = "<img src='/images/test-contrast.png' />";
+//         }
+//
+//         layer.open({
+//             type:1,
+//             shift: 2,
+//             area: ['500px', '300px'],
+//             shade:0,
+//             title:'查看样例',
+//             shadeClose:true,
+//             content:img
+//         });
+//     }
+//
+//
+//
+// };
 
 function ajaxType1(mformData) {
     $.ajax({

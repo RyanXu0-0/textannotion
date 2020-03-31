@@ -25,7 +25,7 @@
     </insert>
 
     <delete id="deleteByTaskId" parameterType="Integer">
-
+      delete from extraction_relationlabel where task_id = #{taskId}
     </delete>
     <!--设置数据库自增长-->
     <update id="alterRelationLabelTable">

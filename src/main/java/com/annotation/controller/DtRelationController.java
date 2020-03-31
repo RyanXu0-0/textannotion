@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.annotation.model.Label;
 import com.annotation.model.User;
 import com.annotation.model.entity.InstanceItemEntity;
+import com.annotation.model.entity.InstanceListitemEntity;
 import com.annotation.model.entity.ResponseEntity;
 import com.annotation.service.IDtRelationService;
 import com.annotation.service.IInstanceLabelService;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,11 +50,16 @@ public class DtRelationController {
             userId = user.getId();
         }
 
-        List<InstanceItemEntity> instanceItemEntityList = iDtRelationService.queryInstanceItem(docId,userId,status,taskId);
-        List<Label> instanceLabel =iInstanceLabelService.queryInstanceLabelByDocId(docId);
-        List<Label> item1Label =iInstanceLabelService.queryItem1LabelByDocId(docId);
-        List<Label> item2Label = iInstanceLabelService.queryItem2LabelByDocId(docId);
+        List<InstanceItemEntity> instanceItemEntityList = new ArrayList<InstanceItemEntity>();
+        InstanceItemEntity instanceItemEntity= iDtRelationService.getRelationData(userId,taskId);
+        instanceItemEntityList.add(instanceItemEntity);
 
+//        List<Label> instanceLabel =iInstanceLabelService.queryInstanceLabelByDocId(docId);
+//        List<Label> item1Label =iInstanceLabelService.queryItem1LabelByDocId(docId);
+//        List<Label> item2Label = iInstanceLabelService.queryItem2LabelByDocId(docId);
+        List<Label> instanceLabel =iInstanceLabelService.queryInstanceLabelByTaskId(taskId);
+        List<Label> item1Label =iInstanceLabelService.queryItem1LabelByTaskId(taskId);
+        List<Label> item2Label = iInstanceLabelService.queryItem2LabelByTaskId(taskId);
         JSONObject rs = new JSONObject();
         if(instanceItemEntityList != null){
             rs.put("msg","查询成功");
@@ -118,7 +125,7 @@ public class DtRelationController {
             userId = user.getId();
         }
 
-        int dtid =iDtRelationService.addRelation(userId,taskId,docId,instanceId,instanceLabels,item1Id,item1Labels,item2Id,item2Labels);//创建做任务表的结果
+        int dtid =iDtRelationService.qualityControl(userId,taskId,docId,instanceId,instanceLabels,item1Labels,item2Labels);//创建做任务表的结果
         if(dtid==4001 || dtid==4002|| dtid==4004|| dtid==4005){
             ResponseEntity responseEntity = responseUtil.judgeResult(dtid);
             return responseEntity;
@@ -129,9 +136,50 @@ public class DtRelationController {
 
 
 
-    @PostMapping("/submit")
-    public String submitData(){
-        System.out.println("submit");
-        return "u_homepage";
+    @PostMapping
+    @RequestMapping("/lasttask")
+    public JSONObject lastRelationTask(HttpSession httpSession,int taskId,int subtaskId,@RequestParam(defaultValue="0")int userId){
+
+        if(userId==0){
+            User user =(User)httpSession.getAttribute("currentUser");
+            userId = user.getId();
+        }
+        System.out.println("当前任务id："+subtaskId);
+        InstanceItemEntity instanceItemEntity = iDtRelationService.getLastRelationData(userId,taskId,subtaskId);
+        JSONObject rs = new JSONObject();
+        if(instanceItemEntity != null){
+            rs.put("msg","查询文件内容成功");
+            rs.put("code",0);
+            rs.put("data",instanceItemEntity);
+        }else{
+            rs.put("msg","查询文件内容失败");
+            rs.put("code",-1);
+        }
+        return rs;
     }
+
+
+
+    @PostMapping
+    @RequestMapping("/nexttask")
+    public JSONObject nextRelationTask(HttpSession httpSession,int taskId,int subtaskId,@RequestParam(defaultValue="0")int userId){
+
+        if(userId==0){
+            User user =(User)httpSession.getAttribute("currentUser");
+            userId = user.getId();
+        }
+
+        ResponseEntity response  = iDtRelationService.getNextRelationData(userId,taskId,subtaskId);
+        JSONObject rs = new JSONObject();
+        if(response.getData()!= null){
+            rs.put("msg","查询文件内容成功");
+            rs.put("code",0);
+            rs.put("data",response.getData());
+        }else{
+            rs.put("msg",response.getMsg());
+            rs.put("code",response.getStatus());
+        }
+        return rs;
+    }
+
 }

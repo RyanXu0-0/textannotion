@@ -69,10 +69,12 @@ $(function () {
      */
     $("#input-dotask").click(function(){
         $("#div-instance-item").show();
-
         $("#div-dotaskbtn").hide();
         $('#taskInfoPanel').collapse('hide');
-
+        /**
+         * 获取文件内容，提前加载
+         */
+        ajaxDocInstanceItem(docId);
     });
 
 
@@ -143,6 +145,16 @@ $(function () {
 
         ajaxdoTaskInfo(doTaskData);
 
+    });
+
+
+    //下一个任务
+    $("#nexttask").click(function(){
+        ajaxNextTask();
+    });
+
+    $("#lasttask").click(function () {
+        ajaxLastTask();
     });
 
 });
@@ -237,10 +249,7 @@ function ajaxTaskInfo(taskId) {
 
             });
 
-            /**
-             * 获取文件内容，提前加载
-             */
-            ajaxDocInstanceItem(docId);
+
 
         }, error: function (XMLHttpRequest, textStatus, errorThrown) {
 
@@ -466,7 +475,7 @@ function ajaxdoTaskInfo(doTaskData) {
         data:doTaskData,
         success: function (data) {
             console.log(data);
-            ajaxDocInstanceItem(docId);
+            //ajaxDocInstanceItem(docId);
             alert("提交成功！");
 
         }, error: function (XMLHttpRequest, textStatus, errorThrown) {
@@ -760,3 +769,82 @@ function ajaxCompleteInstance(docId) {
 
 
 
+
+function ajaxNextTask() {
+    var currentTaskInfo={
+        subtaskId: instanceItem[curInstanceIndex].instid,
+        taskId:taskId,
+        userId:0
+    };
+    $.ajax({
+        url: "/relation/nexttask",
+        type: "get",
+        traditional: true,
+        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+        dataType: "json",
+        data:currentTaskInfo,
+
+        success: function (data) {
+            if(data.code != 0){
+                window.alert(data.msg);
+                return null;
+            }
+            cleardata();
+            console.log(JSON.stringify(data));
+            console.log(itemList);
+            itemList=data.data.itemList;
+            //paintContent(curInstanceIndex);
+            $("#p-item-0").html(itemList[0].itemcontent);
+            $("#p-item-1").html(itemList[1].itemcontent);
+            paintLabelHtml(instanceLabel,item1Label,item2Label);
+
+            instanceItem[curInstanceIndex].instid = data.data.instid;
+        }, error: function (XMLHttpRequest, textStatus, errorThrown,data) {
+        },
+    });
+};
+
+//申请上一个任务的数据
+function ajaxLastTask(){
+    var currentTaskInfo={
+        subtaskId: instanceItem[curInstanceIndex].instid,
+        taskId:taskId,
+        userId:0
+    };
+    $.ajax({
+        url: "/relation/lasttask",
+        type: "get",
+        traditional: true,
+        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+        dataType: "json",
+        data:currentTaskInfo,
+        success: function (data) {
+            if(data.data==null || data.data==""){
+                alert("这已经是第一个任务了");
+            }else{
+                cleardata();
+                itemList=data.data.itemList;
+                console.log(JSON.stringify(data));
+                console.log(itemList);
+                //paintContent(curInstanceIndex);
+                $("#p-item-0").html(itemList[0].itemcontent);
+                $("#p-item-1").html(itemList[1].itemcontent);
+                paintLabelHtml(instanceLabel,item1Label,item2Label);
+                instanceItem[curInstanceIndex].instid = data.data.instid;
+            }
+
+        }, error: function (XMLHttpRequest, textStatus, errorThrown) {
+
+        },
+    });
+};
+
+
+function cleardata() {
+    instanceLabel = new Array();
+    item1Label = new Array();
+    item2Label = new Array();
+    $("#instance-label-div").empty();
+    $("#item1-label-div").empty();
+    $("#item1-label-div").empty();
+}

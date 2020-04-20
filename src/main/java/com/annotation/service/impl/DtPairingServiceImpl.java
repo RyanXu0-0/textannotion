@@ -70,6 +70,14 @@ public class DtPairingServiceImpl implements IDtPairingService {
 
     }
 
+
+    public List<InstanceListitemEntity> getInstanceDone(int subtaskId, int userId,int taskId){
+        List<InstanceListitemEntity> dataList = new ArrayList<>();
+        InstanceListitemEntity data = dtPairingMapper.selectPairingByInstanceId(subtaskId);
+        dataList.add(data);
+        return dataList;
+    }
+
     public InstanceListitemEntity getPairingData(int userId, int taskId){
         InstanceListitemEntity data = new InstanceListitemEntity();
         DTask dTask=dTaskMapper.selectByTaskIdAndUserId(taskId,userId);

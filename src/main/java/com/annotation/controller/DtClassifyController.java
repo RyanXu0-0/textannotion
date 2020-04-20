@@ -38,13 +38,13 @@ public class DtClassifyController {
      * 根据文件ID查询内容
      * @param httpServletRequest
      * @param httpServletResponse
-     * @param docId
+
      * @param userId
      * @return
      */
     @GetMapping
     public JSONObject getClassificationPara(HttpServletRequest httpServletRequest, HttpSession httpSession, HttpServletResponse httpServletResponse,
-                                            int docId,String status,int taskId,@RequestParam(defaultValue="0")int userId) {
+                                           Integer docId,String status,int taskId,@RequestParam(defaultValue="0")int userId) {
         if(userId==0){
             User user =(User)httpSession.getAttribute("currentUser");
             userId = user.getId();
@@ -78,7 +78,7 @@ public class DtClassifyController {
      */
     @GetMapping
     @RequestMapping("/getCurrentTaskParagraph")
-    public JSONObject getCurrentClassificationTask(HttpSession httpSession, int docId,int taskId,@RequestParam(defaultValue="0")int userId){
+    public JSONObject getCurrentClassificationTask(HttpSession httpSession,Integer docId,int taskId,@RequestParam(defaultValue="0")int userId){
 
         if(userId==0){
             User user =(User)httpSession.getAttribute("currentUser");
@@ -115,7 +115,7 @@ public class DtClassifyController {
      */
     @GetMapping
     @RequestMapping("/passCurrentTaskParagraph")
-    public JSONObject passCurrentTaskParagraph(HttpSession httpSession,int docId,  int paraId , int taskId,@RequestParam(defaultValue="0")int userId){
+    public JSONObject passCurrentTaskParagraph(HttpSession httpSession,Integer docId,  int paraId , int taskId,@RequestParam(defaultValue="0")int userId){
 
         if(userId==0){
             User user =(User)httpSession.getAttribute("currentUser");
@@ -154,7 +154,7 @@ public class DtClassifyController {
 
     @PostMapping
     @RequestMapping("/compareWithOtherAnnotation")
-    public String compareWithOtherAnnotation(HttpSession httpSession,int docId,int taskId,int paraId,int[] labelId,@RequestParam(defaultValue="0")int userId){
+    public String compareWithOtherAnnotation(HttpSession httpSession,Integer docId,int taskId,int paraId,int[] labelId,@RequestParam(defaultValue="0")int userId){
 
         if(userId==0){
             User user =(User)httpSession.getAttribute("currentUser");
@@ -181,7 +181,7 @@ public class DtClassifyController {
      */
     @PostMapping
     public ResponseEntity doClassify(HttpSession httpSession,
-                                     int taskId,int docId,int paraId,int[] labelId,@RequestParam(defaultValue="0")int userId) {
+                                     int taskId,Integer docId,int paraId,int[] labelId,@RequestParam(defaultValue="0")int userId) {
 
         if(userId==0){
             User user =(User)httpSession.getAttribute("currentUser");
@@ -201,21 +201,21 @@ public class DtClassifyController {
      * 根据文件ID和UserID查询内容
      * @param httpServletRequest
      * @param httpServletResponse
-     * @param docId
+
      * @return
      */
     @GetMapping("/detail")
     public JSONObject getClassificationDetail(HttpServletRequest httpServletRequest, HttpSession httpSession, HttpServletResponse httpServletResponse,
-                                              int docId,int userId,String status,int taskId) {
-        List<ParagraphLabelEntity> paragraphLabelEntityList=iDtClassifyService.queryClassifyParaLabel(docId,userId,status,taskId);
+                                              int userId,int taskId,int subtaskId) {
+        List<ParagraphLabelEntity> paragraphLabelEntityList=iDtClassifyService.getClassifyDone(subtaskId,userId,taskId);
 
-        List<LabelCountEntity> labelCountEntityList=iDtClassifyService.queryAlreadyLabel(taskId);
+        //List<LabelCountEntity> labelCountEntityList=iDtClassifyService.queryAlreadyLabel(taskId);
         JSONObject rs = new JSONObject();
         if(paragraphLabelEntityList != null){
             rs.put("msg","查询文件内容成功");
             rs.put("code",0);
             rs.put("data",paragraphLabelEntityList);
-            rs.put("labelCount",labelCountEntityList);
+            rs.put("labelCount",null);
         }else{
             rs.put("msg","查询文件内容失败");
             rs.put("code",-1);

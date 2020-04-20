@@ -601,6 +601,7 @@ function ajaxNextTask() {
             console.log("data.data："+JSON.stringify(data));
             paraId[0]=data.data.pid;//console.log(paraId[i]);//每段内容的ID
             $("#p-para").html(paraContent[0]);
+            labelHtml(labelList);
         }, error: function (XMLHttpRequest, textStatus, errorThrown,data) {
         },
     });
@@ -629,7 +630,7 @@ function ajaxLastTask(){
                 console.log("data.data："+JSON.stringify(data));
                 paraId[0]=data.data.pid;//console.log(paraId[i]);//每段内容的ID
                 $("#p-para").html(paraContent[0]);
-
+                labelHtml(labelList);
             }
 
         }, error: function (XMLHttpRequest, textStatus, errorThrown) {
@@ -639,20 +640,20 @@ function ajaxLastTask(){
 };
 
 function cleardata() {
-    para_label = new Array();
+
     label_list_img = new Array();
 
-    //重画前端，可以和alreadydone一起做
-    $("#label").empty();
-    var label_html="";
-    for(var i=0;i<labelLength;i++){
-        var list_html ='<li class="list-group-item">'
-            +'<img class="notAns" src="/images/notAns.png" id="label-list-img-'+i+'" onclick="imgClick(this.id)">'
-            +labelList[i].labelname
-            +'</li>';
-        label_html =label_html+list_html;
-        label_list_img[i]="label-list-img-"+i;
-    }
-    $("#ul-label-list").html(label_html);
+    // //重画前端，可以和alreadydone一起做
+    // $("#label").empty();
+    // var label_html="";
+    // for(var i=0;i<labelLength;i++){
+    //     var list_html ='<li class="list-group-item">'
+    //         +'<img class="notAns" src="/images/notAns.png" id="label-list-img-'+i+'" onclick="imgClick(this.id)">'
+    //         +labelList[i].labelname
+    //         +'</li>';
+    //     label_html =label_html+list_html;
+    //     label_list_img[i]="label-list-img-"+i;
+    // }
+    // $("#ul-label-list").html(label_html);
 
 }

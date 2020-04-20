@@ -47,12 +47,26 @@
 
 
     <!--根据发布者ID查询所有发布的任务-->
-    <select id="selectMyPubTaskByDoingDetail" parameterType="map" resultMap="BaseResultMap">
+    <!--<select id="selectMyPubTaskByDoingDetail" parameterType="map" resultMap="BaseResultMap">
         select dt.tkid, dt.user_id, dt.task_id,dt.dotime, dt.dcomptime, dt.dstatus,dt.dpercent,dt.alreadypart,dt.totalpart,
         u.username doUserName,
         t.type_name
         from d_task dt
         INNER JOIN task t on t.tid=dt.task_id
+        INNER JOIN user u on u.id=dt.user_id where dt.task_id = #{taskId}
+        ORDER BY dt.tkid
+        limit #{currIndex},#{pageSize}
+
+    </select>-->
+
+    <select id="selectMyPubTaskByDoingDetail" parameterType="map" resultMap="BaseResultMap">
+        select dt.tkid, dt.user_id, dt.task_id,dt.dotime, dt.dcomptime, dt.dstatus,dt.dpercent,
+        dt.alreadypart,dt.totalpart,us.subtask_id pid,
+        u.username doUserName,
+        t.type_name
+        from d_task dt
+        INNER JOIN task t on t.tid=dt.task_id
+        INNER JOIN user_subtask us on us.task_id = dt.task_id
         INNER JOIN user u on u.id=dt.user_id where dt.task_id = #{taskId}
         ORDER BY dt.tkid
         limit #{currIndex},#{pageSize}

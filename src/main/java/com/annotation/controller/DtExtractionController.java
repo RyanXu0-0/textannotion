@@ -38,13 +38,13 @@ public class DtExtractionController {
      * 信息抽取
      * @param httpServletRequest
      * @param httpServletResponse
-     * @param docId
+     * @param
      * @param userId
      * @return
      */
     @GetMapping
     public JSONObject getExtractionPara(HttpServletRequest httpServletRequest, HttpSession httpSession, HttpServletResponse httpServletResponse,
-                                        int docId,String status,int taskId,@RequestParam(defaultValue="0")int userId) {
+                                        int taskId,@RequestParam(defaultValue="0")int userId) {
 
         System.out.println("userId:"+userId);
         if(userId==0){
@@ -106,12 +106,11 @@ public class DtExtractionController {
 
     @GetMapping("/detail")
     public JSONObject getExtractionDetail(HttpServletRequest httpServletRequest, HttpSession httpSession, HttpServletResponse httpServletResponse,
-                                          int docId,int userId,String status,int taskId) {
+                                          int subtaskId,int userId,String status,int taskId) {
 
 
-        List<ParagraphLabelEntity> paragraphLabelEntityList=iDtExtractionService.queryExtractionParaLabel(docId,userId,status,taskId);
+        List<ParagraphLabelEntity> paragraphLabelEntityList=iDtExtractionService.getExtractionDone(subtaskId,userId,taskId);
 
-        //List<Content> contentList = iContentService.selectContentByDocId(docId);
         JSONObject rs = new JSONObject();
         if(paragraphLabelEntityList != null){
             rs.put("msg","查询文件内容成功");

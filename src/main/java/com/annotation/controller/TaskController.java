@@ -486,7 +486,7 @@ public class TaskController {
      */
 
     @GetMapping(value = "/commitError")
-    public JSONObject commitError (HttpSession httpSession,  int docId, int paraId,String msg,int taskId,@RequestParam(defaultValue="0")int userId) {
+    public JSONObject commitError (HttpSession httpSession,  Integer docId, int paraId,String msg,int taskId,@RequestParam(defaultValue="0")int userId) {
 
         if(userId==0){
             User user =(User)httpSession.getAttribute("currentUser");

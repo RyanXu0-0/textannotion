@@ -12,10 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by twinkleStar on 2019/2/2.
@@ -71,6 +68,14 @@ public class DtSortingServiceImpl implements IDtSortingService {
 
 
 
+    }
+
+
+    public List<InstanceItemEntity> getSortingDone(int subtaskId , int userId,int taskId){
+        List<InstanceItemEntity> dataList = new ArrayList<>();
+        InstanceItemEntity data = dtSortingMapper.selectSortingByInstanceId(subtaskId);
+        dataList.add(data);
+        return dataList;
     }
 
     public InstanceItemEntity getSortingData(int userId, int taskId){

@@ -75,4 +75,6 @@ public interface IDtPairingService {
     ResponseEntity getNextPairingData(int userId, int taskId, int subtaskId);
 
     InstanceListitemEntity getLastPairingData(int userId, int taskId,int subtaskId);
-    }
+
+    List<InstanceListitemEntity> getInstanceDone(int subtaskId, int userId,int taskId);
+}

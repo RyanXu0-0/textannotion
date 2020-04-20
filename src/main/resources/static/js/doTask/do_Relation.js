@@ -791,11 +791,14 @@ function ajaxNextTask() {
             }
             cleardata();
             console.log(JSON.stringify(data));
-            console.log(itemList);
             itemList=data.data.itemList;
+            console.log(itemList);
             //paintContent(curInstanceIndex);
             $("#p-item-0").html(itemList[0].itemcontent);
             $("#p-item-1").html(itemList[1].itemcontent);
+            console.log(instanceLabel);
+            console.log(item1Label);
+            console.log(item2Label);
             paintLabelHtml(instanceLabel,item1Label,item2Label);
 
             instanceItem[curInstanceIndex].instid = data.data.instid;
@@ -841,10 +844,7 @@ function ajaxLastTask(){
 
 
 function cleardata() {
-    instanceLabel = new Array();
-    item1Label = new Array();
-    item2Label = new Array();
     $("#instance-label-div").empty();
     $("#item1-label-div").empty();
-    $("#item1-label-div").empty();
+    $("#item2-label-div").empty();
 }

@@ -57,6 +57,8 @@ $(function () {
     var userIdArr=arr[1].split("=");
     userId = userIdArr[1];
 
+    var subtaskIdArr=arr[2].split("=");
+    subtaskId = subtaskIdArr[1];
     /**
      *ajax获取task详细信息
      */
@@ -74,23 +76,23 @@ $(function () {
     });
 
 
-    $("#select-docStatus").click(function(){
-
-        /**
-         * 调用ajax上传标签
-         */
-        ajaxDocContent(docId);
-
-    });
-
-    $("#complete-doc").click(function(){
-
-        /**
-         * 调用ajax上传标签
-         */
-        ajaxCompleteDoc(docId);
-
-    });
+    // $("#select-docStatus").click(function(){
+    //
+    //     /**
+    //      * 调用ajax上传标签
+    //      */
+    //     ajaxDocContent(docId);
+    //
+    // });
+    //
+    // $("#complete-doc").click(function(){
+    //
+    //     /**
+    //      * 调用ajax上传标签
+    //      */
+    //     ajaxCompleteDoc(docId);
+    //
+    // });
 
 
 
@@ -123,7 +125,7 @@ function ajaxTaskInfo(taskId) {
             taskInfo=data.data; //console.log(taskInfo);
             labelList=data.data.labelList;//console.log(labelList);
             documentList =data.data.documentList;//console.log(documentList);
-            docId=documentList[0].did;//console.log(docId);
+            //docId=documentList[0].did;//console.log(docId);
 
 
             /**
@@ -201,10 +203,7 @@ function ajaxTaskInfo(taskId) {
             $("#taskLabels").append(labelListHtml);
 
 
-            /**
-             * 获取文件内容，提前加载
-             */
-            ajaxDocContent(docId);
+            ajaxDocContent();
 
         }, error: function (XMLHttpRequest, textStatus, errorThrown) {
 
@@ -217,14 +216,13 @@ function ajaxTaskInfo(taskId) {
 
 /**
  * 获取文件的内容
- * @param docId
+ *
  */
-function ajaxDocContent(docId) {
+function ajaxDocContent() {
     var docid={
-        docId: docId,
-        status:docStatus,
         userId:userId,
-        taskId:taskId
+        taskId:taskId,
+        subtaskId:subtaskId
     };
     $.ajax({
         url: "/classify/detail",
@@ -281,39 +279,39 @@ function ajaxDocContent(docId) {
 
 
 
-            $('.Pagination').pagination({
-                pageCount: paraIndex,
-                coping: true,
-                mode:'fixed',
-                count:6,
-                homePage: '首页',
-                endPage: '末页',
-                prevContent: '上页',
-                nextContent: '下页',
-                callback: function (api) {
-                    //console.log(api.getCurrent());
-
-                    curParaIndex=api.getCurrent()-1;
-                    $("#p-para").html(paraContent[curParaIndex]);//显示第1段内容
-
-                    var curParaIndexNum =parseInt(curParaIndex);
-                    $("#span-index").html("第"+(curParaIndexNum+1)+"段");//设置内容面板的标题
-                    $("#p-para").html(paraContent[curParaIndex]);//设置内容
-
-                    labelHtml(labelList);
-
-                    for(var i=0;i<labelLength;i++){
-                        if(para_label[curParaIndexNum][i]>-1) {
-                            $("#" + label_list_img[i]).attr("src", "/images/isAnsBlue.png");
-                            $("#" + label_list_img[i]).removeClass("notAns").addClass("isAns");
-                        }
-
-                    }
-
-                }
-            });
-
-
+            // $('.Pagination').pagination({
+            //     pageCount: paraIndex,
+            //     coping: true,
+            //     mode:'fixed',
+            //     count:6,
+            //     homePage: '首页',
+            //     endPage: '末页',
+            //     prevContent: '上页',
+            //     nextContent: '下页',
+            //     callback: function (api) {
+            //         //console.log(api.getCurrent());
+            //
+            //         curParaIndex=api.getCurrent()-1;
+            //         $("#p-para").html(paraContent[curParaIndex]);//显示第1段内容
+            //
+            //         var curParaIndexNum =parseInt(curParaIndex);
+            //         $("#span-index").html("第"+(curParaIndexNum+1)+"段");//设置内容面板的标题
+            //         $("#p-para").html(paraContent[curParaIndex]);//设置内容
+            //
+            //         labelHtml(labelList);
+            //
+            //         for(var i=0;i<labelLength;i++){
+            //             if(para_label[curParaIndexNum][i]>-1) {
+            //                 $("#" + label_list_img[i]).attr("src", "/images/isAnsBlue.png");
+            //                 $("#" + label_list_img[i]).removeClass("notAns").addClass("isAns");
+            //             }
+            //
+            //         }
+            //
+            //     }
+            // });
+            //
+            //
 
 
 
@@ -470,28 +468,30 @@ function badfunc(obj) {
 
 
 };
-function ajaxCompleteDoc(docId) {
-    var docid={
-        docId: docId,
-        taskId:taskId,userId:0
-    };
-    $.ajax({
-        url: "/classify/doc/status",
-        type: "post",
-        traditional: true,
-        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-        dataType: "json",
-        data:docid,
-        success: function (data) {
-            console.log(data);
 
-
-        }, error: function (XMLHttpRequest, textStatus, errorThrown) {
-
-
-        },
-    });
-}
+// function ajaxCompleteDoc(docId) {
+//     var docid={
+//         docId: docId,
+//         taskId:taskId,
+//         userId:0
+//     };
+//     $.ajax({
+//         url: "/classify/doc/status",
+//         type: "post",
+//         traditional: true,
+//         contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+//         dataType: "json",
+//         data:docid,
+//         success: function (data) {
+//             console.log(data);
+//
+//
+//         }, error: function (XMLHttpRequest, textStatus, errorThrown) {
+//
+//
+//         },
+//     });
+// }
 
 
 function ajaxComment(dtdId,cNum,flg,curDtdIndex) {

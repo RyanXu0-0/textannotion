@@ -61,9 +61,9 @@ public class DtPairingController {
 
     @GetMapping("/detail")
     public JSONObject getPairingInstanceDetail(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, HttpSession httpSession,
-                                         int docId,String status,int taskId,int userId) {
+                                         int subtaskId,int taskId,int userId) {
 
-        List<InstanceListitemEntity> instanceItemEntityList = iDtPairingService.queryInstanceListitem(docId,userId,status,taskId);
+        List<InstanceListitemEntity> instanceItemEntityList = iDtPairingService.getInstanceDone(subtaskId,userId,taskId);
         JSONObject rs = new JSONObject();
         if(instanceItemEntityList != null){
             rs.put("msg","查询文件内容成功");

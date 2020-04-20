@@ -72,7 +72,8 @@ $(function () {
     taskId = taskidArr[1];
     var userIdArr=arr[1].split("=");
     userId = userIdArr[1];
-
+    var subtaskIdArr=arr[2].split("=");
+    subtaskId = subtaskIdArr[1];
     /**
      *ajax获取task详细信息
      */
@@ -230,10 +231,9 @@ function ajaxTaskInfo(taskId) {
  */
 function ajaxDocContent(docId){
     var docid={
-        docId: docId,
-        status:docStatus,
+        userId:userId,
         taskId:taskId,
-        userId:userId
+        subtaskId:subtaskId
     };
     $.ajax({
         url: "/extraction/detail",

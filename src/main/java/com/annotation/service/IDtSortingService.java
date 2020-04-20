@@ -43,4 +43,6 @@ public interface IDtSortingService {
     InstanceItemEntity getLastSortingData(int userId, int taskId,int subtaskId);
 
     ResponseEntity getNextSortingData(int userId, int taskId,int subtaskId);
+
+    List<InstanceItemEntity> getSortingDone(int subtaskId , int userId,int taskId);
 }

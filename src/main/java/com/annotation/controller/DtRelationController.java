@@ -78,22 +78,21 @@ public class DtRelationController {
 
     @GetMapping("/detail")
     public JSONObject getRelationInstanceDetail(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, HttpSession httpSession,
-                                          int docId,String status,int taskId,int userId) {
+                                          int subtaskId,int taskId,int userId) {
 
-
-        List<InstanceItemEntity> instanceItemEntityList = iDtRelationService.queryInstanceItem(docId,userId,status,taskId);
-        List<Label> instanceLabel =iInstanceLabelService.queryInstanceLabelByDocId(docId);
-        List<Label> item1Label =iInstanceLabelService.queryItem1LabelByDocId(docId);
-        List<Label> item2Label = iInstanceLabelService.queryItem2LabelByDocId(docId);
+        List<InstanceItemEntity> instanceItemEntityList = iDtRelationService.getInstanceItemDone(subtaskId,userId,taskId);
+//        List<Label> instanceLabel =iInstanceLabelService.queryInstanceLabelByDocId(docId);
+//        List<Label> item1Label =iInstanceLabelService.queryItem1LabelByDocId(docId);
+//        List<Label> item2Label = iInstanceLabelService.queryItem2LabelByDocId(docId);
 
         JSONObject rs = new JSONObject();
         if(instanceItemEntityList != null){
             rs.put("msg","查询成功");
             rs.put("code",0);
             rs.put("instanceItem",instanceItemEntityList);
-            rs.put("instanceLabel",instanceLabel);
-            rs.put("item1Label",item1Label);
-            rs.put("item2Label",item2Label);
+            rs.put("instanceLabel",null);
+            rs.put("item1Label",null);
+            rs.put("item2Label",null);
         }else{
             rs.put("msg","查询失败");
             rs.put("code",-1);

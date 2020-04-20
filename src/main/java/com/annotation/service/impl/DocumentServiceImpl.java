@@ -156,8 +156,6 @@ public class DocumentServiceImpl implements IDocumentService {
      */
     @Transactional
     public int addXlsParagraph(Document document, MultipartFile file){
-
-
         int docInsertRes = documentMapper.insert(document);//插入结果
         //插入document失败
         if(docInsertRes < 0){
@@ -178,6 +176,9 @@ public class DocumentServiceImpl implements IDocumentService {
                     //首行（即表头）不读取
                     if (row.getRowNum() == 0) {
                         continue;
+                    }
+                    if(row == null||row.getCell(0)==null||row.getCell(1)==null){
+                        break;
                     }
                     int instid;
                     Paragraph paragraph =new Paragraph();
@@ -648,6 +649,9 @@ public class DocumentServiceImpl implements IDocumentService {
                     if (row.getRowNum() == 0) {
                         continue;
                     }
+                    if(row == null||row.getCell(0)==null||row.getCell(1)==null){
+                        break;
+                    }
                     int instid;
                     Instance instance =new Instance();
                     row.getCell(0).setCellType(Cell.CELL_TYPE_STRING);
@@ -933,6 +937,9 @@ public class DocumentServiceImpl implements IDocumentService {
                     //首行（即表头）不读取
                     if (row.getRowNum() == 0) {
                         continue;
+                    }
+                    if(row == null||row.getCell(0)==null||row.getCell(1)==null){
+                        break;
                     }
                     int instid;
                     Instance instance =new Instance();

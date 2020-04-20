@@ -48,4 +48,6 @@ public interface IDtRelationService {
     ResponseEntity getNextRelationData(int userId, int taskId, int subtaskId);
 
     HSSFWorkbook getRelationExcel(List<RelationData> pairingDataList);
+
+    List<InstanceItemEntity> getInstanceItemDone(int subtaskId,int userId,int taskId);
 }

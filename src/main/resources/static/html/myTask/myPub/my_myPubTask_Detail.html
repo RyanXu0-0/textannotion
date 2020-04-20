@@ -101,7 +101,7 @@
                 {field: 'doUserName', title: '参与用户', edit: 'text'},
                 {field: 'typeName', title: '任务类型', edit: 'text',sort: true},
                 {field: 'dstatus', title: '任务状态', edit: 'text',sort: true},
-                {field: 'dpercent', title: '完成进度', edit: 'text'},
+                {field: 'alreadypart', title: '完成数量', edit: 'text'},
                 {field: 'dotime', title: '参与时间', edit: 'text'},
                 {field: 'option', title: '操作',width:200 ,align:'center',toolbar:'#optionDemo'}
             ]]
@@ -116,7 +116,7 @@
         });
         table.on('tool(test)', function(obj){
             var data = obj.data;
-
+            console.log(JSON.stringify(data));
             if(obj.event === 'detailcontent'){
                 layui.use(['jquery', 'layer'], function(){
                     var $ = layui.$ //重点处
@@ -124,13 +124,13 @@
 
                     var taskid=data.taskId;
                     var userId=data.userId;
-
+                    var subtaskId=data.pid;
                     var taskType=data.typeName;
 
                     var url="";
 
                     if(taskType.indexOf("文本分类")!=-1){
-                        url = "/html/myTask/myPub/my_myPub_Classification.html?taskid="+taskid+"&userId="+userId;
+                        url = "/html/myTask/myPub/my_myPub_Classification.html?taskid="+taskid+"&userId="+userId+"&subtaskId="+subtaskId;
                         parent.layui.element.tabAdd('home-tabs', {//从父页面添加tab选项卡，如果不指定id，选项卡id会自增
 
                             title: '<img src="/images/fenleiTab.png"> '+taskType //用于演示
@@ -141,7 +141,7 @@
                         parent.layui.element.tabChange('home-tabs', taskid+"具体内容");
 
                     }else if(taskType.indexOf("信息抽取")!=-1){
-                        url ="/html/myTask/myPub/my_myPub_Extraction.html?taskid="+taskid+"&userId="+userId;
+                        url ="/html/myTask/myPub/my_myPub_Extraction.html?taskid="+taskid+"&userId="+userId+"&subtaskId="+subtaskId;
                         parent.layui.element.tabAdd('home-tabs', {//从父页面添加tab选项卡，如果不指定id，选项卡id会自增
                             title: '<img src="../../../images/xinxichouquTab.png"> '+taskType //用于演示
                             ,content: '<iframe data-frameid="'+taskid+'" scrolling="auto" frameborder="0" src="'+url+'" style="width:100%;height:745px;"></iframe>'
@@ -150,7 +150,7 @@
 
                         parent.layui.element.tabChange('home-tabs', taskid+"具体内容");
                     }else if(taskType.indexOf("文本关系")!=-1){
-                        url="/html/myTask/myPub/my_myPub_Relation.html?taskid="+taskid+"&userId="+userId;
+                        url="/html/myTask/myPub/my_myPub_Relation.html?taskid="+taskid+"&userId="+userId+"&subtaskId="+subtaskId;
                         parent.layui.element.tabAdd('home-tabs', {//从父页面添加tab选项卡，如果不指定id，选项卡id会自增
                             title: '<img src="/images/wenbenguanxiTab.png"> 文本关系' //用于演示
                             ,content: '<iframe data-frameid="'+taskid+'" scrolling="auto" frameborder="0" src="'+url+'" style="width:100%;height:745px;"></iframe>'
@@ -160,7 +160,7 @@
                         parent.layui.element.tabChange('home-tabs', taskid+"具体内容");
                     }else if(taskType.indexOf("文本配对")!=-1){
 
-                        url="/html/myTask/myPub/my_myPub_Pairing.html?taskid="+taskid+"&userId="+userId;
+                        url="/html/myTask/myPub/my_myPub_Pairing.html?taskid="+taskid+"&userId="+userId+"&subtaskId="+subtaskId;
 
                         var title="";
                         if(taskType.indexOf("一对一")!=-1){
@@ -179,7 +179,7 @@
 
                         parent.layui.element.tabChange('home-tabs', taskid+"具体内容");
                     }else if(taskType=="文本排序"){
-                        url="/html/myTask/myPub/my_myPub_OneSorting.html?taskid="+taskid+"&userId="+userId;
+                        url="/html/myTask/myPub/my_myPub_OneSorting.html?taskid="+taskid+"&userId="+userId+"&subtaskId="+subtaskId;
                         parent.layui.element.tabAdd('home-tabs', {//从父页面添加tab选项卡，如果不指定id，选项卡id会自增
                             title: '<img src="/images/sorting1.png"> 文本排序' //用于演示
                             ,content: '<iframe data-frameid="'+taskid+'" scrolling="auto" frameborder="0" src="'+url+'" style="width:100%;height:745px;"></iframe>'
@@ -188,7 +188,7 @@
 
                         parent.layui.element.tabChange('home-tabs', taskid+"具体内容");
                     }else if(taskType.indexOf("类比排序")!=-1){
-                        url="/html/myTask/myPub/my_myPub_TwoSorting.html?taskid="+taskid+"&userId="+userId;
+                        url="/html/myTask/myPub/my_myPub_TwoSorting.html?taskid="+taskid+"&userId="+userId+"&subtaskId="+subtaskId;
                         parent.layui.element.tabAdd('home-tabs', {//从父页面添加tab选项卡，如果不指定id，选项卡id会自增
                             title: '<img src="/images/sorting2.png"> 文本类比排序' //用于演示
                             ,content: '<iframe data-frameid="'+taskid+'" scrolling="auto" frameborder="0" src="'+url+'" style="width:100%;height:745px;"></iframe>'

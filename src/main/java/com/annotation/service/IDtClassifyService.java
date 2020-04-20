@@ -47,4 +47,6 @@ public interface IDtClassifyService {
     ParagraphLabelEntity getLastClassifyData(int userId, int taskId,int subtaskId);
 
     ResponseEntity getNextClassifyData(int userId, int taskId,int subtaskId);
+
+    List<ParagraphLabelEntity> getClassifyDone(int subtaskId, int userId,int taskId);
 }

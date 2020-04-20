@@ -13,10 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by twinkleStar on 2019/2/2.
@@ -71,6 +68,12 @@ public class DtRelationServiceImpl implements IDtRelationService {
 
     }
 
+    public List<InstanceItemEntity> getInstanceItemDone(int subtaskId,int userId,int taskId){
+        List<InstanceItemEntity> dataList = new ArrayList<>();
+        InstanceItemEntity data = dtRelationMapper.selectRelationByInstanceId(subtaskId);
+        dataList.add(data);
+        return dataList;
+    }
 
     //没有任务则返回Null
     public InstanceItemEntity getRelationData(int userId, int taskId){
@@ -329,6 +332,7 @@ public class DtRelationServiceImpl implements IDtRelationService {
         return wb;
 
     }
+
     public InstanceItemEntity getLastRelationData(int userId, int taskId,int subtaskId){
         InstanceItemEntity data;
         //List<DtExtraction> entityList;

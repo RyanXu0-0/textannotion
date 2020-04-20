@@ -83,6 +83,17 @@ public class DtExtractionServiceImpl implements IDtExtractionService {
 
     }
 
+    public List<ParagraphLabelEntity> getExtractionDone(int subtaskId, int userId,int taskId){
+        List<ParagraphLabelEntity> dataList = new ArrayList<>();
+        Paragraph paragraph = paragraphMapper.selectByPrimaryKey(subtaskId);
+        List<DtExtraction> entityList = dtExtractionMapper.selectCurrentDone(userId,taskId,subtaskId);
+        List<DtExtractionRelation> relationList = dtExtractionRelationMapper.selectCurrentDone(userId,taskId,subtaskId);
+        List<Map<String, Object>> entityDone = transforEntityList(entityList);
+        List<Map<String, Object>> relationDone = transforRelationList(relationList);
+        ParagraphLabelEntity data = new ParagraphLabelEntity(paragraph,entityDone,relationDone);
+        dataList.add(data);
+        return dataList;
+    }
 
     /**
      * 信息抽取做任务
@@ -262,7 +273,7 @@ public class DtExtractionServiceImpl implements IDtExtractionService {
                 //重新领取任务
                 int alreadypart = dTask.getAlreadypart();
                 float interval = Float.valueOf(dTask.getAccuracy());
-                int actualint = (int)interval*20;//实际检测间隔
+                int actualint = (int)interval*20+5;//实际检测间隔
                 //分配任务给用户，首先查询任务是否分配完成，其次查看是否需要分配测试任务
                 //1.判断任务是否分配完了
                 if(currenttask == totaltask){

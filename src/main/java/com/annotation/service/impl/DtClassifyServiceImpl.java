@@ -14,10 +14,7 @@ import org.springframework.stereotype.Repository;
 
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by twinkleStar on 2019/2/2.
@@ -49,12 +46,10 @@ public class DtClassifyServiceImpl implements IDtClassifyService {
     ResponseUtil responseUtil;
     /**
      * 查询content+label，可能不上
-     * @param docId
+
      * @return
      */
     public List<ParagraphLabelEntity> queryClassifyParaLabel(int docId, int userId,String status,int taskId){
-
-
         DTask dTask=dTaskMapper.selectByTaskIdAndUserId(taskId,userId);
         if(dTask!=null){
             if(status.equals("全部")){
@@ -74,13 +69,17 @@ public class DtClassifyServiceImpl implements IDtClassifyService {
             return contentLabelEntityList;
         }
 
-
-
-
-        //List<ParagraphLabelEntity> contentLabelEntityList=dtClassifyMapper.selectClassifyWithoutDocId(14,userId);
-
     }
 
+    public List<ParagraphLabelEntity> getClassifyDone(int subtaskId, int userId,int taskId){
+        List<ParagraphLabelEntity> dataList = new ArrayList<>();
+        Paragraph paragraph = paragraphMapper.selectByPrimaryKey(subtaskId);
+        //alreadyList = dtClassifyMapper.selectCurrentDone(userId,taskId,theLasttask.getSubtaskId());
+        //List<Map<String, Object>> entityDone = transforEntityList(alreadyList);
+        ParagraphLabelEntity data = new ParagraphLabelEntity(paragraph);
+        dataList.add(data);
+        return dataList;
+    }
 
 /**
  * 从列表中选取任务时，会根据任务状态，分配普通任务或者检测任务，若已经没有任务，则分配为null

@@ -63,9 +63,9 @@ public class DtSortingController {
 
     @GetMapping("/detail")
     public JSONObject getSortingInstanceItemDetail(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, HttpSession httpSession,
-                                             int docId,String status,int taskId,int userId) {
+                                             int subtaskId,int taskId,int userId) {
 
-        List<InstanceItemEntity> instanceItemEntityList = iDtSortingService.querySortingInstanceItem(docId,userId,status,taskId);
+        List<InstanceItemEntity> instanceItemEntityList = iDtSortingService.getSortingDone(subtaskId,userId,taskId);
 
         JSONObject rs = new JSONObject();
         if(instanceItemEntityList != null){

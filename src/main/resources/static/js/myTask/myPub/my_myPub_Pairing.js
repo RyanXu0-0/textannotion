@@ -69,7 +69,8 @@ $(function ($) {
     taskId = taskidArr[1];console.log(taskId);
     var userIdArr=arr[1].split("=");
     userId = userIdArr[1];console.log(userId);
-
+    var subtaskIdArr=arr[2].split("=");
+    subtaskId = subtaskIdArr[1];
 
     $("#select-docStatus").click(function(){
         ajaxDocInstanceItem(docId);
@@ -347,14 +348,13 @@ function ajaxTaskInfo(taskId) {
 
 /**
  * 获取文件的内容
- * @param docId
+ *
  */
 function ajaxDocInstanceItem(docId) {
     var docid={
-        docId: docId,
-        status:docStatus,
+        userId:userId,
         taskId:taskId,
-        userId:userId
+        subtaskId:subtaskId
     };
     $.ajax({
         url: "/pairing/detail",

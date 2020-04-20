@@ -82,7 +82,7 @@ $(function(){
 
             var infoHtml='<p>提示：文本分类类型的标注任务适用于情感分析，垃圾邮件识别等领域。</p>' +
                 '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' +
-                '&nbsp;&nbsp;&nbsp;&nbsp;上传文件格式仅支持doc,docx,txt；文档模板样例请查看示例图片。</p>';
+                '&nbsp;&nbsp;&nbsp;&nbsp;上传文件格式仅支持doc,docx,xls,xlsx,txt；文档模板样例请查看示例图片。</p>';
             // var infoHtml='<p>提示：上传文件格式仅支持doc,docx,txt；文件内容段落之间请用“#”进行分隔，示例：</p>' +
             //     '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' +
             //     '&nbsp;&nbsp;&nbsp;&nbsp;这是一个测试段落1#这是一个测试段落2#</p>';
@@ -130,7 +130,7 @@ $(function(){
 
             var infoHtml='<p>提示：文本分类类型的标注任务适用于情感分析，垃圾邮件识别等领域。</p>' +
                 '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' +
-                '&nbsp;&nbsp;&nbsp;&nbsp;上传文件格式仅支持doc,docx,txt；文档模板样例请查看示例图片。</p>';
+                '&nbsp;&nbsp;&nbsp;&nbsp;上传文件格式仅支持doc,docx,xls,xlsx,txt；文档模板样例请查看示例图片。</p>';
             // var infoHtml='<p>提示：上传文件格式仅支持doc,docx,txt；文件内容段落之间请用“#”进行分隔，示例：</p>' +
             //     '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' +
             //     '&nbsp;&nbsp;&nbsp;&nbsp;这是一个测试段落1#这是一个测试段落2#</p>';
@@ -160,7 +160,7 @@ $(function(){
         else if(taskValue=="3"){
             $("#type4-relation-div").hide();
 
-            var infoHtml='<p>提示：上传文件格式仅支持doc,docx,txt；文件内容段落instance之间请用“#”进行分隔，' +
+            var infoHtml='<p>提示：上传文件格式仅支持doc,docx,xls,xlsx,txt；文件内容段落instance之间请用“#”进行分隔，' +
                 '每段之间的item请用“----”分隔，示例：</p>' +
                 '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' +
                 '&nbsp;&nbsp;&nbsp;&nbsp;这是段落1的测试item1-----这是段落1的测试item2#' +
@@ -233,7 +233,7 @@ $(function(){
         }else if(taskValue=="4"){
             var infoHtml='<p>提示：文本配对类型的标注任务适用于文章相似度匹配、关键信息和检索信息匹配等领域。</p>' +
                 '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' +
-                '&nbsp;&nbsp;&nbsp;&nbsp;上传文件格式仅支持doc,docx,txt；文档模板样例请查看示例图片。</p>'+
+                '&nbsp;&nbsp;&nbsp;&nbsp;上传文件格式仅支持doc,docx,xls,xlsx,txt；文档模板样例请查看示例图片。</p>'+
                 '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' +
                 '&nbsp;&nbsp;&nbsp;&nbsp;请选择一对一、一对多或多对多类型</p>';
 

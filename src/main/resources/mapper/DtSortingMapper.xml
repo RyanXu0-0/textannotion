@@ -43,9 +43,11 @@
 
     <select id="selectSortingByInstanceId" parameterType="Integer" resultMap="InstanceItemSortingByDocId">
     select s.instid, s.instindex, s.document_id, s.labelnum,
-    it.itid, it.itemcontent, it.itemindex, it.instance_id, it.labelnum itemlabelnum
+    it.itid, it.itemcontent, it.itemindex, it.instance_id, it.labelnum itemlabelnum,
+    dts.item_id, dts.newindex
     from instance s
     left join item it on s.instid=it.instance_id
+    left join dt_sorting dts on dts.subtask_id =it.instance_id
     where s.instid=#{instId}
   </select>
 

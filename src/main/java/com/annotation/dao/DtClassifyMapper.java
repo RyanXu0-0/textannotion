@@ -73,7 +73,7 @@ public interface DtClassifyMapper {
 
     List<DtClassify> selectByTaskidAndSubtaskid(@Param("taskId")int taskId, @Param("subtaskId") int subtaskId);
 
-    List<DtClassify> selectCurrentDone(@Param("userId") Integer userId,@Param("taskId")Integer taskId,@Param("subtaskId")Integer subtaskId);
+    ParagraphLabelEntity selectCurrentDone(@Param("subtaskId")Integer subtaskId);
 
     int deleteAllByTaskId(@Param("taskId")Integer taskId);
 }

@@ -183,9 +183,12 @@
     </select>
 
 
-    <select id="selectCurrentDone" parameterType="java.lang.Integer" resultMap="BaseResultMap" >
-    select * from dt_classify
-    where user_id = #{userId} and task_id = #{taskId} and subtask_id = #{subtaskId}
+    <select id="selectCurrentDone" parameterType="java.lang.Integer" resultMap="ClassifyParaLabelByDocId" >
+    select p.pid, p.paracontent, p.paraindex, p.document_id,
+        dtc.label_id,dtc.dtd_id
+        from paragraph p
+        left join dt_classify dtc on p.pid =dtc.subtask_id
+        where p.pid=#{subtaskId}
   </select>
 
     <delete id="deleteAllByTaskId" parameterType="java.lang.Integer" >

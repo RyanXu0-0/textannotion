@@ -466,9 +466,7 @@ public class DtPairingServiceImpl implements IDtPairingService {
                     if(dTask.getCurrentStatus().equals("test")){
                         //返回test任务
                         InstanceListitemEntity subtask = dtPairingMapper.selectPairingByInstanceId(dTask.getPid());
-                        //entityList = dtExtractionMapper.selectCurrentDone(userId,taskId,subtaskId);
-                        //List<Map<String, Object>> entityDone = transforEntityList(entityList);
-                        data.setData(subtask);
+                         data.setData(subtask);
                         return data;
                     }else{
                         //任务已完成，分配新任务
@@ -486,8 +484,6 @@ public class DtPairingServiceImpl implements IDtPairingService {
             }else{
                 //当前任务后面有已完成的任务，返回下一个任务
                 InstanceListitemEntity subtask = dtPairingMapper.selectPairingByInstanceId(nextSubtask.getSubtaskId());
-                //entityList = dtExtractionMapper.selectCurrentDone(userId,taskId,nextSubtask.getSubtaskId());
-                //List<Map<String, Object>> entityDone = transforEntityList(entityList);
                 data.setData(subtask);
                 return data;
             }

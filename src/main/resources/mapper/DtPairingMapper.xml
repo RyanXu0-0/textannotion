@@ -70,9 +70,11 @@
 
     <select id="selectPairingByInstanceId" parameterType="Integer" resultMap="InstanceListitemByDocId">
         select s.instid, s.instindex, s.document_id, s.labelnum,
-        lt.ltid, lt.litemcontent, lt.list_index, lt.litemindex
+        lt.ltid, lt.litemcontent, lt.list_index, lt.litemindex,
+        dtp.a_litemid,dtp.b_litemid
         from instance s
         left join listitem lt on s.instid=lt.instance_id
+        left join dt_pairing dtp on lt.instance_id =dtp.subtask_id
         where s.instid=#{instId}
     </select>
 

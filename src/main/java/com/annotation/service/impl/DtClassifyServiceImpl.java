@@ -359,20 +359,14 @@ public class DtClassifyServiceImpl implements IDtClassifyService {
         //currentTask为null表示当前为检测任务，返回最后一个用户完成的任务
         if(currentTask == null){
             UserSubtask theLasttask = userSubtaskMapper.selectTheLastData(userId,taskId);
-            paragraph = paragraphMapper.selectByPrimaryKey(theLasttask.getSubtaskId());
-            alreadyList = dtClassifyMapper.selectCurrentDone(userId,taskId,theLasttask.getSubtaskId());
-            //List<Map<String, Object>> entityDone = transforEntityList(alreadyList);
-            data = new ParagraphLabelEntity(paragraph);
+            data = dtClassifyMapper.selectCurrentDone(theLasttask.getSubtaskId());
             return data;
         }
         UserSubtask userSubtask = userSubtaskMapper.selectLastData(userId,taskId,subtaskId);
         System.out.println("getLastExtractionData"+userId+" "+taskId+" "+subtaskId);
         //如果没有上一个任务，则直接返回null
         if(userSubtask == null){return null;}
-        paragraph = paragraphMapper.selectByPrimaryKey(userSubtask.getSubtaskId());
-        alreadyList = dtClassifyMapper.selectCurrentDone(userId,taskId,userSubtask.getSubtaskId());
-        //List<Map<String, Object>> entityDone = transforEntityList(alreadyList);
-        data = new ParagraphLabelEntity(paragraph);
+        data = dtClassifyMapper.selectCurrentDone(userSubtask.getSubtaskId());
         return data;
     }
 
@@ -400,10 +394,9 @@ public class DtClassifyServiceImpl implements IDtClassifyService {
                     if(dTask.getCurrentStatus().equals("test")){
                         //返回test任务
                         Paragraph subtask = paragraphMapper.selectByPrimaryKey(dTask.getPid());
-                        entityList = dtClassifyMapper.selectCurrentDone(userId,taskId,subtaskId);
+                        subtaskdata = dtClassifyMapper.selectCurrentDone(subtaskId);
                         //List<Map<String, Object>> entityDone = transforEntityList(entityList);
                         //List<Map<String, Object>> relationDone = transforRelationList(relationList);
-                        subtaskdata = new ParagraphLabelEntity(subtask);
                         data.setData(subtaskdata);
                         return data;
                     }else{
@@ -413,13 +406,6 @@ public class DtClassifyServiceImpl implements IDtClassifyService {
                             data.setStatus(5001);
                             data.setMsg("任务已完成！");
                         }else{
-                            //重新分配新的任务
-                            //entityList = dtExtractionMapper.selectCurrentDone(userId,taskId,subtaskId);
-                            //relationList = dtExtractionRelationMapper.selectCurrentDone(userId,taskId,subtaskId);
-                            //List<Map<String, Object>> entityDone = transforEntityList(entityList);
-                            //List<Map<String, Object>> relationDone = transforRelationList(relationList);
-                            //subtaskdata.setAlreadyDone(entityDone);
-                            //subtaskdata.setRelalreadyDone(relationDone);
                             data.setData(subtaskdata);
                         }
                         return data;
@@ -427,10 +413,7 @@ public class DtClassifyServiceImpl implements IDtClassifyService {
                 }
             }else{
                 //当前任务后面有已完成的任务，返回下一个任务
-                Paragraph paragraph = paragraphMapper.selectByPrimaryKey(nextSubtask.getSubtaskId());
-                entityList = dtClassifyMapper.selectCurrentDone(userId,taskId,nextSubtask.getSubtaskId());
-                 //List<Map<String, Object>> entityDone = transforEntityList(entityList);
-                subtaskdata = new ParagraphLabelEntity(paragraph);
+                subtaskdata = dtClassifyMapper.selectCurrentDone(nextSubtask.getSubtaskId());
                 data.setData(subtaskdata);
                 return data;
             }

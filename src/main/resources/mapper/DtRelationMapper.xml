@@ -45,9 +45,11 @@
 
     <select id="selectRelationByInstanceId" parameterType="Integer" resultMap="InstanceItemByDocId">
         select s.instid, s.instindex, s.document_id, s.labelnum,
-        it.itid, it.itemcontent, it.itemindex, it.instance_id, it.labelnum itemlabelnum
+        it.itid, it.itemcontent, it.itemindex, it.instance_id, it.labelnum itemlabelnum,
+        dtr.labeltype, dtr.label_id
         from instance s
         left join item it on s.instid=it.instance_id
+        left join dt_relation dtr on dtr.subtask_id =s.instid
         where s.instid=#{instId}
     </select>
 

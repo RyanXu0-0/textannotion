@@ -5,6 +5,7 @@ import com.annotation.model.Label;
 import com.annotation.model.User;
 import com.annotation.model.entity.InstanceItemEntity;
 import com.annotation.model.entity.InstanceListitemEntity;
+import com.annotation.model.entity.ParagraphLabelEntity;
 import com.annotation.model.entity.ResponseEntity;
 import com.annotation.service.IDtRelationService;
 import com.annotation.service.IInstanceLabelService;
@@ -80,19 +81,19 @@ public class DtRelationController {
     public JSONObject getRelationInstanceDetail(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, HttpSession httpSession,
                                           int subtaskId,int taskId,int userId) {
 
-        List<InstanceItemEntity> instanceItemEntityList = iDtRelationService.getInstanceItemDone(subtaskId,userId,taskId);
-//        List<Label> instanceLabel =iInstanceLabelService.queryInstanceLabelByDocId(docId);
-//        List<Label> item1Label =iInstanceLabelService.queryItem1LabelByDocId(docId);
-//        List<Label> item2Label = iInstanceLabelService.queryItem2LabelByDocId(docId);
+        InstanceItemEntity instanceItemEntity = iDtRelationService.getInstanceItemDone(subtaskId,userId,taskId);
+        List<Label> instanceLabel =iInstanceLabelService.queryInstanceLabelByTaskId(taskId);
+        List<Label> item1Label =iInstanceLabelService.queryItem1LabelByTaskId(taskId);
+        List<Label> item2Label = iInstanceLabelService.queryItem2LabelByTaskId(taskId);
 
         JSONObject rs = new JSONObject();
-        if(instanceItemEntityList != null){
+        if(instanceItemEntity != null){
             rs.put("msg","查询成功");
             rs.put("code",0);
-            rs.put("instanceItem",instanceItemEntityList);
-            rs.put("instanceLabel",null);
-            rs.put("item1Label",null);
-            rs.put("item2Label",null);
+            rs.put("instanceItem",instanceItemEntity);
+            rs.put("instanceLabel",instanceLabel);
+            rs.put("item1Label",item1Label);
+            rs.put("item2Label",item2Label);
         }else{
             rs.put("msg","查询失败");
             rs.put("code",-1);
@@ -181,4 +182,47 @@ public class DtRelationController {
         return rs;
     }
 
+    @PostMapping
+    @RequestMapping("/lastdonetask")
+    public JSONObject lastDoneClassifyTask(HttpSession httpSession,int taskId,int subtaskId,@RequestParam(defaultValue="0")int userId){
+
+        if(userId==0){
+            User user =(User)httpSession.getAttribute("currentUser");
+            userId = user.getId();
+        }
+        System.out.println("当前任务id："+subtaskId);
+        InstanceItemEntity instanceItemEntity = iDtRelationService.getLastDone(taskId,subtaskId);
+        JSONObject rs = new JSONObject();
+        if(instanceItemEntity != null){
+            rs.put("msg","查询文件内容成功");
+            rs.put("code",0);
+            rs.put("data",instanceItemEntity);
+        }else{
+            rs.put("msg","查询文件内容失败");
+            rs.put("code",-1);
+        }
+        return rs;
+    }
+
+    @PostMapping
+    @RequestMapping("/nextdonetask")
+    public JSONObject nextDoneClassifyTask(HttpSession httpSession,int taskId,int subtaskId,@RequestParam(defaultValue="0")int userId){
+
+        if(userId==0){
+            User user =(User)httpSession.getAttribute("currentUser");
+            userId = user.getId();
+        }
+        System.out.println("当前任务id："+subtaskId);
+        InstanceItemEntity instanceItemEntity = iDtRelationService.getNextDone(taskId,subtaskId);
+        JSONObject rs = new JSONObject();
+        if(instanceItemEntity != null){
+            rs.put("msg","查询文件内容成功");
+            rs.put("code",0);
+            rs.put("data",instanceItemEntity);
+        }else{
+            rs.put("msg","查询文件内容失败");
+            rs.put("code",-1);
+        }
+        return rs;
+    }
 }

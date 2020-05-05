@@ -38,6 +38,8 @@ var curLabelIndex=0;//当前被选中的label
 var panel_footer_index=new Array;//段落处页脚数字的跳转ID，用来控制显示第几段
 var label_list_img=new Array;//标签前面图片的ID
 
+var alreadyDone=new Array;
+
 $(function () {
 
     /**
@@ -262,7 +264,7 @@ function ajaxTaskInfo(taskId) {
         },
     });
 
-    
+
 }
 
 /**
@@ -299,7 +301,6 @@ function ajaxDocContent(docId) {
                     //todo:可以合并存
                     para_label[i]=new Array;
                     paraContent[i]=data.data[i].paracontent;//每段内容
-
                     dtstatus[i]=data.data[i].dtstatus;
                     paraId[i]=data.data[i].pid;//console.log(paraId[i]);//每段内容的ID
                     if(data.data[i].dtstatus=="已完成"){
@@ -308,32 +309,6 @@ function ajaxDocContent(docId) {
                     }
 
                 }
-
-
-                if(sflag==paraIndex){
-
-                    if(!($("#complete-doc").hasClass("disabled"))){
-                        $("#complete-doc").addClass("disabled");
-                        $("#complete-doc").attr("disabled","true");
-                    }
-
-                    if(!($("#complete-para").hasClass("disabled"))){
-                        $("#complete-para").addClass("disabled");
-                        $("#complete-para").attr("disabled","true");
-                    }
-
-                }else{
-                    if($("#complete-doc").hasClass("disabled")){
-                        $("#complete-doc").removeClass("disabled");
-                        $("#complete-doc").removeAttr("disabled");
-                    }
-                    if($("#complete-para").hasClass("disabled")){
-                        $("#complete-para").removeClass("disabled");
-                        $("#complete-para").removeAttr("disabled");
-                    }
-                }
-                //curParaIndex=0;
-
                 /**
                  * 调用label处理函数
                  */
@@ -471,25 +446,63 @@ function labelHtml(labelList) {
     labelLength =labelList.length;
 
     var label_html="";
-    for(var i=0;i<labelLength;i++){
-        var list_html ='<li class="list-group-item">'
-            +'<img class="notAns" src="/images/notAns.png" id="label-list-img-'+i+'" onclick="imgClick(this.id)">'
-            +labelList[i].labelname
-            +'</li>';
-        label_html =label_html+list_html;
-        label_list_img[i]="label-list-img-"+i;
-    }
+    /*
+    labelList: [{lid: 2, labelname: "垃圾邮件"}, {lid: 1, labelname: "广告邮件"}, {lid: 64, labelname: "就业推荐邮件"}]
+    0: {lid: 2, labelname: "垃圾邮件"}
+    1: {lid: 1, labelname: "广告邮件"}
+    2: {lid: 64, labelname: "就业推荐邮件"}
 
-    $("#ul-label-list").html(label_html);
+    */
+
+    /*
+alreadyDone: [{dtd_id: 8, label_id: 2}, {dtd_id: 9, label_id: 1}]
+0: {dtd_id: 8, label_id: 2}
+1: {dtd_id: 9, label_id: 1}
+
+    */
 
     /**
-     * 将值都初始化为-1，选中label则替换-1
+     * 将值都初始化为-1，选中label则替换
      */
     for(var i=0;i<paraIndex;i++){
         for(var j=0;j<labelLength;j++){
             para_label[i][j]=-1;
         }
     }
+    var tmpAlreadyDoneLabel=new Array;
+
+    /**
+     * 将已经选过的label存入临时变量
+     */
+    if(alreadyDone && alreadyDone.length>0){
+        console.log(alreadyDone);
+        for(var i=0;i<alreadyDone.length;i++){
+            tmpAlreadyDoneLabel[i]=alreadyDone[i].label_id;
+        }
+    }
+
+    for(var i=0;i<labelLength;i++){
+        if(tmpAlreadyDoneLabel.indexOf(labelList[i].lid)!=-1){
+            var list_html ='<li class="list-group-item">'
+                +'<img class="isAns" src="/images/isAnsBlue.png" id="label-list-img-'+i+'" onclick="imgClick(this.id)">'
+                +labelList[i].labelname
+                +'</li>';
+            label_html =label_html+list_html;
+            label_list_img[i]="label-list-img-"+i;
+            para_label[curParaIndex][i]=i;
+        }else{
+            var list_html ='<li class="list-group-item">'
+                +'<img class="notAns" src="/images/notAns.png" id="label-list-img-'+i+'" onclick="imgClick(this.id)">'
+                +labelList[i].labelname
+                +'</li>';
+            label_html =label_html+list_html;
+            label_list_img[i]="label-list-img-"+i;
+        }
+    }
+
+    $("#ul-label-list").html(label_html);
+
+
 
 };
 
@@ -518,64 +531,6 @@ function ajaxdoTaskInfo(doTaskData) {
 
 };
 
-function ajaxCompleteDoc(docId) {
-    var docid={
-        docId: docId,
-        taskId:taskId,
-        userId:0
-    };
-    $.ajax({
-        url: "/dpara/doc/status",
-        type: "post",
-        traditional: true,
-        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-        dataType: "json",
-        data:docid,
-        success: function (data) {
-            if(data.status==0){
-                alert("该文档已确认完成");
-                ajaxDocContent(docId);
-            }else{
-                alert("该文档还有段落没有做完！请做完再提交");
-            }
-
-        }, error: function (XMLHttpRequest, textStatus, errorThrown) {
-
-
-        },
-    });
-};
-
-function ajaxCompletePara(docId) {
-    var docid={
-        docId: docId,
-        taskId:taskId,
-        paraId:paraId[curParaIndex],
-        userId:0
-    };
-    $.ajax({
-        url: "/dpara/status",
-        type: "post",
-        traditional: true,
-        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-        dataType: "json",
-        data:docid,
-        success: function (data) {
-            if(data.status==0){
-                alert("该段已确认完成");
-                ajaxDocContent(docId);
-            }else{
-                alert("该段还没有做！");
-            }
-            //console.log(data);
-
-        }, error: function (XMLHttpRequest, textStatus, errorThrown) {
-
-
-        },
-    });
-};
-
 
 function ajaxNextTask() {
     var currentTaskInfo={
@@ -601,6 +556,8 @@ function ajaxNextTask() {
             console.log("data.data："+JSON.stringify(data));
             paraId[0]=data.data.pid;//console.log(paraId[i]);//每段内容的ID
             $("#p-para").html(paraContent[0]);
+            curParaIndex=data.data.paraindex-1;
+            alreadyDone=data.data.alreadyDone;
             labelHtml(labelList);
         }, error: function (XMLHttpRequest, textStatus, errorThrown,data) {
         },
@@ -630,6 +587,8 @@ function ajaxLastTask(){
                 console.log("data.data："+JSON.stringify(data));
                 paraId[0]=data.data.pid;//console.log(paraId[i]);//每段内容的ID
                 $("#p-para").html(paraContent[0]);
+                curParaIndex=data.data.paraindex-1;
+                alreadyDone=data.data.alreadyDone;
                 labelHtml(labelList);
             }
 
@@ -640,20 +599,5 @@ function ajaxLastTask(){
 };
 
 function cleardata() {
-
     label_list_img = new Array();
-
-    // //重画前端，可以和alreadydone一起做
-    // $("#label").empty();
-    // var label_html="";
-    // for(var i=0;i<labelLength;i++){
-    //     var list_html ='<li class="list-group-item">'
-    //         +'<img class="notAns" src="/images/notAns.png" id="label-list-img-'+i+'" onclick="imgClick(this.id)">'
-    //         +labelList[i].labelname
-    //         +'</li>';
-    //     label_html =label_html+list_html;
-    //     label_list_img[i]="label-list-img-"+i;
-    // }
-    // $("#ul-label-list").html(label_html);
-
 }

@@ -107,11 +107,10 @@
                 </h4>
             </div>
 
-            div>
+
             </div>
         </div>
 
-    </div>
     <div id="taskInfoPanel" class="panel-collapse collapse">
         <div class="panel-body">
             <div class="layui-row" id="taskDetailInfo">
@@ -185,32 +184,11 @@
 
 <div class="layui-row" id="div-doTask" >
     <div class="layui-row">
-    <!--
-        <div class="layui-col-md1">
-            .
+        <div class="layui-col-md5" id="div-btn-hide" style="float: right">
+            <input type="button" class="btn btn-primary" value="上一个任务" id="lasttask">
+            <input type="button" class="btn btn-success"  value="修改任务" id="submit-sorting">
+            <input type="button" class="btn btn-warning" value="下一个任务" id="nexttask">
         </div>
-        <div class="layui-col-md11">
-            <form class="layui-form">
-                <div class="layui-form-item" >
-                    <label class="layui-form-label">文件列表</label>
-                    <div class="layui-col-md4" id="doc-div">
-                    </div>
-
-                    <label class="layui-form-label">完成状态</label>
-                    <div class="layui-col-md2" id="status-div">
-                        <select name="status" id="status" lay-filter="selectStatus">
-                            <option value="1" selected>全部</option>
-                            <option value="2">进行中</option>
-                        </select>
-                    </div>
-
-                    <div class="layui-col-md1">
-                        <input type="button" class="layui-btn layui-btn-primary" value="查看" id="select-docStatus">
-                    </div>
-                </div>
-            </form>
-        </div>
--->
     </div>
     <div class="layui-col-md1">
         <ul class="nav nav-tabs nav-stacked" data-spy="affix" data-offset-top="200" id="ul-nav">
@@ -262,74 +240,35 @@
 </script>
 
 <script>
-
-
-    //    Sortable.create(document.getElementById('left-sorting'), {
-    //        animation: 10, //动画参数
-    //        group: 'shared',
-    //        onAdd: function (evt){ //拖拽时候添加有新的节点的时候发生该事件
-    //            console.log('onAdd.left-sorting:', [evt.item, evt.from]);
-    //        },
-    //        onUpdate: function (evt){ //拖拽更新节点位置发生该事件
-    //            console.log('onUpdate.left-sorting:', [evt.item, evt.from]);
-    //        },
-    //        onRemove: function (evt){ //删除拖拽节点的时候促发该事件
-    //            console.log('onRemove.left-sorting:', [evt.item, evt.from]);
-    //        },
-    //        onStart:function(evt){ //开始拖拽出发该函数
-    //            console.log('onStart.left-sorting:', [evt.item, evt.from]);
-    //        },
-    //        onSort:function(evt){ //发生排序发生该事件
-    //            console.log('onSort.left-sorting:', [evt.item, evt.from]);
-    //        },
-    //        onEnd: function(evt){ //拖拽完毕之后发生该事件
-    //            console.log('onEnd.left-sorting:', [evt.item, evt.from]);
-    ////            console.log(evt);
-    ////            console.log(evt.item);
-    ////            console.log(evt.from);
-    //            var id_arr=''
-    //            for(var i=0, len=evt.from.children.length; i<len; i++){
-    //                id_arr+=','+ evt.from.children[i].getAttribute('drag-id');
-    //            }
-    //            id_arr=id_arr.substr(1);
-    //            //然后请求后台ajax 这样就完成了拖拽排序
-    //            console.log(id_arr);
-    //
-    ////
-    ////            var ultest=document.getElementById('left-sorting');
-    ////            console.log(ultest.children[0].getAttribute('drag-id'));
-    //        }
-    //    });
-
-//    Sortable.create(document.getElementById('right-sorting'), {
-//        animation: 10, //动画参数
-//        group: 'shared',
-//        onAdd: function (evt){ //拖拽时候添加有新的节点的时候发生该事件
-//            console.log('onAdd.right-sorting:', [evt.item, evt.from]);
-//        },
-//        onUpdate: function (evt){ //拖拽更新节点位置发生该事件
-//            console.log('onUpdate.right-sorting:', [evt.item, evt.from]);
-//        },
-//        onRemove: function (evt){ //删除拖拽节点的时候促发该事件
-//            console.log('onRemove.right-sorting:', [evt.item, evt.from]);
-//        },
-//        onStart:function(evt){ //开始拖拽出发该函数
-//            console.log('onStart.right-sorting:', [evt.item, evt.from]);
-//        },
-//        onSort:function(evt){ //发生排序发生该事件
-//            console.log('onSort.right-sorting:', [evt.item, evt.from]);
-//        },
-//        onEnd: function(evt){ //拖拽完毕之后发生该事件
-//            console.log('onEnd.right-sorting:', [evt.item, evt.from]);
-//            var id_arr=''
-//            for(var i=0, len=evt.from.children.length; i<len; i++){
-//                id_arr+=','+ evt.from.children[i].getAttribute('drag-id');
-//            }
-//            id_arr=id_arr.substr(1);
-//            //然后请求后台ajax 这样就完成了拖拽排序
-//            console.log(id_arr);
-//        }
-//    });
+Sortable.create(document.getElementById('right-sorting'), {
+        animation: 10, //动画参数
+        group: 'shared',
+        onAdd: function (evt){ //拖拽时候添加有新的节点的时候发生该事件
+           // console.log('onAdd.right-sorting:', [evt.item, evt.from]);
+        },
+        onUpdate: function (evt){ //拖拽更新节点位置发生该事件
+           // console.log('onUpdate.right-sorting:', [evt.item, evt.from]);
+        },
+        onRemove: function (evt){ //删除拖拽节点的时候促发该事件
+           // console.log('onRemove.right-sorting:', [evt.item, evt.from]);
+        },
+        onStart:function(evt){ //开始拖拽出发该函数
+           // console.log('onStart.right-sorting:', [evt.item, evt.from]);
+        },
+        onSort:function(evt){ //发生排序发生该事件
+           // console.log('onSort.right-sorting:', [evt.item, evt.from]);
+        },
+        onEnd: function(evt){ //拖拽完毕之后发生该事件
+            //console.log('onEnd.right-sorting:', [evt.item, evt.from]);
+            var id_arr=''
+            for(var i=0, len=evt.from.children.length; i<len; i++){
+                id_arr+=','+ evt.from.children[i].getAttribute('drag-id');
+            }
+            id_arr=id_arr.substr(1);
+            //然后请求后台ajax 这样就完成了拖拽排序
+            //console.log(id_arr);
+        }
+    });
 </script>
 </body>
 </html>

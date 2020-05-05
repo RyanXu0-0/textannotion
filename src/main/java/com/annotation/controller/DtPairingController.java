@@ -63,12 +63,12 @@ public class DtPairingController {
     public JSONObject getPairingInstanceDetail(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, HttpSession httpSession,
                                          int subtaskId,int taskId,int userId) {
 
-        List<InstanceListitemEntity> instanceItemEntityList = iDtPairingService.getInstanceDone(subtaskId,userId,taskId);
+        InstanceListitemEntity instanceItemEntity = iDtPairingService.getInstanceDone(subtaskId,userId,taskId);
         JSONObject rs = new JSONObject();
-        if(instanceItemEntityList != null){
+        if(instanceItemEntity != null){
             rs.put("msg","查询文件内容成功");
             rs.put("code",0);
-            rs.put("instanceItem",instanceItemEntityList);
+            rs.put("instanceItem",instanceItemEntity);
         }else{
             rs.put("msg","查询文件内容失败");
             rs.put("code",-1);
@@ -196,4 +196,48 @@ public class DtPairingController {
         return rs;
     }
 
+
+    @PostMapping
+    @RequestMapping("/lastdonetask")
+    public JSONObject lastDoneClassifyTask(HttpSession httpSession,int taskId,int subtaskId,@RequestParam(defaultValue="0")int userId){
+
+        if(userId==0){
+            User user =(User)httpSession.getAttribute("currentUser");
+            userId = user.getId();
+        }
+        System.out.println("当前任务id："+subtaskId);
+        InstanceListitemEntity instanceItemEntity = iDtPairingService.getLastDone(taskId,subtaskId);
+        JSONObject rs = new JSONObject();
+        if(instanceItemEntity != null){
+            rs.put("msg","查询文件内容成功");
+            rs.put("code",0);
+            rs.put("data",instanceItemEntity);
+        }else{
+            rs.put("msg","查询文件内容失败");
+            rs.put("code",-1);
+        }
+        return rs;
+    }
+
+    @PostMapping
+    @RequestMapping("/nextdonetask")
+    public JSONObject nextDoneClassifyTask(HttpSession httpSession,int taskId,int subtaskId,@RequestParam(defaultValue="0")int userId){
+
+        if(userId==0){
+            User user =(User)httpSession.getAttribute("currentUser");
+            userId = user.getId();
+        }
+        System.out.println("当前任务id："+subtaskId);
+        InstanceListitemEntity instanceItemEntity = iDtPairingService.getNextDone(taskId,subtaskId);
+        JSONObject rs = new JSONObject();
+        if(instanceItemEntity != null){
+            rs.put("msg","查询文件内容成功");
+            rs.put("code",0);
+            rs.put("data",instanceItemEntity);
+        }else{
+            rs.put("msg","查询文件内容失败");
+            rs.put("code",-1);
+        }
+        return rs;
+    }
 }

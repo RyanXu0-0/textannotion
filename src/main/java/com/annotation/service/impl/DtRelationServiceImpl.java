@@ -68,11 +68,9 @@ public class DtRelationServiceImpl implements IDtRelationService {
 
     }
 
-    public List<InstanceItemEntity> getInstanceItemDone(int subtaskId,int userId,int taskId){
-        List<InstanceItemEntity> dataList = new ArrayList<>();
+    public InstanceItemEntity getInstanceItemDone(int subtaskId,int userId,int taskId){
         InstanceItemEntity data = dtRelationMapper.selectRelationByInstanceId(subtaskId);
-        dataList.add(data);
-        return dataList;
+        return data;
     }
 
     //没有任务则返回Null
@@ -201,7 +199,7 @@ public class DtRelationServiceImpl implements IDtRelationService {
     public int qualityControl(int userId,int taskId,int docId,int instanceId,int[] instanceLabels, int[] item1Labels, int[] item2Labels){
         int res = 0;
         DTask userTaskInf = dTaskMapper.selectByTaskIdAndUserId(taskId,userId);
-        UserSubtask userSubtask = userSubtaskMapper.selectByUserIdAndSubtaskId(userId,taskId,instanceId);
+        UserSubtask userSubtask = userSubtaskMapper.selectByUserIdAndSubtaskId(taskId,instanceId);
         if(userSubtask!=null){
             res = addRelation(userId,taskId,instanceId,instanceLabels,item1Labels,item2Labels);
         }else{
@@ -224,7 +222,7 @@ public class DtRelationServiceImpl implements IDtRelationService {
     @Transactional
     public int addRelation(int userId,int taskId,int instanceId,int[] instanceLabels, int[] item1Labels, int[] item2Labels){
         DTask userTaskInf = dTaskMapper.selectByTaskIdAndUserId(taskId,userId);
-        UserSubtask curuserSubtask = userSubtaskMapper.selectByUserIdAndSubtaskId(userId,taskId,instanceId);
+        UserSubtask curuserSubtask = userSubtaskMapper.selectByUserIdAndSubtaskId(taskId,instanceId);
         dtRelationMapper.deleteBeforeUpdate(userId,taskId,instanceId);
 
         dtRelationMapper.alterDtRelationTable();
@@ -337,7 +335,7 @@ public class DtRelationServiceImpl implements IDtRelationService {
         InstanceItemEntity data;
         //List<DtExtraction> entityList;
         DTask dTask = dTaskMapper.selectByTaskIdAndUserId(taskId,userId);
-        UserSubtask currentTask = userSubtaskMapper.selectByUserIdAndSubtaskId(userId,taskId,subtaskId);
+        UserSubtask currentTask = userSubtaskMapper.selectByUserIdAndSubtaskId(taskId,subtaskId);
         //currentTask为null表示当前为检测任务，返回最后一个用户完成的任务
         if(currentTask == null){
             UserSubtask theLasttask = userSubtaskMapper.selectTheLastData(userId,taskId);
@@ -366,7 +364,7 @@ public class DtRelationServiceImpl implements IDtRelationService {
         ResponseEntity data = new ResponseEntity();
         InstanceItemEntity subtaskdata;
         //List<DtExtraction> entityList;
-        UserSubtask currentSubtask = userSubtaskMapper.selectByUserIdAndSubtaskId(userId,taskId,subtaskId);
+        UserSubtask currentSubtask = userSubtaskMapper.selectByUserIdAndSubtaskId(taskId,subtaskId);
         DTask dTask = dTaskMapper.selectByTaskIdAndUserId(taskId,userId);
         UserSubtask nextSubtask = userSubtaskMapper.selectNextData(userId,taskId,subtaskId);
         //判断当前任务是否为普通任务
@@ -426,5 +424,23 @@ public class DtRelationServiceImpl implements IDtRelationService {
         }
     }
 
+
+    //任务管理查看上一个任务
+    public InstanceItemEntity getLastDone(int taskId,int subtaskId){
+        InstanceItemEntity data;
+        UserSubtask lasttask = userSubtaskMapper.selectLastDone(taskId,subtaskId);
+        if(lasttask == null){ return null; }
+        data = dtRelationMapper.selectRelationByInstanceId(lasttask.getSubtaskId());
+        return data;
+    }
+
+    //任务管理查看下一个任务
+    public InstanceItemEntity getNextDone(int taskId,int subtaskId){
+        InstanceItemEntity data;
+        UserSubtask nexttask = userSubtaskMapper.selectNextDone(taskId,subtaskId);
+        if(nexttask == null){ return null; }
+        data = dtRelationMapper.selectRelationByInstanceId(nexttask.getSubtaskId());
+        return data;
+    }
 
 }

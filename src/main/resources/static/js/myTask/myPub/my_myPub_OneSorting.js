@@ -47,9 +47,6 @@ $(function () {
     var subtaskIdArr=arr[2].split("=");
     subtaskId = subtaskIdArr[1];
 
-    $("#select-docStatus").click(function(){
-        ajaxDocSortingInstanceItem(docId);
-    });
     /**
      *ajax获取task详细信息
      */
@@ -59,49 +56,47 @@ $(function () {
      * 点击我要做任务显示的面板，
      * 同时将任务详细信息折叠面板设为hide
      */
-    $("#btn-dotask").click(function(){
-       // $("#op-dotask").hide();
-       // $("#op-button").show();
-        $('#taskInfoPanel').collapse('hide');
-
-    });
-
-    // var itemId=[39,37];
-    // var newIndex=[1,2];
-     //console.log(doTaskData);
-
+    // $("#btn-dotask").click(function(){
+    //    // $("#op-dotask").hide();
+    //    // $("#op-button").show();
+    //     $('#taskInfoPanel').collapse('hide');
+    //
+    // });
 
     var itemId=new Array;
     var newIndex=new Array;
-    // $("#submit-sorting").click(function(){
-    //        var ulHtml=document.getElementById('right-sorting');
-    //        var rightLiLength=ulHtml.children.length;
-    //        if(rightLiLength!=itemList.length){
-    //            alert("请全部排序完成后再提交");
-    //        }else{
-    //            for(var i=0;i<rightLiLength;i++){
-    //                newIndex[i]=i+1;
-    //                itemId[i]=itemList[parseInt(ulHtml.children[i].getAttribute('drag-id'))].itid;
-    //            }
-    //
-    //            var doTaskData={
-    //                taskId :taskId,
-    //                docId:docId,
-    //                instanceId:instanceItem[curInstanceIndex].instid,
-    //                itemIds:itemId,
-    //                newIndex:newIndex
-    //            };
-    //            addSortingTask(doTaskData);
-    //            //console.log(doTaskData);
-    //            // console.log(newIndex);
-    //            // console.log(itemId);
-    //            // console.log(itemList);
-    //
-    //        }
-    //
-    //        // console.log(rightLiLength);
-    //        // console.log(ulHtml.children[0].getAttribute('drag-id'));
-    // });
+    $("#submit-sorting").click(function(){
+        var ulHtml=document.getElementById('left-sorting');
+        var rightLiLength=ulHtml.children.length;
+        if(rightLiLength!=itemList.length){
+            alert("请全部排序完成后再提交");
+        }else{
+            for(var i=0;i<rightLiLength;i++){
+                newIndex[i]=i+1;
+                itemId[i]=itemList[parseInt(ulHtml.children[i].getAttribute('drag-id'))].itid;
+            }
+
+            var doTaskData={
+                taskId :taskId,
+                docId:docId,
+                instanceId:instanceItem.instid,
+                itemIds:itemId,
+                newIndex:newIndex,
+                userId:0
+            };
+            addSortingTask(doTaskData);
+
+        }
+    });
+
+    //下一个任务
+    $("#nexttask").click(function(){
+        ajaxNextTask();
+    });
+
+    $("#lasttask").click(function () {
+        ajaxLastTask();
+    });
 });
 
 /**
@@ -191,7 +186,7 @@ function ajaxTaskInfo(taskId) {
 
             });
 
-            ajaxDocSortingInstanceItem(docId);
+            ajaxDocSortingInstanceItem();
 
         }, error: function (XMLHttpRequest, textStatus, errorThrown) {
 
@@ -206,11 +201,11 @@ function ajaxTaskInfo(taskId) {
  * 获取文件的内容
  * @param docId
  */
-function ajaxDocSortingInstanceItem(docId) {
+function ajaxDocSortingInstanceItem() {
     var docid={
-        userId:userId,
+        subtaskId:subtaskId,
         taskId:taskId,
-        subtaskId:subtaskId
+        userId:0
     };
     $.ajax({
         url: "/sorting/detail",
@@ -220,42 +215,25 @@ function ajaxDocSortingInstanceItem(docId) {
         dataType: "json",
         data:docid,
         success: function (data) {
-            console.log(data);
+            //console.log(data);
+            if(data.instanceItem==null || data.instanceItem==""){
+                alert("该文档已经全部完成！");
+            }else{
+                console.log(data)
+                instanceItem=data.instanceItem; //console.log(instanceItem);
+                instanceLength=instanceItem.length;
+                itemList= instanceItem.itemList;
+                alreadyDone=instanceItem.alreadyDone;
 
-            instanceItem=data.instanceItem; //console.log(instanceItem);
-            instanceLength=instanceItem.length;
-            for(var i=0;i<instanceLength;i++){
-                instanceItem[parseInt(data.instanceItem[i].insindex)-1]=data.instanceItem[i];
+
+                /**
+                 * 写入内容
+                 */
+                //console.log(curInstanceIndex);
+                paintSortingContent(itemList,alreadyDone);
+
+
             }
-            itemList= instanceItem[curInstanceIndex].itemList;
-            alreadyDone=instanceItem[curInstanceIndex].alreadyDone;
-
-           // $("#right-sorting").html("");
-
-            /**
-             * 写入内容
-             */
-            //console.log(curInstanceIndex);
-            paintSortingContent(itemList,alreadyDone);
-
-            /**
-             * 左边ul导航点击定位
-             */
-            var ul_html="";
-            for(var i=0;i<instanceLength;i++){
-                var li_html="";
-                if(i==curInstanceIndex){
-                    li_html=' <li class="active" id="li-'+i+'"><a id="a-'+i+'" onclick="curInstanceId(this.id)">' +
-                        '第' + (i+1) + '部分' + '</a></li>';
-                }else{
-                    li_html=' <li  id="li-'+i+'"><a id="a-'+i+'" onclick="curInstanceId(this.id)">' +
-                        '第' + (i+1) + '部分' + '</a></li>';
-                }
-                ul_html=ul_html+li_html;
-                ul_li_instanceIndex[i]="li-"+i;
-            }
-            $("#ul-nav").html(ul_html);
-
 
 
         }, error: function (XMLHttpRequest, textStatus, errorThrown) {
@@ -265,64 +243,28 @@ function ajaxDocSortingInstanceItem(docId) {
     });
 }
 /**
- * 左边第几部分导航的点击事件
- * @param obj
- */
-function curInstanceId(obj) {
-
-    /**
-     * 移除原控件的active属性
-     */
-    $("#"+ul_li_instanceIndex[curInstanceIndex]).removeClass("active");
-    var i_Str=obj.substring(2);  //console.log(i_Str);
-
-    /**
-     * 设置当前控件的active属性
-     */
-    curInstanceIndex=parseInt(i_Str);
-    $("#"+ul_li_instanceIndex[curInstanceIndex]).addClass("active");
-
-    /**
-     * 重新加载右边的做任务界面
-     */
-
-    //$("#right-sorting").html("");
-    itemList=instanceItem[curInstanceIndex].itemList;
-    alreadyDone=instanceItem[curInstanceIndex].alreadyDone;
-
-    paintSortingContent(itemList,alreadyDone);
-}
-
-
-/**
  * 绘制可排序的面板
  * @param itemList
  * @param alreadyDone
  */
 function paintSortingContent(itemList,alreadyDone) {
 
-    itemList=instanceItem[curInstanceIndex].itemList;
-    alreadyDone=instanceItem[curInstanceIndex].alreadyDone;
-
     var leftItem=new Array;
 
     var alreadyItemId=new Array;
     var alreadyNewIndex=new Array;
     if(alreadyDone.length>0){
-
         for(var i=0;i<alreadyDone.length;i++){
             alreadyItemId[i]=alreadyDone[i].itemId;
             alreadyNewIndex[i]=alreadyDone[i].newindex;
         }
 
         for(var i=0;i<itemList.length;i++){
-            console.log(alreadyItemId);
+            //console.log(alreadyItemId);
             if(alreadyItemId.indexOf(itemList[i].itid)!=-1){
-
                 itemList[i].itemindex=alreadyNewIndex[alreadyItemId.indexOf(itemList[i].itid)];
-                console.log(alreadyItemId.indexOf(itemList[i].itid));
+                //console.log(alreadyItemId.indexOf(itemList[i].itid));
             }
-
             leftItem[parseInt(itemList[i].itemindex)]='<li drag-id="'+i+'"><span class="drag-handle">&#9776;</span>' +
                 itemList[i].itemcontent+'</li>';
         }
@@ -333,23 +275,84 @@ function paintSortingContent(itemList,alreadyDone) {
         }
     }
 
-    // for(var i=0;i<itemList.length;i++){
-    //
-    //     rightItem[parseInt(itemList[i].itemindex)]='<li drag-id="'+i+'"><span class="drag-handle">&#9776;</span>' +
-    //         itemList[i].itemcontent+'</li>';
-    // }
-
-
-
     var leftHtml="";
     for(var i=1;i<leftItem.length;i++){
         leftHtml=leftHtml+leftItem[i];
     }
-
     $("#left-sorting").html(leftHtml);
-
-
-
 }
 
+
+
+function ajaxNextTask() {
+    var currentTaskInfo={
+        subtaskId: instanceItem.instid,
+        taskId:taskId,
+        userId:0
+    };
+    $.ajax({
+        url: "/sorting/nextdonetask",
+        type: "get",
+        traditional: true,
+        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+        dataType: "json",
+        data:currentTaskInfo,
+
+        success: function (data) {
+            if(data.data==null || data.data==""){
+                alert("这已经是最后一个任务了");
+                return null;
+            }
+            cleardata();
+            console.log(JSON.stringify(data));
+            // instanceItem=data.instanceItem; //console.log(instanceItem);
+            // instanceLength=instanceItem.length;
+
+            itemList= data.data.itemList;
+            alreadyDone = data.data.alreadyDone;
+            paintSortingContent(itemList,alreadyDone);
+            instanceItem.instid = data.data.instid;
+        }, error: function (XMLHttpRequest, textStatus, errorThrown,data) {
+        },
+    });
+};
+
+//申请上一个任务的数据
+function ajaxLastTask(){
+    var currentTaskInfo={
+        subtaskId: instanceItem.instid,
+        taskId:taskId,
+        userId:0
+    };
+    $.ajax({
+        url: "/sorting/lastdonetask",
+        type: "get",
+        traditional: true,
+        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+        dataType: "json",
+        data:currentTaskInfo,
+        success: function (data) {
+            if(data.data==null || data.data==""){
+                alert("这已经是第一个任务了");
+                return null;
+            }else{
+                cleardata();
+                console.log(JSON.stringify(data));
+                prev_itemList=data.data.itemList;
+                prev_alreadyDone=data.data.alreadyDone;
+                paintSortingContent(prev_itemList, prev_alreadyDone);
+                instanceItem.instid = data.data.instid;
+            }
+        }, error: function (XMLHttpRequest, textStatus, errorThrown) {
+
+        },
+    });
+};
+
+
+function cleardata() {
+    itemId=new Array();
+    newIndex=new Array();
+    $("#left-sorting").empty();
+}
 

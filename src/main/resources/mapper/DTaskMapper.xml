@@ -68,7 +68,7 @@
         INNER JOIN task t on t.tid=dt.task_id
         INNER JOIN user_subtask us on us.task_id = dt.task_id
         INNER JOIN user u on u.id=dt.user_id where dt.task_id = #{taskId}
-        ORDER BY dt.tkid
+        ORDER BY us.subtask_id
         limit #{currIndex},#{pageSize}
 
     </select>

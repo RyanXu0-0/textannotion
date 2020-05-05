@@ -25,10 +25,9 @@ var userId;
 var paraIndex=0;//文章的段落数，document->content
 var paraContent=new Array;//每段的内容
 
-var paraLabelAlreadyDone=new Array;//每段已经选中的label
+var alreadyDone=new Array;//每段已经选中的label
 
 
-var paraId=new Array;//每段的数据库ID，做任务传值需要-->contentid
 var curParaIndex=0;//当前正在做的页面的索引
 var para_label=new Array;//二维数组，存储content-label的对应关系
 var labelLength;//label的数量
@@ -59,6 +58,7 @@ $(function () {
 
     var subtaskIdArr=arr[2].split("=");
     subtaskId = subtaskIdArr[1];
+    console.log("subtaskId:"+subtaskId);
     /**
      *ajax获取task详细信息
      */
@@ -76,28 +76,85 @@ $(function () {
     });
 
 
-    // $("#select-docStatus").click(function(){
-    //
-    //     /**
-    //      * 调用ajax上传标签
-    //      */
-    //     ajaxDocContent(docId);
-    //
-    // });
-    //
-    // $("#complete-doc").click(function(){
-    //
-    //     /**
-    //      * 调用ajax上传标签
-    //      */
-    //     ajaxCompleteDoc(docId);
-    //
-    // });
+    /**
+     * ajaxdoTask提交事件
+     */
+    $("#submit-paraLabel").click(function(){
+        //ajaxTag=0;//用来判定是否有失败的标签
+        //console.log(para_label);
+        var ajaxLabelId=new Array;
+        var ajaxLabelNum=0;
+        for(var i=0;i<labelLength;i++){
+            console.log(curParaIndex);
+            if(para_label[i]>-1){
+                ajaxLabelId[ajaxLabelNum]=labelList[i].lid;
+                ajaxLabelNum++;
+
+            }
+        }
+
+        if(ajaxLabelId==null || ajaxLabelId==""){
+            alert("您还没选择标签");
+        }else{
+            var doTaskData={
+                taskId :taskId,
+                subtaskId:subtaskId,
+                labelId:ajaxLabelId,
+                userId:0,
+                dtId:0
+            };
+            //console.log(doTaskData);
+            /**
+             * 调用ajax上传标签
+             */
+            ajaxdoTaskInfo(doTaskData);
+        }
 
 
 
+    });
+
+    //下一个任务
+    $("#nexttask").click(function(){
+        ajaxNextTask();
+    });
+
+    $("#lasttask").click(function () {
+        ajaxLastTask();
+    });
 
 });
+
+
+/**
+ * 选中label的事件
+ * @param obj
+ */
+function imgClick(obj) {
+    var i=obj.substring(15,obj.length);
+    curLabelIndex=parseInt(i);
+    console.log(curLabelIndex);
+    if($("#"+label_list_img[i]).hasClass("noClick")){
+
+        alert("该段已经完成，不可以点击！");
+    }else{
+        if($("#"+label_list_img[i]).hasClass("isAns")){
+            $("#"+label_list_img[i]).attr("src","/images/notAns.png");
+            $("#"+label_list_img[i]).addClass("notAns").removeClass("isAns");
+
+            para_label[curLabelIndex]=-1;
+            curLabelIndex=-1;
+            //console.log(para_label);
+        }else{
+            $("#"+label_list_img[i]).attr("src","/images/isAnsBlue.png");
+            $("#"+label_list_img[i]).removeClass("notAns").addClass("isAns");
+            para_label[curLabelIndex]=curLabelIndex;
+            //console.log(para_label);
+        }
+    }
+
+
+};
 
 
 
@@ -241,34 +298,11 @@ function ajaxDocContent() {
             /**
              * 左边文件内容的显示处理
              */
-            paraIndex =data.data.length;//段落数
-            var div_footer='<div class="text-center">';
-            for(var i=0;i<paraIndex;i++){
-                //todo:可以合并存
-                para_label[i]=new Array;
-                paraContent[i]=data.data[i].paracontent;//每段内容
-
-                paraLabelAlreadyDone[i]=data.data[i].alreadyDone;
-                paraId[i]=data.data[i].pid;//console.log(paraId[i]);//每段内容的ID
-
-                var panel_footer="";
-                if(i==curParaIndex){
-                    panel_footer= '\xa0\xa0\xa0\xa0<a class="layui-form-label" id="panel-footer-index-'+i+'" style="color: #FF0000" onclick="footerIndex(this.id)">'
-                        + (i+1)
-                        +'</a>\xa0\xa0\xa0';//页脚 1，2，3数字
-                }else{
-                    panel_footer= '\xa0\xa0\xa0\xa0<a class="layui-form-label" id="panel-footer-index-'+i+'" style="color: #0d96f2" onclick="footerIndex(this.id)">'
-                        + (i+1)
-                        +'</a>\xa0\xa0\xa0';//页脚 1，2，3数字
-                }
-
-
-                panel_footer_index[i]="panel-footer-index-"+i;//页脚a标签对应的ID
-
-                div_footer=div_footer+panel_footer;
-            }
-            div_footer=div_footer+'</div>';
-            $("#p-para").html(paraContent[curParaIndex]);
+            para_label=new Array;
+            paraContent=data.data.paracontent;//每段内容
+            alreadyDone=data.data.alreadyDone;
+            subtaskId=data.data.pid;//console.log(subtaskId[i]);//每段内容的ID
+            $("#p-para").html(paraContent);
 
             //$("#div-para-footer").html(div_footer);//显示页脚
 
@@ -276,44 +310,6 @@ function ajaxDocContent() {
              * 调用label处理函数
              */
             labelHtml(labelList);
-
-
-
-            // $('.Pagination').pagination({
-            //     pageCount: paraIndex,
-            //     coping: true,
-            //     mode:'fixed',
-            //     count:6,
-            //     homePage: '首页',
-            //     endPage: '末页',
-            //     prevContent: '上页',
-            //     nextContent: '下页',
-            //     callback: function (api) {
-            //         //console.log(api.getCurrent());
-            //
-            //         curParaIndex=api.getCurrent()-1;
-            //         $("#p-para").html(paraContent[curParaIndex]);//显示第1段内容
-            //
-            //         var curParaIndexNum =parseInt(curParaIndex);
-            //         $("#span-index").html("第"+(curParaIndexNum+1)+"段");//设置内容面板的标题
-            //         $("#p-para").html(paraContent[curParaIndex]);//设置内容
-            //
-            //         labelHtml(labelList);
-            //
-            //         for(var i=0;i<labelLength;i++){
-            //             if(para_label[curParaIndexNum][i]>-1) {
-            //                 $("#" + label_list_img[i]).attr("src", "/images/isAnsBlue.png");
-            //                 $("#" + label_list_img[i]).removeClass("notAns").addClass("isAns");
-            //             }
-            //
-            //         }
-            //
-            //     }
-            // });
-            //
-            //
-
-
 
         }, error: function (XMLHttpRequest, textStatus, errorThrown) {
 
@@ -330,198 +326,161 @@ function labelHtml(labelList) {
 
     labelLength =labelList.length;
 
-    var tmpLabelId=new Array;
-    var tmpGood=new Array;
-    var tmpBad=new Array;
-    var tmpDtdId=new Array;
-    for(var i=0;i<paraLabelAlreadyDone[curParaIndex].length;i++){
-        tmpLabelId[i]=paraLabelAlreadyDone[curParaIndex][i].label_id;
-        tmpGood[i]=paraLabelAlreadyDone[curParaIndex][i].goodlabel;
-        tmpBad[i]=paraLabelAlreadyDone[curParaIndex][i].badlabel;
-        //tmpDtdId[i]=paraLabelAlreadyDone[curParaIndex][i].dtd_id;
-    }
-    console.log(paraLabelAlreadyDone[curParaIndex]);
+    var label_html="";
+    /*
+    labelList: [{lid: 2, labelname: "垃圾邮件"}, {lid: 1, labelname: "广告邮件"}, {lid: 64, labelname: "就业推荐邮件"}]
+    0: {lid: 2, labelname: "垃圾邮件"}
+    1: {lid: 1, labelname: "广告邮件"}
+    2: {lid: 64, labelname: "就业推荐邮件"}
 
-    console.log(tmpLabelId);
+    */
 
-    if(tmpLabelId.length>0){
-        var label_html="";
+    /*
+alreadyDone: [{dtd_id: 8, label_id: 2}, {dtd_id: 9, label_id: 1}]
+0: {dtd_id: 8, label_id: 2}
+1: {dtd_id: 9, label_id: 1}
 
-
-
-        for(var i=0;i<labelLength;i++){
-            var list_html="";
-            if(tmpLabelId.indexOf(labelList[i].lid)!=-1){
-                var tmpIndex=tmpLabelId.indexOf(labelList[i].lid);
-                console.log(tmpLabelId.indexOf(labelList[i].lid));
-                console.log(labelList[i].lid);
-                list_html ='<li class="list-group-item">'
-                    +'<div class="layui-row">'
-                    +'<div class="layui-col-md10">'
-                    +'<img class="isAns" src="/images/isAns.png" id="label-list-img-'+i+'">'
-                    +labelList[i].labelname
-                    +'</div>'
-                    +'<div class="layui-col-md1">'
-                    +'<span id="sg_'+tmpIndex+'">' +tmpGood[tmpIndex]
-                    +'</span>'
-
-                    +'<img class="notGood" src="/images/goodlabel.png" id="good_'+tmpIndex+'" onclick="goodfunc(this.id);">'
-                    +'</div>'
-
-                    +'<div class="layui-col-md1">'
-                    +'<span id="sb_'+tmpIndex+'">' +tmpBad[tmpIndex]
-                    +'</span>'
-
-                    +'<img class="notBad" src="/images/bad3.png" id="bad_'+tmpIndex+'" onclick="badfunc(this.id);">'
-                    +'</div>'
-
-                    +'</div>'
-                    +'</li>';
-            }else{
-                list_html ='<li class="list-group-item">'
-                    +'<img class="notAns" src="/images/notAns.png" id="label-list-img-'+i+'" >'
-                    +labelList[i].labelname
-                    +'</li>';
-            }
-
-            label_html =label_html+list_html;
-            label_list_img[i]="label-list-img-"+i;
-        }
-
-        $("#ul-label-list").html(label_html);
-    }else{
-        var label_html="";
-        for(var i=0;i<labelLength;i++){
-            var list_html ='<li class="list-group-item">'
-                +'<img class="notAns" src="/images/notAns.png" id="label-list-img-'+i+'" >'
-                +labelList[i].labelname
-                +'</li>';
-            label_html =label_html+list_html;
-            label_list_img[i]="label-list-img-"+i;
-        }
-
-        $("#ul-label-list").html(label_html);
-    }
-
+    */
 
     /**
-     * 将值都初始化为-1，选中label则替换-1
+     * 将值都初始化为-1，选中label则替换
      */
     for(var i=0;i<paraIndex;i++){
         for(var j=0;j<labelLength;j++){
             para_label[i][j]=-1;
         }
     }
+    var tmpAlreadyDoneLabel=new Array;
 
-};
-
-function goodfunc(obj) {
-
-   console.log(obj);
-   // $("#"+obj).attr("src","./images/goodlabel2.png");
-
-    var i=obj.substring(5,obj.length);
-    var curDtdIndex=parseInt(i);
-    var dtdId=paraLabelAlreadyDone[curParaIndex][curDtdIndex].dtd_id;
-    var flg=1;
-
-    if($("#"+obj).hasClass("notGood")){
-
-
-        $("#"+obj).attr("src","/images/goodlabel2.png");
-        $("#"+obj).addClass("isGood").removeClass("notGood");
-        var cNum=1;
-        ajaxComment(dtdId,cNum,flg,curDtdIndex);
-
-    }else{
-
-
-        $("#"+obj).attr("src","/images/goodlabel.png");
-        $("#"+obj).addClass("notGood").removeClass("isGood");
-        var cNum=-1;
-        ajaxComment(dtdId,cNum,flg,curDtdIndex);
-    }
-};
-
-function badfunc(obj) {
-    //console.log(obj);
-    //$("#"+obj).attr("src","./images/goodlabel2.png");
-
-    var i=obj.substring(4,obj.length);
-    var curDtdIndex=parseInt(i);
-    var dtdId=paraLabelAlreadyDone[curParaIndex][curDtdIndex].dtd_id;
-    var flg=-1;
-    if($("#"+obj).hasClass("notBad")){
-
-        $("#"+obj).attr("src","/images/bad4.png");
-        $("#"+obj).addClass("isBad").removeClass("notBad");
-
-        var cNum=1;
-        ajaxComment(dtdId,cNum,flg,curDtdIndex);
-    }else{
-        $("#"+obj).attr("src","/images/bad3.png");
-        $("#"+obj).addClass("notBad").removeClass("isBad");
-
-        var cNum=-1;
-        ajaxComment(dtdId,cNum,flg,curDtdIndex);
+    /**
+     * 将已经选过的label存入临时变量
+     */
+    if(alreadyDone && alreadyDone.length>0){
+        console.log(alreadyDone);
+        for(var i=0;i<alreadyDone.length;i++){
+            tmpAlreadyDoneLabel[i]=alreadyDone[i].label_id;
+        }
     }
 
+    for(var i=0;i<labelLength;i++){
+        if(tmpAlreadyDoneLabel.indexOf(labelList[i].lid)!=-1){
+            var list_html ='<li class="list-group-item">'
+                +'<img class="isAns" src="/images/isAnsBlue.png" id="label-list-img-'+i+'" onclick="imgClick(this.id)">'
+                +labelList[i].labelname
+                +'</li>';
+            label_html =label_html+list_html;
+            label_list_img[i]="label-list-img-"+i;
+            para_label[i]=i;
+        }else{
+            var list_html ='<li class="list-group-item">'
+                +'<img class="notAns" src="/images/notAns.png" id="label-list-img-'+i+'" onclick="imgClick(this.id)">'
+                +labelList[i].labelname
+                +'</li>';
+            label_html =label_html+list_html;
+            label_list_img[i]="label-list-img-"+i;
+        }
+    }
+
+    $("#ul-label-list").html(label_html);
+
+
 
 };
 
-// function ajaxCompleteDoc(docId) {
-//     var docid={
-//         docId: docId,
-//         taskId:taskId,
-//         userId:0
-//     };
-//     $.ajax({
-//         url: "/classify/doc/status",
-//         type: "post",
-//         traditional: true,
-//         contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-//         dataType: "json",
-//         data:docid,
-//         success: function (data) {
-//             console.log(data);
-//
-//
-//         }, error: function (XMLHttpRequest, textStatus, errorThrown) {
-//
-//
-//         },
-//     });
-// }
 
+/**
+ * 做任务上传自己的标签
+ * @param doTaskData
+ */
+function ajaxdoTaskInfo(doTaskData) {
 
-function ajaxComment(dtdId,cNum,flg,curDtdIndex) {
-    var commentData={
-        dtdId: dtdId,
-        cNum:cNum,
-        flag:flg,
-        uId:userId
-    };
-    console.log(commentData);
     $.ajax({
-        url: "/classify/ucomment",
+        url: "/classify",
         type: "post",
         traditional: true,
         contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-        dataType: "json",
-        data:commentData,
+        dataType: "text",
+        data:doTaskData,
         success: function (data) {
-            if(flg>0){
-                var sgood="sg_"+curDtdIndex;
-                $("#"+sgood).html(data.data.goodlabel);
-            }else{
-                var sbad="sb_"+curDtdIndex;
-                $("#"+sbad).html(data.data.badlabel);
-            }
+            window.alert("当前数据提交成功");
             console.log(data);
-
         }, error: function (XMLHttpRequest, textStatus, errorThrown) {
 
 
         },
     });
+
+
+};
+
+
+function ajaxNextTask() {
+    var currentTaskInfo={
+        subtaskId: subtaskId,
+        taskId:taskId,
+        userId:0
+    };
+    $.ajax({
+        url: "/classify/nextdonetask",
+        type: "get",
+        traditional: true,
+        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+        dataType: "json",
+        data:currentTaskInfo,
+
+        success: function (data) {
+            if(data.data==null || data.data==""){
+                alert("这已经是最后一个任务了");
+                return null;
+            }
+            cleardata();
+            paraContent=data.data.paracontent;//每段内容
+            console.log("data.data："+JSON.stringify(data));
+            subtaskId=data.data.pid;//console.log(subtaskId[i]);//每段内容的ID
+            $("#p-para").html(paraContent);
+            curParaIndex=data.data.paraindex-1;
+            alreadyDone=data.data.alreadyDone;
+            labelHtml(labelList);
+        }, error: function (XMLHttpRequest, textStatus, errorThrown,data) {
+        },
+    });
+};
+
+//申请上一个任务的数据
+function ajaxLastTask(){
+    var currentTaskInfo={
+        subtaskId: subtaskId,
+        taskId:taskId,
+        userId:0
+    };
+    $.ajax({
+        url: "/classify/lastdonetask",
+        type: "get",
+        traditional: true,
+        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+        dataType: "json",
+        data:currentTaskInfo,
+        success: function (data) {
+            if(data.data==null || data.data==""){
+                alert("这已经是第一个任务了");
+                return null;
+            }else{
+                cleardata();
+                paraContent=data.data.paracontent;//每段内容
+                console.log("data.data："+JSON.stringify(data));
+                subtaskId=data.data.pid;//console.log(subtaskId[i]);//每段内容的ID
+                $("#p-para").html(paraContent);
+                curParaIndex=data.data.paraindex-1;
+                alreadyDone=data.data.alreadyDone;
+                labelHtml(labelList);
+            }
+
+        }, error: function (XMLHttpRequest, textStatus, errorThrown) {
+
+        },
+    });
+};
+
+function cleardata() {
+    label_list_img = new Array();
 }

@@ -43,5 +43,9 @@ public interface IDtExtractionService {
 
     HSSFWorkbook getExtractionExcel(List<ExtractionData> extractionDataList);
 
-    List<ParagraphLabelEntity> getExtractionDone(int subtaskId, int userId,int taskId);
+    ParagraphLabelEntity getExtractionDone(int subtaskId, int userId,int taskId);
+
+    ParagraphLabelEntity getLastDone(int taskId,int subtaskId);
+
+    ParagraphLabelEntity getNextDone(int taskId,int subtaskId);
 }

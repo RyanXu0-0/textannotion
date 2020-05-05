@@ -1,6 +1,7 @@
 package com.annotation.service;
 
 import com.annotation.model.entity.InstanceItemEntity;
+import com.annotation.model.entity.ParagraphLabelEntity;
 import com.annotation.model.entity.RelationData;
 import com.annotation.model.entity.ResponseEntity;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -49,5 +50,9 @@ public interface IDtRelationService {
 
     HSSFWorkbook getRelationExcel(List<RelationData> pairingDataList);
 
-    List<InstanceItemEntity> getInstanceItemDone(int subtaskId,int userId,int taskId);
+    InstanceItemEntity getInstanceItemDone(int subtaskId,int userId,int taskId);
+
+    InstanceItemEntity getLastDone(int taskId, int subtaskId);
+
+    InstanceItemEntity getNextDone(int taskId,int subtaskId);
 }

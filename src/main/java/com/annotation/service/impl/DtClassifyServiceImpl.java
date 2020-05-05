@@ -71,14 +71,9 @@ public class DtClassifyServiceImpl implements IDtClassifyService {
 
     }
 
-    public List<ParagraphLabelEntity> getClassifyDone(int subtaskId, int userId,int taskId){
-        List<ParagraphLabelEntity> dataList = new ArrayList<>();
-        Paragraph paragraph = paragraphMapper.selectByPrimaryKey(subtaskId);
-        //alreadyList = dtClassifyMapper.selectCurrentDone(userId,taskId,theLasttask.getSubtaskId());
-        //List<Map<String, Object>> entityDone = transforEntityList(alreadyList);
-        ParagraphLabelEntity data = new ParagraphLabelEntity(paragraph);
-        dataList.add(data);
-        return dataList;
+    public ParagraphLabelEntity getClassifyDone(int subtaskId, int userId,int taskId){
+        ParagraphLabelEntity data = dtClassifyMapper.selectCurrentDone(subtaskId);
+        return data;
     }
 
 /**
@@ -147,9 +142,9 @@ public class DtClassifyServiceImpl implements IDtClassifyService {
     public ResponseEntity qualityControl(int userId,int taskId,int subtaskId,int docId,int[] labelId){
         ResponseEntity responseEntity = new ResponseEntity();
         DTask userTaskInf = dTaskMapper.selectByTaskIdAndUserId(taskId,userId);
-        UserSubtask userSubtask = userSubtaskMapper.selectByUserIdAndSubtaskId(userId,taskId,subtaskId);
+        UserSubtask userSubtask = userSubtaskMapper.selectByUserIdAndSubtaskId(taskId,subtaskId);
         if(userSubtask!=null){
-            addClassify(userId,taskId,docId,subtaskId,labelId);
+            addClassify(taskId,subtaskId,labelId);
         }else{
             contrastWithTest(userTaskInf,labelId);
         }
@@ -159,19 +154,19 @@ public class DtClassifyServiceImpl implements IDtClassifyService {
 
     /**
      *
-     * @param userId
+     * 
      * @param taskId
-     * @param docId
+     *
      * @param subtaskId
      * @param labelId
      * @return
      */
-    public ResponseEntity addClassify(int userId,int taskId,int docId,int subtaskId,int[] labelId){
+    public ResponseEntity addClassify(int taskId,int subtaskId,int[] labelId){
 
         //先判断d_task表有没有插入
         ResponseEntity responseEntity = new ResponseEntity();
-        UserSubtask curuserSubtask = userSubtaskMapper.selectByUserIdAndSubtaskId(userId,taskId,subtaskId);
-
+        UserSubtask curuserSubtask = userSubtaskMapper.selectByUserIdAndSubtaskId(taskId,subtaskId);
+        int userId = curuserSubtask.getUserId();
         dtClassifyMapper.deleteBeforeUpdate(userId,taskId,subtaskId);
         dtClassifyMapper.alterDtClassifyTable();
         for(int i=0;i<labelId.length;i++){
@@ -355,13 +350,15 @@ public class DtClassifyServiceImpl implements IDtClassifyService {
         Paragraph paragraph = new Paragraph();
         List<DtClassify> alreadyList;
         DTask dTask = dTaskMapper.selectByTaskIdAndUserId(taskId,userId);
-        UserSubtask currentTask = userSubtaskMapper.selectByUserIdAndSubtaskId(userId,taskId,subtaskId);
+        UserSubtask currentTask = userSubtaskMapper.selectByUserIdAndSubtaskId(taskId,subtaskId);
         //currentTask为null表示当前为检测任务，返回最后一个用户完成的任务
         if(currentTask == null){
+            //获取最后一个任务
             UserSubtask theLasttask = userSubtaskMapper.selectTheLastData(userId,taskId);
             data = dtClassifyMapper.selectCurrentDone(theLasttask.getSubtaskId());
             return data;
         }
+        //获取上一个任务
         UserSubtask userSubtask = userSubtaskMapper.selectLastData(userId,taskId,subtaskId);
         System.out.println("getLastExtractionData"+userId+" "+taskId+" "+subtaskId);
         //如果没有上一个任务，则直接返回null
@@ -369,6 +366,8 @@ public class DtClassifyServiceImpl implements IDtClassifyService {
         data = dtClassifyMapper.selectCurrentDone(userSubtask.getSubtaskId());
         return data;
     }
+
+
 
     /**当前任务可能有三种位置，为最后一个任务，为倒数第二个任务，为其他位置的任务
      * 在最后一个任务时，可能为①检测任务；②普通任务，而下一个位置，可能为①检测任务；②普通任务
@@ -379,7 +378,7 @@ public class DtClassifyServiceImpl implements IDtClassifyService {
         ResponseEntity data = new ResponseEntity();
         ParagraphLabelEntity subtaskdata;
         List<DtClassify> entityList;
-        UserSubtask currentSubtask = userSubtaskMapper.selectByUserIdAndSubtaskId(userId,taskId,subtaskId);
+        UserSubtask currentSubtask = userSubtaskMapper.selectByUserIdAndSubtaskId(taskId,subtaskId);
         DTask dTask = dTaskMapper.selectByTaskIdAndUserId(taskId,userId);
         UserSubtask nextSubtask = userSubtaskMapper.selectNextData(userId,taskId,subtaskId);
         //判断当前任务是否为普通任务
@@ -437,4 +436,22 @@ public class DtClassifyServiceImpl implements IDtClassifyService {
         }
     }
 
+
+    //任务管理查看上一个任务
+    public ParagraphLabelEntity getLastDone(int taskId,int subtaskId){
+        ParagraphLabelEntity data;
+        UserSubtask lasttask = userSubtaskMapper.selectLastDone(taskId,subtaskId);
+        if(lasttask == null){ return null; }
+        data = dtClassifyMapper.selectCurrentDone(lasttask.getSubtaskId());
+        return data;
+    }
+
+    //任务管理查看下一个任务
+    public ParagraphLabelEntity getNextDone(int taskId,int subtaskId){
+        ParagraphLabelEntity data;
+        UserSubtask nexttask = userSubtaskMapper.selectNextDone(taskId,subtaskId);
+        if(nexttask == null){ return null; }
+        data = dtClassifyMapper.selectCurrentDone(nexttask.getSubtaskId());
+        return data;
+    }
 }

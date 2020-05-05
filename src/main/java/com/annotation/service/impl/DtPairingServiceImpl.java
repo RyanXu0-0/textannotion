@@ -71,11 +71,9 @@ public class DtPairingServiceImpl implements IDtPairingService {
     }
 
 
-    public List<InstanceListitemEntity> getInstanceDone(int subtaskId, int userId,int taskId){
-        List<InstanceListitemEntity> dataList = new ArrayList<>();
+    public InstanceListitemEntity getInstanceDone(int subtaskId, int userId,int taskId){
         InstanceListitemEntity data = dtPairingMapper.selectPairingByInstanceId(subtaskId);
-        dataList.add(data);
-        return dataList;
+        return data;
     }
 
     public InstanceListitemEntity getPairingData(int userId, int taskId){
@@ -205,7 +203,7 @@ public class DtPairingServiceImpl implements IDtPairingService {
     public String qualityControl(int taskId,int docId,int subtaskId,int userId,int[] aListItemId,int[] bListItemId,String taskType){
         String responseEntity = "";
         DTask userTaskInf = dTaskMapper.selectByTaskIdAndUserId(taskId,userId);
-        UserSubtask userSubtask = userSubtaskMapper.selectByUserIdAndSubtaskId(userId,taskId,subtaskId);
+        UserSubtask userSubtask = userSubtaskMapper.selectByUserIdAndSubtaskId(taskId,subtaskId);
         if(userSubtask!=null){
             responseEntity =addPairing(taskId,docId,subtaskId,userId,aListItemId,bListItemId,taskType);
         }else{
@@ -312,7 +310,7 @@ public class DtPairingServiceImpl implements IDtPairingService {
     public String addPairing(int taskId,int docId,int instanceId,int userId,int[] aListItemId,int[] bListItemId,String taskType){
         StringBuffer sb=new StringBuffer("");
         DTask userTaskInf = dTaskMapper.selectByTaskIdAndUserId(taskId,userId);
-        UserSubtask curuserSubtask = userSubtaskMapper.selectByUserIdAndSubtaskId(userId,taskId,instanceId);
+        UserSubtask curuserSubtask = userSubtaskMapper.selectByUserIdAndSubtaskId(taskId,instanceId);
         dtPairingMapper.deleteBeforeUpdate(userId,taskId,instanceId);
 
         for(int i=0;i<aListItemId.length;i++){
@@ -422,7 +420,7 @@ public class DtPairingServiceImpl implements IDtPairingService {
         InstanceListitemEntity data;
         //List<DtExtraction> entityList;
         DTask dTask = dTaskMapper.selectByTaskIdAndUserId(taskId,userId);
-        UserSubtask currentTask = userSubtaskMapper.selectByUserIdAndSubtaskId(userId,taskId,subtaskId);
+        UserSubtask currentTask = userSubtaskMapper.selectByUserIdAndSubtaskId(taskId,subtaskId);
         //currentTask为null表示当前为检测任务，返回最后一个用户完成的任务
         if(currentTask == null){
             UserSubtask theLasttask = userSubtaskMapper.selectTheLastData(userId,taskId);
@@ -451,7 +449,7 @@ public class DtPairingServiceImpl implements IDtPairingService {
         ResponseEntity data = new ResponseEntity();
         InstanceListitemEntity subtaskdata;
         //List<DtExtraction> entityList;
-        UserSubtask currentSubtask = userSubtaskMapper.selectByUserIdAndSubtaskId(userId,taskId,subtaskId);
+        UserSubtask currentSubtask = userSubtaskMapper.selectByUserIdAndSubtaskId(taskId,subtaskId);
         DTask dTask = dTaskMapper.selectByTaskIdAndUserId(taskId,userId);
         UserSubtask nextSubtask = userSubtaskMapper.selectNextData(userId,taskId,subtaskId);
         //判断当前任务是否为普通任务
@@ -507,6 +505,22 @@ public class DtPairingServiceImpl implements IDtPairingService {
         }
     }
 
+    //任务管理查看上一个任务
+    public InstanceListitemEntity getLastDone(int taskId,int subtaskId){
+        InstanceListitemEntity data;
+        UserSubtask lasttask = userSubtaskMapper.selectLastDone(taskId,subtaskId);
+        if(lasttask == null){ return null; }
+        data = dtPairingMapper.selectPairingByInstanceId(lasttask.getSubtaskId());
+        return data;
+    }
 
+    //任务管理查看下一个任务
+    public InstanceListitemEntity getNextDone(int taskId,int subtaskId){
+        InstanceListitemEntity data;
+        UserSubtask nexttask = userSubtaskMapper.selectNextDone(taskId,subtaskId);
+        if(nexttask == null){ return null; }
+        data = dtPairingMapper.selectPairingByInstanceId(nexttask.getSubtaskId());
+        return data;
+    }
 
 }

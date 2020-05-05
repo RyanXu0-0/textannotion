@@ -360,6 +360,7 @@ function ajaxDocInstanceItem(docId) {
 
             if(data.instanceItem=="" || data.instanceItem==null){
                 alert("该文档已经全部完成");
+                top.location.href ="/html/u_homepage.html";
             }else{
 
 
@@ -369,43 +370,6 @@ function ajaxDocInstanceItem(docId) {
                 alreadyDone=instanceItem[curInstanceIndex].alreadyDone;
                 //console.log(alreadyDone);
 
-                var sflag=0;
-                for(var i=0;i<instanceItem.length;i++){
-
-                    if(instanceItem[i].dtstatus=="已完成"){
-                        sflag++;
-                    }
-                }
-                if(sflag==instanceItem.length){
-                    if(!($("#complete-doc").hasClass("disabled"))){
-                        $("#complete-doc").addClass("disabled");
-                        $("#complete-doc").attr("disabled","true");
-
-                    }
-
-                    if(!($("#complete-instance").hasClass("disabled"))){
-                        $("#complete-instance").addClass("disabled");
-                        $("#complete-instance").attr("disabled","true");
-                    }
-
-                    if(!($("#submit-instance").hasClass("disabled"))){
-                        $("#submit-instance").addClass("disabled");
-                        $("#submit-instance").attr("disabled","true");
-                    }
-                }else{
-                    if($("#complete-doc").hasClass("disabled")){
-                        $("#complete-doc").removeClass("disabled");
-                        $("#complete-doc").removeAttr("disabled");
-                    }
-                    if($("#complete-instance").hasClass("disabled")){
-                        $("#complete-instance").removeClass("disabled");
-                        $("#complete-instance").removeAttr("disabled");
-                    }
-                    if($("#submit-instance").hasClass("disabled")){
-                        $("#submit-instance").removeClass("disabled");
-                        $("#submit-instance").removeAttr("disabled");
-                    }
-                }
 
                 lineLR[curInstanceIndex] = new Array;
                 tempNum[curInstanceIndex]=0;
@@ -417,30 +381,6 @@ function ajaxDocInstanceItem(docId) {
                  */
                 paintDoTask(listItem,alreadyDone);
 
-
-                if(instanceItem[curInstanceIndex].dtstatus=="已完成"){
-
-
-                    if(!($("#complete-instance").hasClass("disabled"))){
-                        $("#complete-instance").addClass("disabled");
-                        $("#complete-instance").attr("disabled","true");
-                    }
-
-                    if(!($("#submit-instance").hasClass("disabled"))){
-                        $("#submit-instance").addClass("disabled");
-                        $("#submit-instance").attr("disabled","true");
-                    }
-                }else{
-
-                    if($("#complete-instance").hasClass("disabled")){
-                        $("#complete-instance").removeClass("disabled");
-                        $("#complete-instance").removeAttr("disabled");
-                    }
-                    if($("#submit-instance").hasClass("disabled")){
-                        $("#submit-instance").removeClass("disabled");
-                        $("#submit-instance").removeAttr("disabled");
-                    }
-                }
                 /**
                  * 左边ul导航点击定位
                  */
@@ -500,30 +440,6 @@ function curInstanceId(obj) {
     alreadyDone=instanceItem[curInstanceIndex].alreadyDone;
 
 
-    if(instanceItem[curInstanceIndex].dtstatus=="已完成"){
-
-
-        if(!($("#complete-instance").hasClass("disabled"))){
-            $("#complete-instance").addClass("disabled");
-            $("#complete-instance").attr("disabled","true");
-        }
-
-        if(!($("#submit-instance").hasClass("disabled"))){
-            $("#submit-instance").addClass("disabled");
-            $("#submit-instance").attr("disabled","true");
-        }
-    }else{
-
-        if($("#complete-instance").hasClass("disabled")){
-            $("#complete-instance").removeClass("disabled");
-            $("#complete-instance").removeAttr("disabled");
-        }
-        if($("#submit-instance").hasClass("disabled")){
-            $("#submit-instance").removeClass("disabled");
-            $("#submit-instance").removeAttr("disabled");
-        }
-    }
-
     //console.log(alreadyDone);
     paintDoTask(listItem,alreadyDone);
 }
@@ -546,7 +462,7 @@ function paintDoTask(listItem,alreadyDone) {
 
 
         /**
-         * 分别写入左右两边
+         * 分别写入左右两边,listIndex为1 的在左边，为2的在右边
          */
         console.log("paint");
         if(listItem[i].listIndex=="1"){
@@ -592,20 +508,28 @@ function paintDoTask(listItem,alreadyDone) {
      */
 
 
+    // for(var i=0;i<alreadyDone.length;i++){
+    //     var letfId="left-"+alreadyDone[i].aLitemid;
+    //     drawLeftInit(letfId);
+    //     console.log("letfId="+letfId);
+    //     var rightId="right-"+alreadyDone[i].bLitemid;
+    //     drawRightInit(rightId);
+    //     console.log("rightId="+rightId);
+    //
+    //
+    //     lineLRInit[curInstanceIndex][tempNum[curInstanceIndex]]={};
+    //     lineLRInit[curInstanceIndex][tempNum[curInstanceIndex]][letfId]=rightId;
+    //     tempNumInit[curInstanceIndex]++;
+    //     // lineLR[curInstanceIndex][tempNum[curInstanceIndex]][alreadyDone[i].aLitemid]=alreadyDone[i].b_listitem_id;
+    //     // tempNum[curInstanceIndex]++;
+    // }
+
     for(var i=0;i<alreadyDone.length;i++){
         var letfId="left-"+alreadyDone[i].aLitemid;
-        drawLeftInit(letfId);
-        console.log("letfId="+letfId);
+        drawLeft(letfId);
+        //console.log("letfId="+letfId);
         var rightId="right-"+alreadyDone[i].bLitemid;
-        drawRightInit(rightId);
-        console.log("rightId="+rightId);
-
-
-        lineLRInit[curInstanceIndex][tempNum[curInstanceIndex]]={};
-        lineLRInit[curInstanceIndex][tempNum[curInstanceIndex]][letfId]=rightId;
-        tempNumInit[curInstanceIndex]++;
-        // lineLR[curInstanceIndex][tempNum[curInstanceIndex]][alreadyDone[i].aLitemid]=alreadyDone[i].b_listitem_id;
-        // tempNum[curInstanceIndex]++;
+        drawRight(rightId);
     }
 
 }
@@ -620,15 +544,15 @@ function drawLeft(obj) {
     x2=$("#"+obj).attr("top");
 
     var listLen=listItem.length;
+    //把所有的左边段落设置为蓝色
     for(var i=0;i<listLen;i++){
-
         if(listItem[i].listIndex==1){
             var tempList= "left-"+listItem[i].ltid;
             console.log(tempList);
             $("#"+tempList).css("background-color","#5bc0de");
         }
-
     }
+    //把所选中的段落设置为橘红色
     $("#"+obj).css("background-color","#F96");
 
 
@@ -798,67 +722,6 @@ function ajaxdoTaskInfo(doTaskData,fRes) {
 
             //console.log(data);
         }, error: function (XMLHttpRequest, textStatus, errorThrown) {
-
-        },
-    });
-};
-
-
-function ajaxCompleteDoc(docId) {
-    var docid={
-        docId: docId,
-        taskId:taskId,
-        userId:0
-    };
-    $.ajax({
-        url: "/dinstance/doc/status",
-        type: "post",
-        traditional: true,
-        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-        dataType: "json",
-        data:docid,
-        success: function (data) {
-            if(data.status==0){
-                alert("该文档已经完成");
-                ajaxDocInstanceItem(docId);
-            }else{
-
-                alert("还有段落没有做");
-            }
-
-        }, error: function (XMLHttpRequest, textStatus, errorThrown) {
-
-
-        },
-    });
-};
-
-function ajaxCompleteInstance(docId) {
-    var docid={
-        docId: docId,
-        taskId:taskId,
-        instanceId:instanceItem[curInstanceIndex].instid,
-        userId:0
-    };
-    $.ajax({
-        url: "/dinstance/status",
-        type: "post",
-        traditional: true,
-        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-        dataType: "json",
-        data:docid,
-        success: function (data) {
-            if(data.status==0){
-                alert("该段已经完成");
-                ajaxDocInstanceItem(docId);
-            }else{
-
-                alert("该段还没有做");
-            }
-
-
-        }, error: function (XMLHttpRequest, textStatus, errorThrown) {
-
 
         },
     });

@@ -247,7 +247,6 @@ function ajaxDocSortingInstanceItem(docId) {
                 $("#right-sorting").html("");
                 var sflag=0;
                 for(var i=0;i<instanceItem.length;i++){
-
                     if(instanceItem[i].dtstatus=="已完成"){
                         sflag++;
                     }
@@ -411,7 +410,7 @@ function addSortingTask(doTaskData) {
             console.log(data);
             if(data.status==0){
                 alert("提交成功！");
-               // ajaxDocSortingInstanceItem(docId);
+                // ajaxDocSortingInstanceItem(docId);
             }else{
                 alert("提交失败！");
             }
@@ -433,8 +432,8 @@ function addSortingTask(doTaskData) {
  */
 function paintSortingContent(itemList,alreadyDone) {
 
-    itemList=instanceItem[curInstanceIndex].itemList;
-    alreadyDone=instanceItem[curInstanceIndex].alreadyDone;
+//    itemList=instanceItem[curInstanceIndex].itemList;
+//    alreadyDone=instanceItem[curInstanceIndex].alreadyDone;
 
     //console.log(itemList);
     var rightItem=new Array;
@@ -578,7 +577,7 @@ function ajaxNextTask() {
             cleardata();
             console.log(JSON.stringify(data));
             itemList= data.data.itemList;
-            alreadyDone=instanceItem[curInstanceIndex].alreadyDone;
+            alreadyDone=data.data.alreadyDone;
             paintSortingContent(itemList,alreadyDone);
             instanceItem[curInstanceIndex].instid = data.data.instid;
         }, error: function (XMLHttpRequest, textStatus, errorThrown,data) {
@@ -607,7 +606,7 @@ function ajaxLastTask(){
                 cleardata();
                 console.log(JSON.stringify(data));
                 itemList= data.data.itemList;
-                alreadyDone=instanceItem[curInstanceIndex].alreadyDone;
+                alreadyDone= data.data.alreadyDone;
                 paintSortingContent(itemList,alreadyDone);
                 instanceItem[curInstanceIndex].instid = data.data.instid;
             }

@@ -2,6 +2,7 @@ package com.annotation.service;
 
 import com.annotation.model.entity.InstanceListitemEntity;
 import com.annotation.model.entity.PairingData;
+import com.annotation.model.entity.ParagraphLabelEntity;
 import com.annotation.model.entity.ResponseEntity;
 import com.annotation.model.entity.resHandle.ResPairingData;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -76,5 +77,9 @@ public interface IDtPairingService {
 
     InstanceListitemEntity getLastPairingData(int userId, int taskId,int subtaskId);
 
-    List<InstanceListitemEntity> getInstanceDone(int subtaskId, int userId,int taskId);
+    InstanceListitemEntity getInstanceDone(int subtaskId, int userId,int taskId);
+
+    InstanceListitemEntity getLastDone(int taskId, int subtaskId);
+
+    InstanceListitemEntity getNextDone(int taskId,int subtaskId);
 }

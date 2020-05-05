@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.annotation.model.User;
 import com.annotation.model.entity.InstanceItemEntity;
 import com.annotation.model.entity.InstanceListitemEntity;
+import com.annotation.model.entity.ParagraphLabelEntity;
 import com.annotation.model.entity.ResponseEntity;
 import com.annotation.model.entity.resHandle.ResSortingData;
 import com.annotation.service.IDtSortingService;
@@ -65,13 +66,13 @@ public class DtSortingController {
     public JSONObject getSortingInstanceItemDetail(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, HttpSession httpSession,
                                              int subtaskId,int taskId,int userId) {
 
-        List<InstanceItemEntity> instanceItemEntityList = iDtSortingService.getSortingDone(subtaskId,userId,taskId);
+        InstanceItemEntity instanceItemEntity = iDtSortingService.getSortingDone(subtaskId,userId,taskId);
 
         JSONObject rs = new JSONObject();
-        if(instanceItemEntityList != null){
+        if(instanceItemEntity != null){
             rs.put("msg","查询成功");
             rs.put("code",0);
-            rs.put("instanceItem",instanceItemEntityList);
+            rs.put("instanceItem",instanceItemEntity);
 
         }else{
             rs.put("msg","查询失败");
@@ -158,4 +159,47 @@ public class DtSortingController {
         return rs;
     }
 
+    @PostMapping
+    @RequestMapping("/lastdonetask")
+    public JSONObject lastDoneClassifyTask(HttpSession httpSession,int taskId,int subtaskId,@RequestParam(defaultValue="0")int userId){
+
+        if(userId==0){
+            User user =(User)httpSession.getAttribute("currentUser");
+            userId = user.getId();
+        }
+        System.out.println("当前任务id："+subtaskId);
+        InstanceItemEntity instanceItemEntity = iDtSortingService.getLastDone(taskId,subtaskId);
+        JSONObject rs = new JSONObject();
+        if(instanceItemEntity != null){
+            rs.put("msg","查询文件内容成功");
+            rs.put("code",0);
+            rs.put("data",instanceItemEntity);
+        }else{
+            rs.put("msg","查询文件内容失败");
+            rs.put("code",-1);
+        }
+        return rs;
+    }
+
+    @PostMapping
+    @RequestMapping("/nextdonetask")
+    public JSONObject nextDoneClassifyTask(HttpSession httpSession,int taskId,int subtaskId,@RequestParam(defaultValue="0")int userId){
+
+        if(userId==0){
+            User user =(User)httpSession.getAttribute("currentUser");
+            userId = user.getId();
+        }
+        System.out.println("当前任务id："+subtaskId);
+        InstanceItemEntity instanceItemEntity = iDtSortingService.getNextDone(taskId,subtaskId);
+        JSONObject rs = new JSONObject();
+        if(instanceItemEntity != null){
+            rs.put("msg","查询文件内容成功");
+            rs.put("code",0);
+            rs.put("data",instanceItemEntity);
+        }else{
+            rs.put("msg","查询文件内容失败");
+            rs.put("code",-1);
+        }
+        return rs;
+    }
 }

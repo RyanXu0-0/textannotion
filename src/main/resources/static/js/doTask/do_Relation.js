@@ -86,7 +86,7 @@ $(function () {
     $("#complete-instance").click(function(){
         ajaxCompleteInstance(docId);
     });
-    
+
     $("#select-docStatus").click(function(){
         curInstanceIndex=0;
         ajaxDocInstanceItem(docId);
@@ -126,10 +126,6 @@ $(function () {
                 doTaskItem2Num++;
             }
         }
-        // var item1Labels=[20,21,22];
-        // var item2Labels=[20,21,22];
-        // var instanceLabels=[28,21,22];
-
         var doTaskData={
             taskId :taskId,
             docId:docId,
@@ -182,7 +178,7 @@ function ajaxTaskInfo(taskId) {
         data:taskid,
         success: function (data) {
 
-           // console.log(data);
+            // console.log(data);
             taskInfo=data.data; //console.log(taskInfo);
             documentList =data.data.documentList;//console.log(documentList);
             docId=documentList[0].did;//console.log(docId);
@@ -299,45 +295,6 @@ function ajaxDocInstanceItem(docId) {
             limitItem1LabelNum=itemList[0].labelnum;
             limitItem2LabelNum=itemList[1].labelnum;
 
-            var sflag=0;
-            for(var i=0;i<instanceItem.length;i++){
-
-                if(instanceItem[i].dtstatus=="已完成"){
-                    sflag++;
-                }
-            }
-
-            if(sflag==instanceItem.length){
-                if(!($("#complete-doc").hasClass("disabled"))){
-                    $("#complete-doc").addClass("disabled");
-                    $("#complete-doc").attr("disabled","true");
-
-                }
-
-                if(!($("#complete-instance").hasClass("disabled"))){
-                    $("#complete-instance").addClass("disabled");
-                    $("#complete-instance").attr("disabled","true");
-                }
-
-                if(!($("#submit-item").hasClass("disabled"))){
-                    $("#submit-item").addClass("disabled");
-                    $("#submit-item").attr("disabled","true");
-                }
-            }else{
-                if($("#complete-doc").hasClass("disabled")){
-                    $("#complete-doc").removeClass("disabled");
-                    $("#complete-doc").removeAttr("disabled");
-                }
-                if($("#complete-instance").hasClass("disabled")){
-                    $("#complete-instance").removeClass("disabled");
-                    $("#complete-instance").removeAttr("disabled");
-                }
-                if($("#submit-item").hasClass("disabled")){
-                    $("#submit-item").removeClass("disabled");
-                    $("#submit-item").removeAttr("disabled");
-                }
-            }
-
             /**
              * 写入内容
              */
@@ -348,30 +305,6 @@ function ajaxDocInstanceItem(docId) {
 
             paintLabelHtml(instanceLabel,item1Label,item2Label);
 
-
-            if(instanceItem[curInstanceIndex].dtstatus=="已完成"){
-
-
-                if(!($("#complete-instance").hasClass("disabled"))){
-                    $("#complete-instance").addClass("disabled");
-                    $("#complete-instance").attr("disabled","true");
-                }
-
-                if(!($("#submit-item").hasClass("disabled"))){
-                    $("#submit-item").addClass("disabled");
-                    $("#submit-item").attr("disabled","true");
-                }
-            }else{
-
-                if($("#complete-instance").hasClass("disabled")){
-                    $("#complete-instance").removeClass("disabled");
-                    $("#complete-instance").removeAttr("disabled");
-                }
-                if($("#submit-item").hasClass("disabled")){
-                    $("#submit-item").removeClass("disabled");
-                    $("#submit-item").removeAttr("disabled");
-                }
-            }
 
 
             /**
@@ -497,7 +430,7 @@ function paintLabelHtml(instanceLabel,item1Label,item2Label) {
 
     //console.log(instanceItem[curInstanceIndex]);
     //console.log(instanceLabel);
-   // console.log(item1Label);
+    // console.log(item1Label);
     //console.log(item2Label);
 
     /**
@@ -549,7 +482,10 @@ function paintLabelHtml(instanceLabel,item1Label,item2Label) {
     for(var i=0;i<instanceLabel.length;i++){
         instanceLabel[i].chosen=0;
         if(tmpInstanceAlready.indexOf(instanceLabel[i].lid)!=-1){
-            var tmpHtml=' <span class="label label-success">' +
+//            var tmpHtml=' <span class="label label-success">' +
+//                instanceLabel[i].labelname +
+//                '</span>';
+            var tmpHtml=' <span class="label label-primary" id="instance-label-'+i+'" flag="1" ilabeltype="instance" onclick="changeLabelColor(this.id)" >' +
                 instanceLabel[i].labelname +
                 '</span>';
             instanceHtml=instanceHtml+tmpHtml;
@@ -570,10 +506,13 @@ function paintLabelHtml(instanceLabel,item1Label,item2Label) {
     var item1Html='<h4 style="line-height:10pt">';
     for(var i=0;i<item1Label.length;i++){
         item1Label[i].chosen=0;
-       // console.log(item1Label[i].lid);
-       // console.log(tmpItem1Already);
+        // console.log(item1Label[i].lid);
+        // console.log(tmpItem1Already);
         if(tmpItem1Already.indexOf(item1Label[i].lid)!=-1){
-            var tmpHtml=' <span class="label label-success">' +
+//            var tmpHtml=' <span class="label label-success">' +
+//                item1Label[i].labelname +
+//                '</span>';
+            var tmpHtml=' <span class="label label-primary" id="item1-label-'+i+'" flag="1" ilabeltype="item1" onclick="changeLabelColor(this.id)">' +
                 item1Label[i].labelname +
                 '</span>';
             item1Html=item1Html+tmpHtml;
@@ -596,7 +535,10 @@ function paintLabelHtml(instanceLabel,item1Label,item2Label) {
     for(var i=0;i<item2Label.length;i++){
         item2Label[i].chosen=0;
         if(tmpItem2Already.indexOf(item2Label[i].lid)!=-1){
-            var tmpHtml=' <span class="label label-success">' +
+//            var tmpHtml=' <span class="label label-success">' +
+//                item2Label[i].labelname +
+//                '</span>';
+            var tmpHtml=' <span class="label label-primary" id="item2-label-'+i+'" flag="1" ilabeltype="item2" onclick="changeLabelColor(this.id)">' +
                 item2Label[i].labelname +
                 '</span>';
             item2Html=item2Html+tmpHtml;
@@ -610,6 +552,7 @@ function paintLabelHtml(instanceLabel,item1Label,item2Label) {
     item2Html=item2Html+'</h4>';
     $("#item2-label-div").html(item2Html);
 };
+
 
 /**
  * 点击标签的操作
@@ -792,6 +735,7 @@ function ajaxNextTask() {
             cleardata();
             console.log(JSON.stringify(data));
             itemList=data.data.itemList;
+            instanceItem[curInstanceIndex].alreadyDone=data.data.alreadyDone;
             console.log(itemList);
             //paintContent(curInstanceIndex);
             $("#p-item-0").html(itemList[0].itemcontent);
@@ -800,7 +744,6 @@ function ajaxNextTask() {
             console.log(item1Label);
             console.log(item2Label);
             paintLabelHtml(instanceLabel,item1Label,item2Label);
-
             instanceItem[curInstanceIndex].instid = data.data.instid;
         }, error: function (XMLHttpRequest, textStatus, errorThrown,data) {
         },
@@ -827,6 +770,7 @@ function ajaxLastTask(){
             }else{
                 cleardata();
                 itemList=data.data.itemList;
+                instanceItem[curInstanceIndex].alreadyDone=data.data.alreadyDone;
                 console.log(JSON.stringify(data));
                 console.log(itemList);
                 //paintContent(curInstanceIndex);

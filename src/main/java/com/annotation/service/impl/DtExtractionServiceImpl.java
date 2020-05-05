@@ -83,16 +83,14 @@ public class DtExtractionServiceImpl implements IDtExtractionService {
 
     }
 
-    public List<ParagraphLabelEntity> getExtractionDone(int subtaskId, int userId,int taskId){
-        List<ParagraphLabelEntity> dataList = new ArrayList<>();
+    public ParagraphLabelEntity getExtractionDone(int subtaskId, int userId,int taskId){
         Paragraph paragraph = paragraphMapper.selectByPrimaryKey(subtaskId);
         List<DtExtraction> entityList = dtExtractionMapper.selectCurrentDone(userId,taskId,subtaskId);
         List<DtExtractionRelation> relationList = dtExtractionRelationMapper.selectCurrentDone(userId,taskId,subtaskId);
         List<Map<String, Object>> entityDone = transforEntityList(entityList);
         List<Map<String, Object>> relationDone = transforRelationList(relationList);
         ParagraphLabelEntity data = new ParagraphLabelEntity(paragraph,entityDone,relationDone);
-        dataList.add(data);
-        return dataList;
+        return data;
     }
 
     /**
@@ -135,7 +133,7 @@ public class DtExtractionServiceImpl implements IDtExtractionService {
         int taskId = doExtractionData.getTaskId();
         int subtaskId = doExtractionData.getSubtaskId();
         DTask userTaskInf = dTaskMapper.selectByTaskIdAndUserId(taskId,userId);
-        UserSubtask userSubtask = userSubtaskMapper.selectByUserIdAndSubtaskId(userId,taskId,subtaskId);
+        UserSubtask userSubtask = userSubtaskMapper.selectByUserIdAndSubtaskId(taskId,subtaskId);
         if(userSubtask!=null){
             addExtraction(userId,taskId,subtaskId,doExtractionData.getEntities(),doExtractionData.getRelations());
         }else{
@@ -149,7 +147,7 @@ public class DtExtractionServiceImpl implements IDtExtractionService {
     public ResponseEntity addExtraction(int userId, int taskId,int subtaskId, List<Entity> entities, List<Relation> relations){
         ResponseEntity responseEntity = new ResponseEntity();
         DTask userTaskInf = dTaskMapper.selectByTaskIdAndUserId(taskId,userId);
-        UserSubtask curuserSubtask = userSubtaskMapper.selectByUserIdAndSubtaskId(userId,taskId,subtaskId);
+        UserSubtask curuserSubtask = userSubtaskMapper.selectByUserIdAndSubtaskId(taskId,subtaskId);
         dtExtractionMapper.deleteBeforeUpdate(userId,taskId,subtaskId);
         dtExtractionRelationMapper.deleteBeforeUpdate(userId,taskId,subtaskId);
         for(Entity entity:entities){
@@ -383,7 +381,7 @@ public class DtExtractionServiceImpl implements IDtExtractionService {
         List<DtExtraction> entityList;
         List<DtExtractionRelation> relationList;
         DTask dTask = dTaskMapper.selectByTaskIdAndUserId(taskId,userId);
-        UserSubtask currentTask = userSubtaskMapper.selectByUserIdAndSubtaskId(userId,taskId,subtaskId);
+        UserSubtask currentTask = userSubtaskMapper.selectByUserIdAndSubtaskId(taskId,subtaskId);
         //currentTask为null表示当前为检测任务，返回最后一个用户完成的任务
         if(currentTask == null){
             UserSubtask theLasttask = userSubtaskMapper.selectTheLastData(userId,taskId);
@@ -419,7 +417,7 @@ public class DtExtractionServiceImpl implements IDtExtractionService {
         ParagraphLabelEntity subtaskdata;
         List<DtExtraction> entityList;
         List<DtExtractionRelation> relationList;
-        UserSubtask currentSubtask = userSubtaskMapper.selectByUserIdAndSubtaskId(userId,taskId,subtaskId);
+        UserSubtask currentSubtask = userSubtaskMapper.selectByUserIdAndSubtaskId(taskId,subtaskId);
         DTask dTask = dTaskMapper.selectByTaskIdAndUserId(taskId,userId);
         UserSubtask nextSubtask = userSubtaskMapper.selectNextData(userId,taskId,subtaskId);
         //判断当前任务是否为普通任务
@@ -483,12 +481,6 @@ public class DtExtractionServiceImpl implements IDtExtractionService {
                     data.setStatus(5001);
                     data.setMsg("任务已完成！");
                 }else{
-//                    entityList = dtExtractionMapper.selectCurrentDone(userId,taskId,subtaskId);
-//                    relationList = dtExtractionRelationMapper.selectCurrentDone(userId,taskId,subtaskId);
-//                    List<Map<String, Object>> entityDone = transforEntityList(entityList);
-//                    List<Map<String, Object>> relationDone = transforRelationList(relationList);
-//                    subtaskdata.setAlreadyDone(entityDone);
-//                    subtaskdata.setRelalreadyDone(relationDone);
                     data.setData(subtaskdata);
                 }
 
@@ -527,5 +519,41 @@ public class DtExtractionServiceImpl implements IDtExtractionService {
             }
         }
         return alreadyDone;
+    }
+
+
+    //任务管理查看上一个任务
+    public ParagraphLabelEntity getLastDone(int taskId,int subtaskId){
+        ParagraphLabelEntity data;
+        List<DtExtraction> entityList;
+        List<DtExtractionRelation> relationList;
+        UserSubtask lasttask = userSubtaskMapper.selectLastDone(taskId,subtaskId);
+        if(lasttask == null){ return null; }
+        Paragraph paragraph = paragraphMapper.selectByPrimaryKey(lasttask.getSubtaskId());
+        entityList = dtExtractionMapper.selectByTaskidAndSubtaskid(taskId,lasttask.getSubtaskId());
+        relationList = dtExtractionRelationMapper.selectByTaskidAndSubtaskid(taskId,lasttask.getSubtaskId());
+        List<Map<String, Object>> entityDone = transforEntityList(entityList);
+        List<Map<String, Object>> relationDone = transforRelationList(relationList);
+        data = new ParagraphLabelEntity(paragraph,entityDone,relationDone);
+        return data;
+    }
+
+    //任务管理查看下一个任务
+    public ParagraphLabelEntity getNextDone(int taskId,int subtaskId){
+        ParagraphLabelEntity data;
+        Paragraph paragraph;
+        List<DtExtraction> entityList;
+        List<DtExtractionRelation> relationList;
+        UserSubtask nexttask = userSubtaskMapper.selectNextDone(taskId,subtaskId);
+        if(nexttask == null){
+            return null;
+        }
+        paragraph = paragraphMapper.selectByPrimaryKey(nexttask.getSubtaskId());
+        entityList = dtExtractionMapper.selectByTaskidAndSubtaskid(taskId,nexttask.getSubtaskId());
+        relationList = dtExtractionRelationMapper.selectByTaskidAndSubtaskid(taskId,nexttask.getSubtaskId());
+        List<Map<String, Object>> entityDone = transforEntityList(entityList);
+        List<Map<String, Object>> relationDone = transforRelationList(relationList);
+        data = new ParagraphLabelEntity(paragraph,entityDone,relationDone);
+        return data;
     }
 }

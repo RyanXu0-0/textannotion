@@ -88,7 +88,7 @@ $(function () {
             var doTaskData={
                 taskId :taskId,
                 docId:docId,
-                instanceId:instanceItem[curInstanceIndex].instid,
+                instanceId:instanceItem.instid,
                 itemIds:itemId,
                 newIndex:newIndex
             };
@@ -102,6 +102,14 @@ $(function () {
 
         // console.log(rightLiLength);
         // console.log(ulHtml.children[0].getAttribute('drag-id'));
+    });
+    //下一个任务
+    $("#nexttask").click(function(){
+        ajaxNextTask();
+    });
+
+    $("#lasttask").click(function () {
+        ajaxLastTask();
     });
 });
 
@@ -228,8 +236,8 @@ function ajaxDocSortingInstanceItem(docId) {
             for(var i=0;i<instanceLength;i++){
                 instanceItem[parseInt(data.instanceItem[i].insindex)-1]=data.instanceItem[i];
             }
-            itemList= instanceItem[curInstanceIndex].itemList;
-            alreadyDone=instanceItem[curInstanceIndex].alreadyDone;
+            itemList= instanceItem.itemList;
+            alreadyDone=instanceItem.alreadyDone;
 
             console.log(instanceItem);
             $("#right-sorting").html("");
@@ -266,6 +274,7 @@ function ajaxDocSortingInstanceItem(docId) {
         },
     });
 }
+
 /**
  * 左边第几部分导航的点击事件
  * @param obj
@@ -289,12 +298,43 @@ function curInstanceId(obj) {
      */
 
     $("#right-sorting").html("");
-    itemList=instanceItem[curInstanceIndex].itemList;
-    alreadyDone=instanceItem[curInstanceIndex].alreadyDone;
+    itemList=instanceItem.itemList;
+    alreadyDone=instanceItem.alreadyDone;
 
     paintSortingContent(itemList,alreadyDone);
 }
 
+/**
+ * 做任务上传自己的标签
+ * @param doTaskData
+ */
+function addSortingTask(doTaskData) {
+
+    $.ajax({
+        url: "/sorting",
+        type: "post",
+        traditional: true,
+        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+        dataType: "json",
+        data:doTaskData,
+        success: function (data) {
+            console.log(data);
+            if(data.status==0){
+                alert("修改成功！");
+                // ajaxDocSortingInstanceItem(docId);
+            }else{
+                alert("修改失败！");
+            }
+
+
+        }, error: function (XMLHttpRequest, textStatus, errorThrown) {
+
+
+        },
+    });
+
+
+};
 
 
 /**
@@ -304,8 +344,8 @@ function curInstanceId(obj) {
  */
 function paintSortingContent(itemList,alreadyDone) {
 
-    itemList=instanceItem[curInstanceIndex].itemList;
-    alreadyDone=instanceItem[curInstanceIndex].alreadyDone;
+    itemList=instanceItem.itemList;
+    alreadyDone=instanceItem.alreadyDone;
 
     //console.log(itemList);
     var rightItem=new Array;
@@ -367,3 +407,72 @@ function paintSortingContent(itemList,alreadyDone) {
 }
 
 
+function ajaxNextTask() {
+    var currentTaskInfo={
+        subtaskId: subtaskId,
+        taskId:taskId,
+        userId:0
+    };
+    $.ajax({
+        url: "/sorting/nextdonetask",
+        type: "get",
+        traditional: true,
+        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+        dataType: "json",
+        data:currentTaskInfo,
+
+        success: function (data) {
+            if(data.data==null || data.data==""){
+                alert("这已经是最后一个任务了");
+                return null;
+            }
+            cleardata();
+            console.log(JSON.stringify(data));
+            itemList= data.data.itemList;
+            alreadyDone=data.data.alreadyDone;
+            paintSortingContent(itemList,alreadyDone);
+            subtaskId = data.data.instid;
+        }, error: function (XMLHttpRequest, textStatus, errorThrown,data) {
+        },
+    });
+};
+
+//申请上一个任务的数据
+function ajaxLastTask(){
+    var currentTaskInfo={
+        subtaskId: subtaskId,
+        taskId:taskId,
+        userId:0
+    };
+    $.ajax({
+        url: "/sorting/lastdonetask",
+        type: "get",
+        traditional: true,
+        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+        dataType: "json",
+        data:currentTaskInfo,
+        success: function (data) {
+            if(data.data==null || data.data==""){
+                alert("这已经是第一个任务了");
+                return null;
+            }else{
+                cleardata();
+                console.log(JSON.stringify(data));
+                itemList= data.data.itemList;
+                alreadyDone= data.data.alreadyDone;
+                paintSortingContent(itemList,alreadyDone);
+                subtaskId = data.data.instid;
+            }
+
+        }, error: function (XMLHttpRequest, textStatus, errorThrown) {
+
+        },
+    });
+};
+
+
+function cleardata() {
+    itemId=new Array();
+    newIndex=new Array();
+    $("#left-sorting").empty();
+}

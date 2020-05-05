@@ -175,14 +175,14 @@ $(function ($) {
     $("#submit-instance").click(function(){
 
         /**
-         * 先清除整个画布
-         * @type {Element}
-         */
-        var canvas = document.getElementById('canvas-front');
-        var cWidth=$("#canvas-front").attr("width");
-        var cHeight=$("#canvas-front").attr("height");
-        var context = canvas.getContext('2d');
-        context.clearRect(0,0,cWidth,cHeight);
+         //  * 先清除整个画布
+         //  * @type {Element}
+         //  */
+        // var canvas = document.getElementById('canvas-front');
+        // var cWidth=$("#canvas-front").attr("width");
+        // var cHeight=$("#canvas-front").attr("height");
+        // var context = canvas.getContext('2d');
+        // //context.clearRect(0,0,cWidth,cHeight);
 
         /**
          * 临时存储连线的点和几条线
@@ -193,11 +193,9 @@ $(function ($) {
         /**
          * 清除原数据
          * @type {number}
-         */
-        tempNum[curInstanceIndex]=0;
-        lineLR[curInstanceIndex]=new Array;
-
-
+         //  */
+            // tempNum[curInstanceIndex]=0;
+            // lineLR[curInstanceIndex]=new Array;
 
         var fRes=0;
 
@@ -205,28 +203,15 @@ $(function ($) {
         var bListitemId=new Array;
         for(var i=0;i<tempN;i++){
             for (var property in tempArr[i]){
-                //drawLeftBack(property); console.log("property="+property);
-                //console.log(tempArr[i][property]);
-
-                //drawRightBack(tempArr[i][property]);
-
-                //console.log(property.substring(5));
-                //console.log(listItem);
-                // aListitemId[i]=listItem[property.substring(5)-1].liid;
                 aListitemId[i]=property.substring(5);
-                //console.log(aListitemId);
-                //console.log(tempArr[i][property].substring(6));
                 bListitemId[i]=tempArr[i][property].substring(6);
-                // bListitemId[i]=listItem[tempArr[i][property].substring(6)-1].liid;
-                //console.log(bListitemId);
-
             }
         }
 
         var doTaskData={
             taskId :taskId,
             docId:docId,
-            instanceId:instanceItem[curInstanceIndex].instid,
+            instanceId:subtaskId,
             aListitemId:aListitemId,
             bListitemId:bListitemId,
             taskType:taskType,
@@ -234,16 +219,18 @@ $(function ($) {
         };console.log(doTaskData);
 
         ajaxdoTaskInfo(doTaskData,fRes);
-        // if(fRes==-1){
-        //     alert("提交失败");
-        // }else{
-        //     alert("提交成功");
-        // }
-        tempNum[curInstanceIndex]=0;
-        lineLR[curInstanceIndex]=new Array;
-
     });
 
+
+
+    //下一个任务
+    $("#nexttask").click(function(){
+        ajaxNextTask();
+    });
+
+    $("#lasttask").click(function () {
+        ajaxLastTask();
+    });
 });
 
 /**
@@ -368,9 +355,9 @@ function ajaxDocInstanceItem(docId) {
 
             instanceItem=data.instanceItem; //console.log(instanceItem);
             instanceLength=instanceItem.length;
-            listItem=instanceItem[curInstanceIndex].listitems;
-            alreadyDone=instanceItem[curInstanceIndex].alreadyDone;
-            console.log(alreadyDone);
+            listItem=instanceItem.listitems;
+            alreadyDone=instanceItem.alreadyDone;
+            console.log("alreadyDone"+alreadyDone);
 
             //curInstanceIndex=0;
 
@@ -437,8 +424,8 @@ function curInstanceId(obj) {
     lineLRInit[curInstanceIndex] = new Array;
 
     tempNumInit[curInstanceIndex]=0;
-    listItem=instanceItem[curInstanceIndex].listitems;
-    alreadyDone=instanceItem[curInstanceIndex].alreadyDone;
+    listItem=instanceItem.listitems;
+    alreadyDone=instanceItem.alreadyDone;
     console.log(alreadyDone);
     paintDoTask(listItem,alreadyDone);
 }
@@ -461,15 +448,15 @@ function paintDoTask(listItem,alreadyDone) {
 
 
         /**
-         * 分别写入左右两边
+         * 分别写入左右两边,listIndex为1 的在左边，为2的在右边
          */
         console.log("paint");
         if(listItem[i].listIndex=="1"){
-            var lt= '<li class="showitem" id="left-'+listItem[i].ltid+'" >'
+            var lt= '<li class="showitem" id="left-'+listItem[i].ltid+'" onclick="drawLeft(this.id)">'
                 +listItem[i].litemcontent+'</li>';
             left_Html=left_Html+lt;
         }else if(listItem[i].listIndex=="2"){
-            var rt='<li class="showitem" id="right-'+listItem[i].ltid+'" >'
+            var rt='<li class="showitem" id="right-'+listItem[i].ltid+'" onclick="drawRight(this.id)">'
                 +listItem[i].litemcontent+'</li>';
             right_Html=right_Html+rt;
         }
@@ -488,7 +475,7 @@ function paintDoTask(listItem,alreadyDone) {
      * @type {string}
      */
     var canvasHtml=' <canvas class="canvas" id="canvas-front"></canvas>'
-    +'<canvas class="backcanvas" id="canvas-back"></canvas>';
+        +'<canvas class="backcanvas" id="canvas-back"></canvas>';
     $("#showCb").append(canvasHtml);
 
     /**
@@ -507,20 +494,28 @@ function paintDoTask(listItem,alreadyDone) {
      */
 
 
+    // for(var i=0;i<alreadyDone.length;i++){
+    //     var letfId="left-"+alreadyDone[i].aLitemid;
+    //     drawLeftInit(letfId);
+    //     console.log("letfId="+letfId);
+    //     var rightId="right-"+alreadyDone[i].bLitemid;
+    //     drawRightInit(rightId);
+    //     console.log("rightId="+rightId);
+    //
+    //
+    //     lineLRInit[curInstanceIndex][tempNum[curInstanceIndex]]={};
+    //     lineLRInit[curInstanceIndex][tempNum[curInstanceIndex]][letfId]=rightId;
+    //     tempNumInit[curInstanceIndex]++;
+    //     // lineLR[curInstanceIndex][tempNum[curInstanceIndex]][alreadyDone[i].aLitemid]=alreadyDone[i].b_listitem_id;
+    //     // tempNum[curInstanceIndex]++;
+    // }
+
     for(var i=0;i<alreadyDone.length;i++){
         var letfId="left-"+alreadyDone[i].aLitemid;
-        drawLeftInit(letfId);
-        console.log("letfId="+letfId);
+        drawLeft(letfId);
+        //console.log("letfId="+letfId);
         var rightId="right-"+alreadyDone[i].bLitemid;
-        drawRightInit(rightId);
-        console.log("rightId="+rightId);
-
-
-        lineLRInit[curInstanceIndex][tempNum[curInstanceIndex]]={};
-        lineLRInit[curInstanceIndex][tempNum[curInstanceIndex]][letfId]=rightId;
-        tempNumInit[curInstanceIndex]++;
-        // lineLR[curInstanceIndex][tempNum[curInstanceIndex]][alreadyDone[i].aLitemid]=alreadyDone[i].b_listitem_id;
-        // tempNum[curInstanceIndex]++;
+        drawRight(rightId);
     }
 
 }
@@ -529,77 +524,77 @@ function paintDoTask(listItem,alreadyDone) {
  * 点击左边做任务面板的事件
  * @param obj
  */
-// function drawLeft(obj) {
-//     curLeftId=obj;
-//     x1=$("#"+obj).attr("left");
-//     x2=$("#"+obj).attr("top");
-//
-//     var listLen=listItem.length;
-//     for(var i=0;i<listLen;i++){
-//
-//         if(listItem[i].listIndex==1){
-//             var tempList= "left-"+listItem[i].ltid;
-//             console.log(tempList);
-//             $("#"+tempList).css("background-color","#5bc0de");
-//         }
-//
-//     }
-//     $("#"+obj).css("background-color","#F96");
-//
-//
-//
-// }
+function drawLeft(obj) {
+    curLeftId=obj;
+    x1=$("#"+obj).attr("left");
+    x2=$("#"+obj).attr("top");
+
+    var listLen=listItem.length;
+    //把所有的左边段落设置为蓝色
+    for(var i=0;i<listLen;i++){
+        if(listItem[i].listIndex==1){
+            var tempList= "left-"+listItem[i].ltid;
+            console.log(tempList);
+            $("#"+tempList).css("background-color","#5bc0de");
+        }
+    }
+    //把所选中的段落设置为橘红色
+    $("#"+obj).css("background-color","#F96");
+
+
+
+}
 
 /**
  * 点击右边做任务面板的事件
  * @param obj
  */
-// function drawRight(obj) {
-//     curRightId=obj;
-//
-//     var tempObj={};
-//     tempObj[curLeftId]=curRightId;
-//
-//     console.log(lineLR[curInstanceIndex]);
-//     console.log(tempObj);
-//
-//     if(JSON.stringify(lineLRInit[curInstanceIndex]).indexOf(JSON.stringify(tempObj))!=-1){
-//         alert("这条线已提交，请不要重复绘制");
-//     }else if(JSON.stringify(lineLR[curInstanceIndex]).indexOf(JSON.stringify(tempObj))!=-1){
-//         alert("这条线已绘制，请不要重复绘制");
-//     }else {
-//         y1=$("#"+obj).attr("left");
-//         y2=$("#"+obj).attr("top");
-//
-//         var linewidth = 2, linestyle = "#0C6";//连线绘制--线宽，线色
-//         var canvas = document.getElementById('canvas-front');
-//         var context = canvas.getContext('2d');
-//         context.lineWidth=linewidth;
-//         context.strokeStyle = linestyle;
-//
-//         context.beginPath();
-//         context.moveTo(x1, x2);
-//         context.lineTo(y1, y2);
-//         context.stroke();
-//         context.restore();
-//
-//         lineLR[curInstanceIndex][tempNum[curInstanceIndex]]={};
-//         lineLR[curInstanceIndex][tempNum[curInstanceIndex]][curLeftId]=curRightId;
-//         tempNum[curInstanceIndex]++;
-//         console.log("-------");
-//         console.log(lineLR[curInstanceIndex]);
-//
-//         /**
-//          * todo:取值调用接口
-//          * todo:查看正在进行中的任务
-//          * @type {Array}
-//          */
-//
-//     }
-//
-//     $("#"+curLeftId).css("background-color","#5bc0de");
-//
-// };
+function drawRight(obj) {
+    curRightId=obj;
+
+    var tempObj={};
+    tempObj[curLeftId]=curRightId;
+
+    console.log(lineLR[curInstanceIndex]);
+    console.log(tempObj);
+
+    if(JSON.stringify(lineLRInit[curInstanceIndex]).indexOf(JSON.stringify(tempObj))!=-1){
+        alert("这条线已提交，请不要重复绘制");
+    }else if(JSON.stringify(lineLR[curInstanceIndex]).indexOf(JSON.stringify(tempObj))!=-1){
+        alert("这条线已绘制，请不要重复绘制");
+    }else {
+        y1=$("#"+obj).attr("left");
+        y2=$("#"+obj).attr("top");
+
+        var linewidth = 2, linestyle = "#0C6";//连线绘制--线宽，线色
+        var canvas = document.getElementById('canvas-front');
+        var context = canvas.getContext('2d');
+        context.lineWidth=linewidth;
+        context.strokeStyle = linestyle;
+
+        context.beginPath();
+        context.moveTo(x1, x2);
+        context.lineTo(y1, y2);
+        context.stroke();
+        context.restore();
+
+        lineLR[curInstanceIndex][tempNum[curInstanceIndex]]={};
+        lineLR[curInstanceIndex][tempNum[curInstanceIndex]][curLeftId]=curRightId;
+        tempNum[curInstanceIndex]++;
+        console.log("-------");
+        console.log(lineLR[curInstanceIndex]);
+
+        /**
+         * todo:取值调用接口
+         * todo:查看正在进行中的任务
+         * @type {Array}
+         */
+
+    }
+
+    $("#"+curLeftId).css("background-color","#5bc0de");
+
+};
 
 
 
@@ -607,11 +602,11 @@ function paintDoTask(listItem,alreadyDone) {
  * 点击左边做任务面板的事件
  * @param obj
  */
-// function drawLeftBack(obj) {
-//     curLeftId=obj;
-//     x1=$("#"+obj).attr("left");
-//     x2=$("#"+obj).attr("top");
-// }
+function drawLeftBack(obj) {
+    curLeftId=obj;
+    x1=$("#"+obj).attr("left");
+    x2=$("#"+obj).attr("top");
+}
 
 
 function drawLeftInit(obj){
@@ -709,10 +704,102 @@ function ajaxdoTaskInfo(doTaskData,fRes) {
         dataType: "json",
         data:doTaskData,
         success: function (data) {
-            ajaxDocInstanceItem(docId);
-            //console.log(data);
+            if(data.code==0){
+                alert("提交成功");
+            }else{
+                alert("部分提交失败");
+            }
         }, error: function (XMLHttpRequest, textStatus, errorThrown) {
 
         },
     });
 };
+
+function ajaxNextTask() {
+    var currentTaskInfo={
+        subtaskId: subtaskId,
+        taskId:taskId,
+        userId:0
+    };
+    $.ajax({
+        url: "/pairing/nextdonetask",
+        type: "get",
+        traditional: true,
+        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+        dataType: "json",
+        data:currentTaskInfo,
+
+        success: function (data) {
+            if(data.data==null || data.data==""){
+                alert("这已经是最后一个任务了");
+                return null;
+            }
+            cleardata();
+            console.log(JSON.stringify(data));
+            listItem = new Array();
+            listItem=data.data.listitems;
+            console.log(JSON.stringify(listItem[0]));
+            alreadyDone=data.data.alreadyDone;
+            paintDoTask(listItem,alreadyDone);
+            subtaskId = data.data.instid;
+        }, error: function (XMLHttpRequest, textStatus, errorThrown,data) {
+        },
+    });
+};
+
+//申请上一个任务的数据
+function ajaxLastTask(){
+    var currentTaskInfo={
+        subtaskId: subtaskId,
+        taskId:taskId,
+        userId:0
+    };
+    $.ajax({
+        url: "/pairing/lastdonetask",
+        type: "get",
+        traditional: true,
+        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+        dataType: "json",
+        data:currentTaskInfo,
+        success: function (data) {
+            if(data.data==null || data.data==""){
+                alert("这已经是第一个任务了");
+                return null;
+            }else{
+                cleardata();
+                console.log(JSON.stringify(data));
+                listItem = new Array();
+                listItem=data.data.listitems;
+                console.log(JSON.stringify(listItem[0]));
+                alreadyDone=data.data.alreadyDone;
+                paintDoTask(listItem,alreadyDone);
+                subtaskId = data.data.instid;
+            }
+
+        }, error: function (XMLHttpRequest, textStatus, errorThrown) {
+
+        },
+    });
+};
+
+
+function cleardata() {
+    $("#div-left").empty();
+    $("#div-right").empty();
+
+    /**
+     * 先清除整个画布
+     * @type {Element}
+     */
+    var canvas = document.getElementById('canvas-front');
+    var cWidth=$("#canvas-front").attr("width");
+    var cHeight=$("#canvas-front").attr("height");
+    var context = canvas.getContext('2d');
+    context.clearRect(0,0,cWidth,cHeight);
+    /**
+     * 清除原数据
+     * @type {number}
+     */
+    tempNum[curInstanceIndex]=0;
+    lineLR[curInstanceIndex]=new Array;
+}

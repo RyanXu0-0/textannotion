@@ -109,13 +109,13 @@ public class DtExtractionController {
                                           int subtaskId,int userId,String status,int taskId) {
 
 
-        List<ParagraphLabelEntity> paragraphLabelEntityList=iDtExtractionService.getExtractionDone(subtaskId,userId,taskId);
+        ParagraphLabelEntity paragraphLabelEntity=iDtExtractionService.getExtractionDone(subtaskId,userId,taskId);
 
         JSONObject rs = new JSONObject();
-        if(paragraphLabelEntityList != null){
+        if(paragraphLabelEntity != null){
             rs.put("msg","查询文件内容成功");
             rs.put("code",0);
-            rs.put("data",paragraphLabelEntityList);
+            rs.put("data",paragraphLabelEntity);
         }else{
             rs.put("msg","查询文件内容失败");
             rs.put("code",-1);
@@ -267,4 +267,49 @@ public class DtExtractionController {
         return rs;
     }
 
+
+    @PostMapping
+    @RequestMapping("/lastdonetask")
+    public JSONObject lastDoneTask(HttpSession httpSession,int taskId,int subtaskId,@RequestParam(defaultValue="0")int userId){
+
+        if(userId==0){
+            User user =(User)httpSession.getAttribute("currentUser");
+            userId = user.getId();
+        }
+        System.out.println("当前任务id："+subtaskId);
+        ParagraphLabelEntity paragraphLabelEntity = iDtExtractionService.getLastDone(taskId,subtaskId);
+        JSONObject rs = new JSONObject();
+        if(paragraphLabelEntity != null){
+            rs.put("msg","查询文件内容成功");
+            rs.put("code",0);
+            rs.put("data",paragraphLabelEntity);
+        }else{
+            rs.put("msg","查询文件内容失败");
+            rs.put("code",-1);
+        }
+        return rs;
+    }
+
+
+
+    @PostMapping
+    @RequestMapping("/nextdonetask")
+    public JSONObject nextDoneTask(HttpSession httpSession,int taskId,int subtaskId,@RequestParam(defaultValue="0")int userId){
+
+        if(userId==0){
+            User user =(User)httpSession.getAttribute("currentUser");
+            userId = user.getId();
+        }
+        ParagraphLabelEntity paragraphLabelEntity = iDtExtractionService.getNextDone(taskId,subtaskId);
+        JSONObject rs = new JSONObject();
+        if(paragraphLabelEntity != null){
+            rs.put("msg","查询文件内容成功");
+            rs.put("code",0);
+            rs.put("data",paragraphLabelEntity);
+        }else{
+            rs.put("msg","查询文件内容失败");
+            rs.put("code",-1);
+        }
+        return rs;
+    }
 }

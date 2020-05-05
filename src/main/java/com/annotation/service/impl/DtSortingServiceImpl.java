@@ -71,11 +71,9 @@ public class DtSortingServiceImpl implements IDtSortingService {
     }
 
 
-    public List<InstanceItemEntity> getSortingDone(int subtaskId , int userId,int taskId){
-        List<InstanceItemEntity> dataList = new ArrayList<>();
+    public InstanceItemEntity getSortingDone(int subtaskId , int userId,int taskId){
         InstanceItemEntity data = dtSortingMapper.selectSortingByInstanceId(subtaskId);
-        dataList.add(data);
-        return dataList;
+        return data;
     }
 
     public InstanceItemEntity getSortingData(int userId, int taskId){
@@ -203,7 +201,7 @@ public class DtSortingServiceImpl implements IDtSortingService {
     public ResponseEntity qualityControl(int taskId,int instanceId, int userId, int[] itemIds, int[] newIndexs){
         ResponseEntity res=new ResponseEntity();
         DTask userTaskInf = dTaskMapper.selectByTaskIdAndUserId(taskId,userId);
-        UserSubtask userSubtask = userSubtaskMapper.selectByUserIdAndSubtaskId(userId,taskId,instanceId);
+        UserSubtask userSubtask = userSubtaskMapper.selectByUserIdAndSubtaskId(taskId,instanceId);
         if(userSubtask!=null){
             res = addSorting(taskId,instanceId,userId,itemIds,newIndexs);
         }else{
@@ -218,7 +216,7 @@ public class DtSortingServiceImpl implements IDtSortingService {
         ResponseEntity responseEntity=new ResponseEntity();
         //先判断d_task表有没有插入
         DTask userTaskInf = dTaskMapper.selectByTaskIdAndUserId(taskId,userId);
-        UserSubtask curuserSubtask = userSubtaskMapper.selectByUserIdAndSubtaskId(userId,taskId,instanceId);
+        UserSubtask curuserSubtask = userSubtaskMapper.selectByUserIdAndSubtaskId(taskId,instanceId);
         dtSortingMapper.deleteBeforeUpdate(userId,taskId);
 
         String iRes= insertSortingItem(taskId,instanceId,userId,itemIds,newIndexs);
@@ -343,7 +341,7 @@ public int[] insertSortingItem2(int dtid,int[] itemIds,int[] newIndexs){
         InstanceItemEntity data;
         //List<DtExtraction> entityList;
         DTask dTask = dTaskMapper.selectByTaskIdAndUserId(taskId,userId);
-        UserSubtask currentTask = userSubtaskMapper.selectByUserIdAndSubtaskId(userId,taskId,subtaskId);
+        UserSubtask currentTask = userSubtaskMapper.selectByUserIdAndSubtaskId(taskId,subtaskId);
         //currentTask为null表示当前为检测任务，返回最后一个用户完成的任务
         if(currentTask == null){
             UserSubtask theLasttask = userSubtaskMapper.selectTheLastData(userId,taskId);
@@ -372,7 +370,7 @@ public int[] insertSortingItem2(int dtid,int[] itemIds,int[] newIndexs){
         ResponseEntity data = new ResponseEntity();
         InstanceItemEntity subtaskdata;
         //List<DtExtraction> entityList;
-        UserSubtask currentSubtask = userSubtaskMapper.selectByUserIdAndSubtaskId(userId,taskId,subtaskId);
+        UserSubtask currentSubtask = userSubtaskMapper.selectByUserIdAndSubtaskId(taskId,subtaskId);
         DTask dTask = dTaskMapper.selectByTaskIdAndUserId(taskId,userId);
         UserSubtask nextSubtask = userSubtaskMapper.selectNextData(userId,taskId,subtaskId);
         //判断当前任务是否为普通任务
@@ -432,5 +430,22 @@ public int[] insertSortingItem2(int dtid,int[] itemIds,int[] newIndexs){
         }
     }
 
+    //任务管理查看上一个任务
+    public InstanceItemEntity getLastDone(int taskId,int subtaskId){
+        InstanceItemEntity data;
+        UserSubtask lasttask = userSubtaskMapper.selectLastDone(taskId,subtaskId);
+        if(lasttask == null){ return null; }
+        data = dtSortingMapper.selectSortingByInstanceId(lasttask.getSubtaskId());
+        return data;
+    }
+
+    //任务管理查看下一个任务
+    public InstanceItemEntity getNextDone(int taskId,int subtaskId){
+        InstanceItemEntity data;
+        UserSubtask nexttask = userSubtaskMapper.selectNextDone(taskId,subtaskId);
+        if(nexttask == null){ return null; }
+        data = dtSortingMapper.selectSortingByInstanceId(nexttask.getSubtaskId());
+        return data;
+    }
 
 }

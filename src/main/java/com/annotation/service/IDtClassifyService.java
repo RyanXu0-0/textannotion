@@ -24,14 +24,14 @@ public interface IDtClassifyService {
 
     /**
      * 分类任务
-     * @param userId
+     *
      * @param taskId
-     * @param docId
+     *
      * @param paraId
      * @param labelId
      * @return
      */
-    ResponseEntity addClassify(int userId,int taskId,int docId,int paraId,int[] labelId);
+    ResponseEntity addClassify(int taskId,int paraId,int[] labelId);
 
 
     DtClassify addComment(int dtdId, int cNum, int flag, int uId);
@@ -48,5 +48,9 @@ public interface IDtClassifyService {
 
     ResponseEntity getNextClassifyData(int userId, int taskId,int subtaskId);
 
-    List<ParagraphLabelEntity> getClassifyDone(int subtaskId, int userId,int taskId);
+    ParagraphLabelEntity getClassifyDone(int subtaskId, int userId,int taskId);
+
+    ParagraphLabelEntity getLastDone(int taskId,int subtaskId);
+
+    ParagraphLabelEntity getNextDone(int taskId,int subtaskId);
 }

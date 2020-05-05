@@ -76,4 +76,6 @@ public interface DtClassifyMapper {
     ParagraphLabelEntity selectCurrentDone(@Param("subtaskId")Integer subtaskId);
 
     int deleteAllByTaskId(@Param("taskId")Integer taskId);
+
+
 }

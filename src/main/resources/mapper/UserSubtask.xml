@@ -26,7 +26,7 @@
 
   <select id="selectByUserIdAndSubtaskId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select * from user_subtask
-    where user_id = #{userId} AND task_id=#{taskId} and subtask_id = #{subtaskId}
+    where task_id=#{taskId} and subtask_id = #{subtaskId}
   </select>
 
   <select id="selectLastData" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
@@ -41,9 +41,23 @@
     order by uts_id DESC limit 1
   </select>
 
+
+
   <select id="selectNextData" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select * from user_subtask
     where user_id = #{userId} AND task_id=#{taskId} and subtask_id &gt; #{subtaskId}
+    order by uts_id limit 1
+  </select>
+
+  <select id="selectLastDone" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select * from user_subtask
+    where  task_id=#{taskId} and subtask_id &lt; #{subtaskId}
+    order by uts_id DESC limit 1
+  </select>
+
+  <select id="selectNextDone" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select * from user_subtask
+    where task_id=#{taskId} and subtask_id &gt; #{subtaskId}
     order by uts_id limit 1
   </select>
 

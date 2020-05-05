@@ -46,6 +46,7 @@ var docStatus="全部";
 var userId;
 
 var ul_li_instanceIndex=new Array;
+var alreadyDone = new Array;
 
 $(function () {
 
@@ -79,9 +80,7 @@ $(function () {
         $('#taskInfoPanel').collapse('hide');
 
     });
-    $("#select-docStatus").click(function(){
-        ajaxDocInstanceItem(docId);
-    });
+
 
 
     $("#submit-item").click(function(){
@@ -116,24 +115,31 @@ $(function () {
                 doTaskItem2Num++;
             }
         }
-        // var item1Labels=[20,21,22];
-        // var item2Labels=[20,21,22];
-        // var instanceLabels=[28,21,22];
-
         var doTaskData={
             taskId :taskId,
             docId:docId,
-            instanceId:instanceItem[curInstanceIndex].instid,
+            instanceId:instanceItem.instid,
             instanceLabels:doTaskInstance,
-            item1Id:instanceItem[curInstanceIndex].itemList[0].itid,
+            item1Id:instanceItem.itemList[0].itid,
             item1Labels:doTaskItem1,
-            item2Id:instanceItem[curInstanceIndex].itemList[1].itid,
-            item2Labels:doTaskItem2
+            item2Id:instanceItem.itemList[1].itid,
+            item2Labels:doTaskItem2,
+            userId:0
 
         };  console.log(doTaskData);
 
         ajaxdoTaskInfo(doTaskData);
 
+    });
+
+
+    //下一个任务
+    $("#nexttask").click(function(){
+        ajaxNextTask();
+    });
+
+    $("#lasttask").click(function () {
+        ajaxLastTask();
     });
 
 });
@@ -263,16 +269,17 @@ function ajaxDocInstanceItem(docId) {
             console.log(data);
 
             instanceItem=data.instanceItem; //console.log(instanceItem);
+            //alreadyDone=instanceItem.alreadyDone;
             instanceLength=instanceItem.length;
             instanceLabel=data.instanceLabel;
             item1Label=data.item1Label;
             item2Label=data.item2Label;
 
-            limitInstanceLabelNum=instanceItem[0].labelnum;
+            limitInstanceLabelNum=instanceItem.labelnum;
 
             // curInstanceIndex=0;
             console.log(curInstanceIndex);
-            var itemList= instanceItem[0].itemList;
+            var itemList= instanceItem.itemList;
 
             limitItem1LabelNum=itemList[0].labelnum;
             limitItem2LabelNum=itemList[1].labelnum;
@@ -280,7 +287,6 @@ function ajaxDocInstanceItem(docId) {
             /**
              * 写入内容
              */
-
             paintContent(curInstanceIndex);
             // $("#p-item-0").html(itemList[0].itemcontent);
             // $("#p-item-1").html(itemList[1].itemcontent);
@@ -345,7 +351,7 @@ function paintContent(curInstanceIndex){
     /**
      * 重新绘制内容
      */
-    var itemList= instanceItem[curInstanceIndex].itemList;
+    var itemList= instanceItem.itemList;
     $("#p-item-0").html(itemList[0].itemcontent);
     $("#p-item-1").html(itemList[1].itemcontent);
 };
@@ -360,9 +366,9 @@ function paintContent(curInstanceIndex){
  */
 function paintLabelHtml(instanceLabel,item1Label,item2Label) {
 
-    //console.log(instanceItem[curInstanceIndex]);
+    //console.log(instanceItem);
     //console.log(instanceLabel);
-   // console.log(item1Label);
+    // console.log(item1Label);
     //console.log(item2Label);
 
     /**
@@ -381,8 +387,8 @@ function paintLabelHtml(instanceLabel,item1Label,item2Label) {
     /**
      * 将已经选过的label存入对应的临时变量，方便后续
      */
-    if(instanceItem[curInstanceIndex].alreadyDone.length>0){
-        var tmpAlreadyDone=instanceItem[curInstanceIndex].alreadyDone;
+    if(instanceItem.alreadyDone.length>0){
+        var tmpAlreadyDone=instanceItem.alreadyDone;
         console.log(tmpAlreadyDone);
         for(var i=0;i<tmpAlreadyDone.length;i++){
             if(tmpAlreadyDone[i].labeltype=="instance"){
@@ -414,12 +420,15 @@ function paintLabelHtml(instanceLabel,item1Label,item2Label) {
     for(var i=0;i<instanceLabel.length;i++){
         instanceLabel[i].chosen=0;
         if(tmpInstanceAlready.indexOf(instanceLabel[i].lid)!=-1){
-            var tmpHtml=' <span class="label label-success">' +
+//            var tmpHtml=' <span class="label label-success">' +
+//                instanceLabel[i].labelname +
+//                '</span>';
+            var tmpHtml=' <span class="label label-primary" id="instance-label-'+i+'" flag="1" ilabeltype="instance" onclick="changeLabelColor(this.id)" >' +
                 instanceLabel[i].labelname +
                 '</span>';
             instanceHtml=instanceHtml+tmpHtml;
         }else{
-            var tmpHtml=' <span class="label label-default" id="instance-label-'+i+'" flag="0" ilabeltype="instance" >' +
+            var tmpHtml=' <span class="label label-default" id="instance-label-'+i+'" flag="0" ilabeltype="instance" onclick="changeLabelColor(this.id)" >' +
                 instanceLabel[i].labelname +
                 '</span>';
             instanceHtml=instanceHtml+tmpHtml;
@@ -435,15 +444,18 @@ function paintLabelHtml(instanceLabel,item1Label,item2Label) {
     var item1Html='<h4 style="line-height:10pt">';
     for(var i=0;i<item1Label.length;i++){
         item1Label[i].chosen=0;
-       // console.log(item1Label[i].lid);
-       // console.log(tmpItem1Already);
+        // console.log(item1Label[i].lid);
+        // console.log(tmpItem1Already);
         if(tmpItem1Already.indexOf(item1Label[i].lid)!=-1){
-            var tmpHtml=' <span class="label label-success">' +
+//            var tmpHtml=' <span class="label label-success">' +
+//                item1Label[i].labelname +
+//                '</span>';
+            var tmpHtml=' <span class="label label-primary" id="item1-label-'+i+'" flag="1" ilabeltype="item1" onclick="changeLabelColor(this.id)">' +
                 item1Label[i].labelname +
                 '</span>';
             item1Html=item1Html+tmpHtml;
         }else{
-            var tmpHtml=' <span class="label label-default" id="item1-label-'+i+'" flag="0" ilabeltype="item1">' +
+            var tmpHtml=' <span class="label label-default" id="item1-label-'+i+'" flag="0" ilabeltype="item1" onclick="changeLabelColor(this.id)">' +
                 item1Label[i].labelname +
                 '</span>';
             item1Html=item1Html+tmpHtml;
@@ -461,12 +473,15 @@ function paintLabelHtml(instanceLabel,item1Label,item2Label) {
     for(var i=0;i<item2Label.length;i++){
         item2Label[i].chosen=0;
         if(tmpItem2Already.indexOf(item2Label[i].lid)!=-1){
-            var tmpHtml=' <span class="label label-success">' +
+//            var tmpHtml=' <span class="label label-success">' +
+//                item2Label[i].labelname +
+//                '</span>';
+            var tmpHtml=' <span class="label label-primary" id="item2-label-'+i+'" flag="1" ilabeltype="item2" onclick="changeLabelColor(this.id)">' +
                 item2Label[i].labelname +
                 '</span>';
             item2Html=item2Html+tmpHtml;
         }else{
-            var tmpHtml=' <span class="label label-default" id="item2-label-'+i+'" flag="0" ilabeltype="item2">' +
+            var tmpHtml=' <span class="label label-default" id="item2-label-'+i+'" flag="0" ilabeltype="item2" onclick="changeLabelColor(this.id)">' +
                 item2Label[i].labelname +
                 '</span>';
             item2Html=item2Html+tmpHtml;
@@ -573,4 +588,110 @@ function changeLabelColor(obj) {
 };
 
 
+function ajaxNextTask() {
+    var currentTaskInfo={
+        subtaskId: instanceItem.instid,
+        taskId:taskId,
+        userId:0
+    };
+    $.ajax({
+        url: "/relation/nextdonetask",
+        type: "get",
+        traditional: true,
+        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+        dataType: "json",
+        data:currentTaskInfo,
 
+        success: function (data) {
+            if(data.data==null || data.data==""){
+                alert("这已经是最后一个任务了");
+                return null;
+            }
+            cleardata();
+            console.log(JSON.stringify(data));
+            itemList=data.data.itemList;
+            instanceItem.alreadyDone=data.data.alreadyDone;
+            console.log(itemList);
+            //paintContent(curInstanceIndex);
+            $("#p-item-0").html(itemList[0].itemcontent);
+            $("#p-item-1").html(itemList[1].itemcontent);
+            console.log(instanceLabel);
+            console.log(item1Label);
+            console.log(item2Label);
+            paintLabelHtml(instanceLabel,item1Label,item2Label);
+            instanceItem.instid = data.data.instid;
+        }, error: function (XMLHttpRequest, textStatus, errorThrown,data) {
+        },
+    });
+};
+
+//申请上一个任务的数据
+function ajaxLastTask(){
+    var currentTaskInfo={
+        subtaskId: instanceItem.instid,
+        taskId:taskId,
+        userId:0
+    };
+    $.ajax({
+        url: "/relation/lastdonetask",
+        type: "get",
+        traditional: true,
+        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+        dataType: "json",
+        data:currentTaskInfo,
+        success: function (data) {
+            if(data.data==null || data.data==""){
+                alert("这已经是第一个任务了");
+                return null;
+            }else{
+                cleardata();
+                itemList=data.data.itemList;
+                instanceItem.alreadyDone=data.data.alreadyDone;
+                console.log(JSON.stringify(data));
+                console.log(itemList);
+                //paintContent(curInstanceIndex);
+                $("#p-item-0").html(itemList[0].itemcontent);
+                $("#p-item-1").html(itemList[1].itemcontent);
+                paintLabelHtml(instanceLabel,item1Label,item2Label);
+                instanceItem.instid = data.data.instid;
+            }
+
+        }, error: function (XMLHttpRequest, textStatus, errorThrown) {
+
+        },
+    });
+};
+
+
+function cleardata() {
+    $("#instance-label-div").empty();
+    $("#item1-label-div").empty();
+    $("#item2-label-div").empty();
+}
+
+/**
+ * 做任务上传自己的标签
+ * @param doTaskData
+ */
+function ajaxdoTaskInfo(doTaskData) {
+
+    $.ajax({
+        url: "/relation",
+        type: "post",
+        traditional: true,
+        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+        dataType: "json",
+        data:doTaskData,
+        success: function (data) {
+            console.log(data);
+            //ajaxDocInstanceItem(docId);
+            alert("修改成功！");
+
+        }, error: function (XMLHttpRequest, textStatus, errorThrown) {
+
+
+        },
+    });
+
+
+};

@@ -45,7 +45,7 @@ public class DtRelationController {
      */
     @GetMapping
     public JSONObject getRelationInstance(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, HttpSession httpSession,
-                                          int docId,String status,int taskId,@RequestParam(defaultValue="0")int userId) {
+                                          int taskId,@RequestParam(defaultValue="0")int userId) {
         if(userId==0){
             User user =(User)httpSession.getAttribute("currentUser");
             userId = user.getId();

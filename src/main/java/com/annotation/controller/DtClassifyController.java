@@ -44,7 +44,7 @@ public class DtClassifyController {
      */
     @GetMapping
     public JSONObject getClassificationPara(HttpServletRequest httpServletRequest, HttpSession httpSession, HttpServletResponse httpServletResponse,
-                                           Integer docId,String status,int taskId,@RequestParam(defaultValue="0")int userId) {
+                                           int taskId,@RequestParam(defaultValue="0")int userId) {
         if(userId==0){
             User user =(User)httpSession.getAttribute("currentUser");
             userId = user.getId();

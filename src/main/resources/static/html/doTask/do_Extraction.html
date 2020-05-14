@@ -162,7 +162,8 @@
             <input type="button" class="btn btn-primary" value="上一个任务" id="lasttask">
             <input type="button" class="btn btn-success" value="提交任务" id="submit-task">
             <input type="button" class="btn btn-warning" value="下一个任务" id="nexttask">
-            <span class="layui-word-aux">注意：当前可以查询之前任务，原任务数据还未能显示到前端，如果直接修改当前任务，原任务数据会被替换！！！</span>
+            <!--<span class="layui-word-aux">注意：当前可以查询之前任务，原任务数据还未能显示到前端，如果直接修改当前任务，原任务数据会被替换！！！</span>
+        -->
         </div>
     </div>
 
@@ -251,7 +252,7 @@
     </div>
 
     <div class="pop-content">
-	<div>Type</div>
+	    <div>Type</div>
         <div class="pop-content-left"></div>
         <div class="pop-content-right" id = "relation-pop">
 
@@ -259,35 +260,37 @@
     </div>
 
     <div class="pop-foot">
-        <input type="button" value="关闭" class="pop-cancel pop-close">
+        <!--<input type="button" value="关闭" class="pop-cancel pop-close">-->
+        <input type="button" value="关闭" class="layui-btn layui-btn-danger  layui-btn-sm pop-close">
         <input type="button" value="确定" class="pop-ok" id = "rela-ok">
     </div>
 </div>
 
 
-<!----实体弹窗--->
-<div id="choiceEntity">
-    <div class="pop-top">
-        <h4>关系抽取</h4>
-        <span class="pop-close">Ｘ</span>
-    </div>
-	<div class="pop-from">
-        <div>Entity:</div>
-        <span id = "select-entity"></span>
-    </div>
-    <div class="pop-content">
-	<div>Type</div>
-        <div class="pop-content-left"></div>
-        <div class="pop-content-right" id = "label-pop">
 
+<!----实体弹窗--->
+    <div id="choiceEntity">
+        <div class="pop-top">
+            <h4>实体抽取</h4>
+            <span class="pop-close">Ｘ</span>
+        </div>
+    	<div class="pop-from">
+            <div>Entity:</div>
+            <span id = "select-entity"></span>
+        </div>
+        <div class="pop-content">
+    	<div>Type</div>
+            <div class="pop-content-left"></div>
+            <div class="pop-content-right" id = "label-pop">
+
+            </div>
+        </div>
+
+        <div class="pop-foot">
+            <input type="button" value="关闭" class="pop-cancel pop-close">
+            <input type="button" value="确定" class="pop-ok" id = "entity-ok">
         </div>
     </div>
-
-    <div class="pop-foot">
-        <input type="button" value="关闭" class="pop-cancel pop-close">
-        <input type="button" value="确定" class="pop-ok" id = "entity-ok">
-    </div>
-</div>
 
 
 <script src="/js/doTask/do_Extraction.js" ></script>

@@ -98,7 +98,7 @@ $(function () {
         }else{
             var doTaskData={
                 taskId :taskId,
-                subtaskId:subtaskId,
+                paraId:subtaskId,
                 labelId:ajaxLabelId,
                 userId:0,
                 dtId:0

@@ -71,11 +71,6 @@ $(function () {
     });
 
 
-    $("#select-docStatus").click(function(){
-        curParaIndex=0;
-        ajaxDocContent(docId);
-    });
-
     /**
      * ajaxdoTask提交事件
      */
@@ -86,7 +81,7 @@ $(function () {
         var ajaxLabelNum=0;
         for(var i=0;i<labelLength;i++){
             console.log(curParaIndex);
-            if(para_label[curParaIndex][i]>-1){
+            if(para_label[i]>-1){
                 ajaxLabelId[ajaxLabelNum]=labelList[i].lid;
                 ajaxLabelNum++;
 
@@ -99,12 +94,12 @@ $(function () {
             var doTaskData={
                 taskId :taskId,
                 docId:docId,
-                paraId:paraId[curParaIndex],
+                paraId:paraId,
                 labelId:ajaxLabelId,
                 userId:0,
                 dtId:0
             };
-            //console.log(doTaskData);
+            console.log(doTaskData);
             /**
              * 调用ajax上传标签
              */
@@ -141,13 +136,13 @@ function imgClick(obj) {
             $("#"+label_list_img[i]).attr("src","/images/notAns.png");
             $("#"+label_list_img[i]).addClass("notAns").removeClass("isAns");
 
-            para_label[curParaIndex][curLabelIndex]=-1;
+            para_label[curLabelIndex]=-1;
             curLabelIndex=-1;
             //console.log(para_label);
         }else{
             $("#"+label_list_img[i]).attr("src","/images/isAnsBlue.png");
             $("#"+label_list_img[i]).removeClass("notAns").addClass("isAns");
-            para_label[curParaIndex][curLabelIndex]=curLabelIndex;
+            para_label[curLabelIndex]=curLabelIndex;
             //console.log(para_label);
         }
     }
@@ -290,143 +285,28 @@ function ajaxDocContent(docId) {
             console.log(data.data);
             if(data.data==null || data.data==""){
                 alert("该文档已经全部完成,请查看其他文档或进行其他任务");
+                top.location.href ="/html/u_homepage.html";
             }else{
                 /**
                  * 左边文件内容的显示处理
                  */
                 paraIndex =data.data.length;//段落数
-                var sflag=0;
+                // console.log("data:");
+                // console.log(data.data);
                 // var div_footer='<div class="text-center">';
-                for(var i=0;i<paraIndex;i++){
-                    //todo:可以合并存
-                    para_label[i]=new Array;
-                    paraContent[i]=data.data[i].paracontent;//每段内容
-                    dtstatus[i]=data.data[i].dtstatus;
-                    paraId[i]=data.data[i].pid;//console.log(paraId[i]);//每段内容的ID
-                    if(data.data[i].dtstatus=="已完成"){
+                    
+                para_label=new Array;
+                paraContent=data.data[0].paracontent;//每段内容
+                dtstatus=data.data[0].dtstatus;
+                paraId=data.data[0].pid;//console.log(paraId[i]);//每段内容的ID
 
-                        sflag++;
-                    }
-
-                }
+                
                 /**
                  * 调用label处理函数
                  */
                 labelHtml(labelList);
 
-                $("#p-para").html(paraContent[curParaIndex]);
-
-
-                if(curParaIndex==0){
-                    if(dtstatus[0]=="已完成"){
-
-                        console.log(dtstatus[0]);
-                        //todo:设置右边标签不可以被选中
-
-                        for(var i=0;i<labelLength;i++){
-                            // if(para_label[0][i]>-1) {
-                            //     $("#" + label_list_img[i]).attr("src", "/images/isAnsBlue.png");
-                            //     $("#" + label_list_img[i]).removeClass("notAns").addClass("isAns");
-                            // }
-
-                            if($("#" + label_list_img[i]).hasClass("notAns")) {
-                                $("#" + label_list_img[i]).attr("src", "/images/noClick.png");
-                                $("#" + label_list_img[i]).removeClass("notAns").addClass("noClick");
-                            }
-
-                        }
-                        //todo:设置提交按钮不可以被提交
-                        if(!($("#complete-para").hasClass("disabled"))){
-                            $("#complete-para").addClass("disabled");
-                            $("#complete-para").attr("disabled","true");
-                        }
-
-                    }else{
-
-                        for(var i=0;i<labelLength;i++){
-                            if(para_label[0][i]>-1) {
-                                $("#" + label_list_img[i]).attr("src", "/images/isAnsBlue.png");
-                                $("#" + label_list_img[i]).removeClass("notAns").addClass("isAns");
-                            }
-
-                            if($("#" + label_list_img[i]).hasClass("noClick")) {
-                                $("#" + label_list_img[i]).attr("src", "/images/notAns.png");
-                                $("#" + label_list_img[i]).removeClass("noClick").addClass("notAns");
-                            }
-
-                        }
-                        if($("#complete-para").hasClass("disabled")){
-                            $("#complete-para").removeClass("disabled");
-                            $("#complete-para").removeAttr("disabled");
-
-                        }
-                    }
-                }
-
-                //$("#div-para-footer").html(div_footer);//显示页脚
-
-                $('.Pagination').pagination({
-                    pageCount: paraIndex,
-                    coping: true,
-                    mode:'fixed',
-                    count:6,
-                    homePage: '首页',
-                    endPage: '末页',
-                    prevContent: '上页',
-                    nextContent: '下页',
-                    callback: function (api) {
-                        //console.log(api.getCurrent());
-
-                        curParaIndex=api.getCurrent()-1;
-                        $("#p-para").html(paraContent[curParaIndex]);//显示第1段内容
-
-                        var curParaIndexNum =parseInt(curParaIndex);
-                        $("#span-index").html("第"+(curParaIndexNum+1)+"段");//设置内容面板的标题
-                        $("#p-para").html(paraContent[curParaIndex]);//设置内容
-
-                        labelHtml(labelList);
-
-                        for(var i=0;i<labelLength;i++){
-                            if(para_label[curParaIndexNum][i]>-1) {
-                                $("#" + label_list_img[i]).attr("src", "/images/isAnsBlue.png");
-                                $("#" + label_list_img[i]).removeClass("notAns").addClass("isAns");
-                            }
-
-                        }
-
-                        if(dtstatus[curParaIndexNum]=="已完成"){
-                            for(var i=0;i<labelLength;i++){
-
-                                if($("#" + label_list_img[i]).hasClass("notAns")) {
-                                    $("#" + label_list_img[i]).attr("src", "/images/noClick.png");
-                                    $("#" + label_list_img[i]).removeClass("notAns").addClass("noClick");
-                                }
-
-                            }
-
-                            if(!($("#complete-para").hasClass("disabled"))){
-                                $("#complete-para").addClass("disabled");
-                                $("#complete-para").attr("disabled","true");
-                            }
-                        }else{
-                            for(var i=0;i<labelLength;i++){
-
-                                if($("#" + label_list_img[i]).hasClass("noClick")) {
-                                    $("#" + label_list_img[i]).attr("src", "/images/notAns.png");
-                                    $("#" + label_list_img[i]).removeClass("noClick").addClass("notAns");
-                                }
-
-                            }
-                            if($("#complete-para").hasClass("disabled")){
-                                $("#complete-para").removeClass("disabled");
-                                $("#complete-para").removeAttr("disabled");
-
-                            }
-                        }
-
-                    }
-                });
-
+                $("#p-para").html(paraContent);
             }
 
 
@@ -464,11 +344,10 @@ alreadyDone: [{dtd_id: 8, label_id: 2}, {dtd_id: 9, label_id: 1}]
     /**
      * 将值都初始化为-1，选中label则替换
      */
-    for(var i=0;i<paraIndex;i++){
-        for(var j=0;j<labelLength;j++){
-            para_label[i][j]=-1;
-        }
+    for(var j=0;j<labelLength;j++){
+        para_label[j]=-1;
     }
+
     var tmpAlreadyDoneLabel=new Array;
 
     /**
@@ -489,7 +368,7 @@ alreadyDone: [{dtd_id: 8, label_id: 2}, {dtd_id: 9, label_id: 1}]
                 +'</li>';
             label_html =label_html+list_html;
             label_list_img[i]="label-list-img-"+i;
-            para_label[curParaIndex][i]=i;
+            para_label[i]=i;
         }else{
             var list_html ='<li class="list-group-item">'
                 +'<img class="notAns" src="/images/notAns.png" id="label-list-img-'+i+'" onclick="imgClick(this.id)">'
@@ -534,7 +413,7 @@ function ajaxdoTaskInfo(doTaskData) {
 
 function ajaxNextTask() {
     var currentTaskInfo={
-        subtaskId: paraId[0],
+        subtaskId: paraId,
         taskId:taskId,
         userId:0
     };
@@ -552,10 +431,10 @@ function ajaxNextTask() {
                 return null;
             }
             cleardata();
-            paraContent[0]=data.data.paracontent;//每段内容
+            paraContent=data.data.paracontent;//每段内容
             console.log("data.data："+JSON.stringify(data));
-            paraId[0]=data.data.pid;//console.log(paraId[i]);//每段内容的ID
-            $("#p-para").html(paraContent[0]);
+            paraId=data.data.pid;//console.log(paraId[i]);//每段内容的ID
+            $("#p-para").html(paraContent);
             curParaIndex=data.data.paraindex-1;
             alreadyDone=data.data.alreadyDone;
             labelHtml(labelList);
@@ -567,7 +446,7 @@ function ajaxNextTask() {
 //申请上一个任务的数据
 function ajaxLastTask(){
     var currentTaskInfo={
-        subtaskId: paraId[0],
+        subtaskId: paraId,
         taskId:taskId,
         userId:0
     };
@@ -583,10 +462,10 @@ function ajaxLastTask(){
                 alert("这已经是第一个任务了");
             }else{
                 cleardata();
-                paraContent[0]=data.data.paracontent;//每段内容
+                paraContent=data.data.paracontent;//每段内容
                 console.log("data.data："+JSON.stringify(data));
-                paraId[0]=data.data.pid;//console.log(paraId[i]);//每段内容的ID
-                $("#p-para").html(paraContent[0]);
+                paraId=data.data.pid;//console.log(paraId);//每段内容的ID
+                $("#p-para").html(paraContent);
                 curParaIndex=data.data.paraindex-1;
                 alreadyDone=data.data.alreadyDone;
                 labelHtml(labelList);

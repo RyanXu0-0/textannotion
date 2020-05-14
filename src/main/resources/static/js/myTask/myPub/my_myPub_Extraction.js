@@ -431,7 +431,7 @@ function ajaxTaskInfo(taskId) {
 
             taskInfo=data.data; //console.log(taskInfo);
             labelList=data.data.labelList;//console.log(labelList);
-
+            relaList=data.data.relaList;
 
             /**
              * 页面上输入相关信息
@@ -1020,93 +1020,101 @@ function paintText(paraContent,entitydone){
 }
 
 function paintEntity(entitydone){
-    for(var i = 0;i < entitydone.length;i++){
-        var entityid = entitydone[i].entityId;
-        var label = entitydone[i].entityId.substr(0,1);
-        var entity = entitydone[i].entity;
-        var start = entitydone[i].startIndex;
-        var end = entitydone[i].endIndex;
-        var addLiNum = entity_done[label].length;
-        $("#li-ans-div-"+label+"-"+addLiNum).text(entity);
-        $("#li-img-ok-"+label+"-"+addLiNum).attr("src","/images/labelsuccess.png");
-        $("#li-img-ok-"+label+"-"+addLiNum).removeAttr("onclick");
-        $("#li-img-del-"+label+"-"+addLiNum).attr("onclick","imgDelClick(this.id)");
+    if(entitydone!=null) {
+        for (var i = 0; i < entitydone.length; i++) {
+            var entityid = entitydone[i].entityId;
+            var label = entitydone[i].entityId.substr(0, 1);
+            var entity = entitydone[i].entity;
+            var start = entitydone[i].startIndex;
+            var end = entitydone[i].endIndex;
+            var addLiNum = entity_done[label].length;
+            $("#li-ans-div-" + label + "-" + addLiNum).text(entity);
+            $("#li-img-ok-" + label + "-" + addLiNum).attr("src", "/images/labelsuccess.png");
+            $("#li-img-ok-" + label + "-" + addLiNum).removeAttr("onclick");
+            $("#li-img-del-" + label + "-" + addLiNum).attr("onclick", "imgDelClick(this.id)");
 
 
-        /**
-         * 提交一个li之后，添加一个li
-         */
-        var addLi= '<li class="list-group-item" id="label-ans-li-'+label+'-'+(addLiNum+1)+'">'
-            +'<div class="row">'
-            +'<div class="col-lg-10" id="li-ans-div-'+label+'-'+(addLiNum+1)+'">'
-            +'</div>'
-            +'<div class="col-lg-1">'
-            +'<img class="okAns" src="/images/ok.png" id="li-img-ok-'+label+'-'+(addLiNum+1)+'">'
-            +'</div>'
-            +'<div class="col-lg-1">'
-            +'<img class="delAns" src="/images/delete.png" id="li-img-del-'+label+'-'+(addLiNum+1)+'">'
-            +'</div>'
-            +'</div>'
-            +'</li>';
+            /**
+             * 提交一个li之后，添加一个li
+             */
+            var addLi = '<li class="list-group-item" id="label-ans-li-' + label + '-' + (addLiNum + 1) + '">'
+                + '<div class="row">'
+                + '<div class="col-lg-10" id="li-ans-div-' + label + '-' + (addLiNum + 1) + '">'
+                + '</div>'
+                + '<div class="col-lg-1">'
+                + '<img class="okAns" src="/images/ok.png" id="li-img-ok-' + label + '-' + (addLiNum + 1) + '">'
+                + '</div>'
+                + '<div class="col-lg-1">'
+                + '<img class="delAns" src="/images/delete.png" id="li-img-del-' + label + '-' + (addLiNum + 1) + '">'
+                + '</div>'
+                + '</div>'
+                + '</li>';
 
-        $("#label-ans-ul-"+label).append(addLi);
+            $("#label-ans-ul-" + label).append(addLi);
 
-        //将数据存入数组
-        var spanId = "label-ul-li-span-"+label+"-"+addLiNum;
-        var labelId="label-ans-li-"+label+"-"+addLiNum;
-        entitydone[i].entityId = label+"-"+addLiNum;
-        entity_done[label].push({spanId:spanId,labelId:labelId,entity:entity,start:start,end:end});
+            //将数据存入数组
+            var spanId = "label-ul-li-span-" + label + "-" + addLiNum;
+            var labelId = "label-ans-li-" + label + "-" + addLiNum;
+            entitydone[i].entityId = label + "-" + addLiNum;
+            entity_done[label].push({spanId: spanId, labelId: labelId, entity: entity, start: start, end: end});
+        }
     }
     return entitydone;
 }
 
 function paintRelation(entitydone,relationdone,newentitydone){
-    for(var i = 0;i < relationdone.length;i++){
-        var relationid = relationdone[i].relationId;
-        var rela = relationdone[i].relationId.substr(0,1);
-        var addLiNum = rela_done[rela].length;
-        var headEntity = relationdone[i].headEntity;
-        var tailEntity = relationdone[i].tailEntity;
-        var fromentity,toentity;
+    if(relationdone!=null) {
+        for (var i = 0; i < relationdone.length; i++) {
+            var relationid = relationdone[i].relationId;
+            var rela = relationdone[i].relationId.substr(0, 1);
+            var addLiNum = rela_done[rela].length;
+            var headEntity = relationdone[i].headEntity;
+            var tailEntity = relationdone[i].tailEntity;
+            var fromentity, toentity;
 
-        for (var i = 0;i < entitydone.length;i++){
-            if(headEntity == entitydone[i].entityId){
-                fromentity={entity:newentitydone[i].entity,id:newentitydone[i].entityId};
+            for (var i = 0; i < entitydone.length; i++) {
+                if (headEntity == entitydone[i].entityId) {
+                    fromentity = {entity: newentitydone[i].entity, id: newentitydone[i].entityId};
+                }
+                if (tailEntity == entitydone[i].entityId) {
+                    toentity = {entity: newentitydone[i].entity, id: newentitydone[i].entityId};
+                }
             }
-            if(tailEntity == entitydone[i].entityId){
-                toentity = {entity:newentitydone[i].entity,id:newentitydone[i].entityId};
-            }
+
+
+            $("#rela-ans-div-" + rela + "-" + addLiNum).text(fromentity.entity + "-" + toentity.entity + ":" + relaList[rela].relation);
+            // $("#rela-img-ok-"+rela+"-"+addLiNum).attr("src","/images/blank.PNG");
+            $("#rela-img-ok-" + rela + "-" + addLiNum).attr("src", "/images/labelsuccess.png");
+            $("#rela-img-ok-" + rela + "-" + addLiNum).removeAttr("onclick");
+            // $("#rela-img-del-"+rela+"-"+addLiNum).attr("src","/images/labelsuccess.png");
+            $("#rela-img-del-" + rela + "-" + addLiNum).attr("onclick", "relaDelClick(this.id)");
+
+
+            /**
+             * 提交一个li之后，添加一个li
+             */
+            var addLi = '<li class="list-group-item" id="rela-ans-li-' + rela + '-' + (addLiNum + 1) + '">'
+                + '<div class="row">'
+                + '<div class="col-lg-10" id="rela-ans-div-' + rela + '-' + (addLiNum + 1) + '">'
+                + '</div>'
+                + '<div class="col-lg-1">'
+                + '<img class="okAns" src="/images/ok.png" id="rela-img-ok-' + rela + '-' + (addLiNum + 1) + '">'
+                + '</div>'
+                + '<div class="col-lg-1">'
+                + '<img class="delAns" src="/images/delete.png" id="rela-img-del-' + rela + '-' + (addLiNum + 1) + '">'
+                + '</div>'
+                + '</div>'
+                + '</li>';
+
+            $("#rela-ans-ul-" + rela).append(addLi);
+            var relaId = "rela-ans-li-" + rela + '-' + addLiNum;
+            rela_done[rela].push({
+                relaId: relaId,
+                fromId: "label-ul-li-span-" + fromentity.id,
+                fromEntity: fromentity.entity,
+                toId: "label-ul-li-span-" + toentity.id,
+                toEntity: toentity.entity
+            });
         }
-
-
-        $("#rela-ans-div-"+rela+"-"+addLiNum).text(fromentity.entity+"-"+toentity.entity+":"+relaList[rela].relation);
-        // $("#rela-img-ok-"+rela+"-"+addLiNum).attr("src","/images/blank.PNG");
-        $("#rela-img-ok-"+rela+"-"+addLiNum).attr("src","/images/labelsuccess.png");
-        $("#rela-img-ok-"+rela+"-"+addLiNum).removeAttr("onclick");
-        // $("#rela-img-del-"+rela+"-"+addLiNum).attr("src","/images/labelsuccess.png");
-        $("#rela-img-del-"+rela+"-"+addLiNum).attr("onclick","relaDelClick(this.id)");
-
-
-        /**
-         * 提交一个li之后，添加一个li
-         */
-        var addLi= '<li class="list-group-item" id="rela-ans-li-'+rela+'-'+(addLiNum+1)+'">'
-            +'<div class="row">'
-            +'<div class="col-lg-10" id="rela-ans-div-'+rela+'-'+(addLiNum+1)+'">'
-            +'</div>'
-            +'<div class="col-lg-1">'
-            +'<img class="okAns" src="/images/ok.png" id="rela-img-ok-'+rela+'-'+(addLiNum+1)+'">'
-            +'</div>'
-            +'<div class="col-lg-1">'
-            +'<img class="delAns" src="/images/delete.png" id="rela-img-del-'+rela+'-'+(addLiNum+1)+'">'
-            +'</div>'
-            +'</div>'
-            +'</li>';
-
-        $("#rela-ans-ul-"+rela).append(addLi);
-        var relaId = "rela-ans-li-"+rela+'-'+addLiNum;
-        rela_done[rela].push({relaId:relaId,fromId:"label-ul-li-span-"+fromentity.id,fromEntity:fromentity.entity,toId:"label-ul-li-span-"+toentity.id,toEntity:toentity.entity});
     }
-
 }
-
